@@ -250,9 +250,34 @@ export default function App() {
       <header className="top">
         <div className="brand">
           <svg className="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
-            <path d="M80 24C160 28 212 92 224 176 198 142 168 118 140 104 116 92 104 80 96 60L80 24Z" />
-            <path d="M32 80C120 80 180 136 216 204 178 176 150 160 112 150 80 142 56 148 48 128L32 80Z" />
-            <path d="M24 168C100 144 164 174 208 224 148 200 112 196 72 212 48 222 40 208 24 168Z" />
+            {/* Embossed: a violet gradient lit from the top left, with a soft contact shadow. */}
+            <defs>
+              <linearGradient id="mark-fill" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#d9ccff" />
+                <stop offset="0.55" stopColor="#ad93ff" />
+                <stop offset="1" stopColor="#7b5ce6" />
+              </linearGradient>
+              <filter id="mark-emboss" x="-20%" y="-20%" width="140%" height="150%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
+                <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.85" specularExponent="18" lightingColor="#ffffff" result="spec">
+                  <fePointLight x="-80" y="-100" z="220" />
+                </feSpecularLighting>
+                <feComposite in="spec" in2="SourceAlpha" operator="in" result="shine" />
+                <feComposite in="SourceGraphic" in2="shine" operator="arithmetic" k1="0" k2="1" k3="0.6" k4="0" result="lit" />
+                <feOffset in="SourceAlpha" dx="3" dy="6" result="drop" />
+                <feGaussianBlur in="drop" stdDeviation="4" result="dropBlur" />
+                <feColorMatrix in="dropBlur" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.75 0" result="shadow" />
+                <feMerge>
+                  <feMergeNode in="shadow" />
+                  <feMergeNode in="lit" />
+                </feMerge>
+              </filter>
+            </defs>
+            <g fill="url(#mark-fill)" filter="url(#mark-emboss)">
+              <path d="M80 24C160 28 212 92 224 176 198 142 168 118 140 104 116 92 104 80 96 60L80 24Z" />
+              <path d="M32 80C120 80 180 136 216 204 178 176 150 160 112 150 80 142 56 148 48 128L32 80Z" />
+              <path d="M24 168C100 144 164 174 208 224 148 200 112 196 72 212 48 222 40 208 24 168Z" />
+            </g>
           </svg>
           <div>
             <h1>Readmit</h1>

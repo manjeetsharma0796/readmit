@@ -494,7 +494,7 @@ a { color: var(--cobalt); }
 .change .finding.fail { background: var(--fail-bg); }
 .change .finding .fix, .fixsend .fix { color: #d4baff; }
 .top { border-bottom-color: #242329; box-shadow: 0 1px 0 #ffffff03; }
-.top .mark { color: var(--cobalt); filter: drop-shadow(0 1px 1px #000); }
+.top .mark { color: var(--cobalt); filter: none; overflow: visible; }
 .brand h1 { color: var(--ink); }
 .top .seg { padding: 4px; background: var(--well); border: 1px solid #28262e; box-shadow: var(--well-shadow); }
 .top .seg button { box-shadow: none; background: transparent; border: 0; }
@@ -539,3 +539,68 @@ button:active, .chip:active, .faucet-btn:active { box-shadow: inset 0 2px 5px #0
 @media (max-width: 720px) {
   .stats > .tile:nth-child(3):not(.tile-rules) { grid-column: 1 / -1; }
 }
+
+/* ---- Grain and colour layer (local test): one consistent film grain, dark grainy hazes that carry meaning,
+   phase colours for frames (violet = validation, cyan = execution), and a warm colour for Fix & send. ---- */
+:root {
+  --phase-validation: #bc9bff;
+  --phase-execution: #67e8f9;
+  --act-warm: #ffb36b;
+  --film: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* 1. One film grain over the whole page. Static, click-through, faint enough to keep text contrast. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background-image: var(--film);
+  background-size: 180px 180px;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+}
+
+/* Plain black page: no corner colour. */
+body { background-color: #000; background-image: none; }
+
+/* 2. Grainy hazes that carry meaning: violet behind the brand, red behind a failure, green when all is well. */
+.top { position: relative; }
+.top::after { display: none; }
+.result { position: relative; isolation: isolate; }
+.result::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(700px 320px at 20% 0%, rgba(255, 255, 255, 0.025), transparent 70%);
+}
+.result:has(.summary.fail)::before { background: radial-gradient(620px 300px at 18% 8%, rgba(255, 90, 110, 0.13), transparent 70%); }
+.result:has(.summary.pass)::before { background: radial-gradient(620px 300px at 18% 8%, rgba(97, 223, 165, 0.1), transparent 70%); }
+.result:has(.summary.warn)::before { background: radial-gradient(620px 300px at 18% 8%, rgba(239, 193, 110, 0.1), transparent 70%); }
+.frame-inspector.is-failed { background: radial-gradient(420px 160px at 0% 0%, rgba(255, 90, 110, 0.12), transparent 70%), #060607; }
+.fragment.broken .fragment-piece { box-shadow: 0 0 28px rgba(255, 90, 110, 0.18); }
+
+/* 4. Phase colours, used the same way everywhere a frame appears. */
+.fragment.validation .fragment-phase { color: var(--phase-validation); }
+.fragment.execution .fragment-phase { color: var(--phase-execution); }
+.fragment.validation .fragment-piece { border-bottom: 2px solid rgba(188, 155, 255, 0.55); }
+.fragment.execution .fragment-piece { border-bottom: 2px solid rgba(103, 232, 249, 0.45); }
+.fragment.broken .fragment-piece { border-bottom-color: var(--fail); }
+.frames tr.verify td.t-num { box-shadow: inset 2px 0 0 var(--phase-validation); }
+.frames tr.op td.t-num { box-shadow: inset 2px 0 0 var(--phase-execution); }
+.fragment-meter > span { background: linear-gradient(90deg, var(--phase-execution), var(--phase-validation)); }
+.fragment.broken .fragment-meter > span { background: var(--fail); }
+
+/* 6. One warm colour for the one action that changes the chain. */
+.fixsend .primary {
+  background: var(--act-warm);
+  border-color: var(--act-warm);
+  color: #1a0f05;
+  box-shadow: 0 6px 22px rgba(255, 179, 107, 0.22);
+}
+.fixsend .primary:hover { background: #ffc58c; border-color: #ffc58c; }
+.fixsend { border-left: 3px solid var(--act-warm); }
