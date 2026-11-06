@@ -591,15 +591,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T52 · Explain where the fix number comes from
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
-- started: 00:03 IST
+- started: 23:56 IST
 - priority: P0
 - depends: none
 - touches: src/App.tsx, src/ui/FixAndSend.tsx, src/app/globals.css
 - do: Next to a gas fix, show how the number was made: gas used × 1.25 headroom, rounded up to the next 1,000. A judge asking "is 38,000 exact?" gets the answer on screen.
 - done when: the out-of-gas case shows the calculation, and `npm run build` passes.
-- log:
+- log: Out-of-gas finding shows "How we got 38,000: frame 4 used 29,925 gas, plus 25% headroom, rounded up to the next 1,000. It's an estimate with a margin, not an exact minimum." (checked on 0xe97e…; matches `roundUp(used * 1.25)` in diagnose.ts). Logic reverts show no number. The Fix & send panel says the same and that the fix is dry-run again before sending. Console clean, build passes.
 
 ### T53 · Judge defense sheet
 - owner: esh
