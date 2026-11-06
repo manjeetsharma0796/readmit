@@ -872,3 +872,16 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh asked for the layout of the devnet explorer's tx page: a left sidebar with the brand and the node list (Gateway, Miner), one flat main column with plain section headings and thin rules instead of floating cards; the result reads Transaction (hash, "as seen by"), a key/value list, frames, what to change, the admission rules as a visible checklist. Asked in chat after the freeze.
 - done when: build passes; all saved cases render at 1280 and 375 px with no overflow or console errors.
 - log:
+
+### T72 · `@readmit/sdk`: the engine as a configurable package
+- owner: prith
+- note: added by prith at 04:45 IST, after the code freeze, on prith's explicit instruction. **Isolated:** new `sdk/` folder only. The app (`src/`) is not changed, so the build, the video and the demo are unaffected. The SDK reuses `src/diagnose.ts` (pure) by import instead of copying it.
+- status: doing
+- agent: Claude Code on prith
+- started: 04:45 IST
+- priority: P2
+- depends: T69
+- touches: sdk/ (new), README.md (library section points to the SDK), TASKS.md
+- do: The 16 features from the SDK checklist: `createReadmit({ ethrex, gateway, miner, chainId })` config instead of localStorage globals; simulate/send/getTx/getReceipt/`explain(hash)`; `watch` + `waitForInclusion`; `recent` + `rejectionStats`; a generic `buildFrameTx`, a pluggable signer (key, viem account or custom), and the chain id as a parameter; diagnosis, `applyPatch` with a pluggable quote, `replay`, the decoders and the selector lookup; viem `client.extend(frameActions(...))`; typed errors; the ERC-20 paymaster recipe as an example.
+- done when: `node sdk/check.ts` passes offline cases plus a live read-only run, `npm run check` and `npm run build` still pass, and nothing is sent.
+- log:
