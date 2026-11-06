@@ -848,3 +848,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: The EF prize's dev-tooling area asks for an SDK. Document the engine (`src/diagnose.ts`, `src/rpc.ts`, `src/engine/frames.ts`) as a library: explain a hash, dry run, apply the fix, send, and watch. Every snippet must run against the real exports. Fix "self-check on 4 cases" (now `npm run check`, 21 cases) and the 4-file Files table.
 - done when: the read-only part of the snippet runs against the live devnet and the README is on main.
 - log: Done 04:35. README gets a live URL line (https://readmit-kohl.vercel.app, HTTP 200), corrected Run (`npm run check`, 21 cases) and Files (adds frames.ts, ui/, contracts/, docs/; 15 samples), and a new 'Use the engine as a library' section: explain a hash, dry run → patch → re-sign → send → watch, the other exports, and plain limits. Evidence: the explain-a-hash snippet ran live on 0x3fd93ca4 → 'Admitted and included | Executed | Nothing to fix'; the dry-run path ran live through buildSendTx → signDraft → simulate(raw, true) → diagnoseDraft (throwaway key, so it returned 'frame signature list does not authenticate the sender'; nothing sent). Both README snippets type-check with tsc against the real exports (temporary files, removed). No code changed.
+
+### T70 · Rounder inputs, modern primary button, clean wallet modal buttons
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 04:31 IST
+- priority: P2
+- depends: none
+- touches: src/app/globals.css
+- do: Pill-round the hash input and buttons; a modern flat primary button; stop the global key style leaking into RainbowKit's modal (back, close and help buttons, wallet rows). esh asked in chat after the freeze.
+- done when: build passes, input, Inspect and the Connect modal look right at 1280 and 375 px.
+- log:
