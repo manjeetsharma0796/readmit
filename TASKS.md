@@ -718,9 +718,9 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 ### T61 · Connect wallet (RainbowKit) and faucet button in the top-right header
 - owner: manjeet
 - note: added by manjeet at 02:55 IST. It touches esh's header in src/App.tsx, so tell esh before starting. It replaces the Connect card from T57.
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 02:56 IST
 - priority: P0 (demo UX)
 - depends: T57 (done)
 - touches: src/ui/Connect.tsx, src/ui/Faucet.tsx, src/App.tsx (header only), src/app/globals.css, package.json, package-lock.json
