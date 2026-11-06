@@ -238,9 +238,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T14 · Send and watch status
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:32 IST
 - priority: P0
 - depends: T13
 - touches: src/rpc.ts
