@@ -262,9 +262,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T16 · "Why did it revert" spike (P1, 20 minute cap)
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:33 IST
 - priority: P1
 - depends: T13
 - touches: src/rpc.ts, src/diagnose.ts
