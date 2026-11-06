@@ -173,6 +173,7 @@ h2 { font-size: 1.1rem; margin: 26px 0 10px; }
 .r-at { font-size: 0.85rem; }
 
 footer { margin-top: 32px; font-size: 0.85rem; color: var(--ink-2); max-width: 80ch; }
+footer p { margin: 0 0 6px; }
 
 @media (max-width: 720px) {
   .page { padding: 18px 16px 40px; }

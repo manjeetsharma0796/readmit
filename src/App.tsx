@@ -352,7 +352,15 @@ export default function App() {
       </section>
 
       <footer>
-        Prototype. It reads the alt-mempool sidecar and ethrex directly from your browser, with no backend and no keys. The ERC-8421 column is a partial check that covers the validation budget and validation reverts only.
+        <p>
+          <strong>CROPS.</strong> A static site with no backend: your browser talks straight to the alt-mempool sidecar and ethrex. No trackers, and
+          fonts are self-hosted. Demo keys stay in this browser and are for the devnet only. Every send is dry-run first.{' '}
+          <a href="https://github.com/manjeetsharma0796/readmit" target="_blank" rel="noreferrer">
+            Open source (MIT)
+          </a>
+          .
+        </p>
+        <p>The ERC-8421 column is a partial check that covers the validation budget and validation reverts only.</p>
       </footer>
     </div>
   )
