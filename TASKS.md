@@ -366,7 +366,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T23 · Fix & send
 - owner: esh
-- status: doing
+- status: blocked
 - agent: Claude Code on esh
 - started: 22:49 IST
 - priority: P0
@@ -377,7 +377,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - When the dry run or receipt reports out of gas, show the fix and a **Fix & send** button. It applies the new limit, re-runs the dry run and sends.
   - Show the old hash ❌ next to the new hash ✅.
 - done when: one live round trip is recorded in the log, with the failed or caught draft and the admitted hash.
-- log:
+- log: Code done: `src/ui/FixAndSend.tsx` + `src/ui/Send.tsx`. "Send with low gas (demo)" sets the last frame to 20,000 gas. If the dry run reports out of gas, it shows the fix and **Fix & send**, plus "Send anyway (demo)" to get a real on-chain failure; a failed receipt is diagnosed the same way. Fix & send rebuilds with a fresh nonce, applies the finding's gas patch (`applyPatch`), re-quotes the fee (`requote`, since the higher limit raises max cost), re-runs the dry run and sends. Shows ❌ old hash (or "caught by the dry run") next to ✅ new hash. Build and `npm run check` (21 cases) pass, page loads with a clean console. Started before T22 was done (T22 code is complete; only its live send is missing). **Blocked:** the live round trip needs the demo key in esh's browser and esh's OK to send. needs: manjeet (send DEMO_KEY to esh privately).
 
 ### T24 · CROPS section in README
 - owner: esh
