@@ -532,7 +532,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T48 · CROPS footer
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:50 IST
 - priority: P1
@@ -540,7 +540,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 - touches: src/App.tsx
 - do: Footer states MIT licence, static app with no backend, no trackers, keys stay in the browser, and links the repo.
 - done when: the footer is on main.
-- log:
+- log: Footer: static site with no backend, no trackers, self-hosted fonts, demo keys stay in the browser (devnet only), every send dry-run first ("Send anyway" only appears after a dry run), and an "Open source (MIT)" repo link. Replaced the old footer line saying the app uses no keys, which stopped being true with the wallet panel. Also edited src/app/globals.css (one footer spacing rule). Build passes.
 
 ### T49 · Pitch fixes from the red-team
 - owner: manjeet
