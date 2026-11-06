@@ -327,7 +327,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T21 · Wallet panel
 - owner: esh
-- status: doing
+- status: blocked
 - agent: Claude Code on esh
 - started: 21:37 IST
 - priority: P0
@@ -338,7 +338,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Show the wallet address (from `contracts/deployments/1337.json` `demoWallet`), the tUSD balance (`balanceOf` via `eth_call`) and the ETH balance, which should be 0.
   - Add a short "test key, devnet only" note.
 - done when: after T07, the real wallet shows 100 tUSD and 0 ETH.
-- log:
+- log: UI done in `src/ui/Wallet.tsx`, mounted in App.tsx: "Import demo key" (password field, 0x+64 hex check, localStorage `readmit.demoKey` only, Forget key), signer address, wallet address, tUSD (`balanceOf` via `eth_call`) and ETH balance, "test key, devnet only" note. Addresses are a `// stub:` until T07 writes `contracts/deployments/1337.json`, so it shows "Not deployed yet". Checked at 1280 and 375 px, console clean, `npm run build` passes. Also edited src/app/globals.css (wallet styles). **Blocked:** the done-check needs the real demo wallet. needs: prith (T07), then swap the stub for the deployments import.
 
 ### T22 · Send screen (Flow B)
 - owner: esh
