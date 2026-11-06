@@ -127,11 +127,11 @@ export default function App() {
     <div className="page">
       <header className="top">
         <div className="brand">
-          <span className="mark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
+          <svg className="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
+            <path d="M80 24C160 28 212 92 224 176 198 142 168 118 140 104 116 92 104 80 96 60L80 24Z" />
+            <path d="M32 80C120 80 180 136 216 204 178 176 150 160 112 150 80 142 56 148 48 128L32 80Z" />
+            <path d="M24 168C100 144 164 174 208 224 148 200 112 196 72 212 48 222 40 208 24 168Z" />
+          </svg>
           <div>
             <h1>Readmit</h1>
             <p className="tagline">Find out which frame failed, why, and exactly what to change.</p>

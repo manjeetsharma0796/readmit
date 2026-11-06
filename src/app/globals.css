@@ -34,9 +34,7 @@ a { color: var(--cobalt); }
 .brand { display: flex; gap: 14px; align-items: center; }
 .brand h1 { margin: 0; font-size: 1.9rem; line-height: 1; font-weight: 700; letter-spacing: -0.02em; }
 .tagline { margin: 4px 0 0; color: var(--ink-2); }
-.mark { display: inline-flex; gap: 3px; }
-.mark i { width: 9px; height: 30px; border-radius: 2px; background: var(--ink); }
-.mark i:last-child { background: var(--fail); }
+.mark { display: block; width: 48px; height: 48px; flex: 0 0 48px; fill: currentColor; }
 
 .seg { display: inline-flex; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 3px; }
 .seg button { border: 0; background: none; padding: 6px 14px; border-radius: 6px; color: var(--ink-2); }
