@@ -751,3 +751,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
   - Vercel is redeployed (`vercel --prod`, manjeet approves) and the live URL is re-checked.
   - manjeet tests Connect once with a real extension, because the agent's browser has no wallet.
 - log: Built and committed. wagmi went from 3.7.11 to 2.19.5 and `@rainbow-me/rainbowkit@2.2.11` was added. `src/ui/Providers.tsx` sets up app-wide WagmiProvider, React Query and RainbowKitProvider. The theme follows OS light/dark with the coral accent, and the honest note is in `appInfo.disclaimer`. `src/ClientRoot.tsx` is loaded with ssr:false from page.tsx. The header has `<HeaderWallet>` (faucet button, then ConnectButton with chainStatus none and showBalance false). The old Connect card and faucet card are gone from the Send section, and the wallet panel has one "identity only" line. With no WalletConnect projectId it uses injected wallets only via `connectorsForWallets`. Set `NEXT_PUBLIC_WC_PROJECT_ID` to switch to `getDefaultConfig` with QR and mobile. Checked on the static build at 1280 px: both buttons top right; the modal opens with "Browser Wallet" and the disclaimer; connecting a test EIP-1193 provider showed the address chip `0x00…dEaD`; the account modal opened and Disconnect worked; with no key, the faucet popover said "Import the demo key…" and sent nothing. At 375 px the header shows "Get tUSD" and "Connect wallet" with no overflow. Console clean, build and check pass. **Still to do:** one approved real faucet send, manjeet's real-extension connect (Phantom, OKX, Backpack), and the Vercel redeploy.
+
+### T62 · Review fixes and a pitch-black theme
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 03:12 IST
+- priority: P0
+- depends: none
+- touches: src/ui/Wallet.tsx, src/ui/Send.tsx, src/ui/FixAndSend.tsx, src/App.tsx, src/app/globals.css, src/ui/Endpoints.tsx (one line)
+- do: Fix the bugs from esh's UI review: an invalid key (e.g. all zeros) passes validation, is saved and crashes every reload; balances shown for a different account than the signer; Send not locked while the draft builds; Fix & send rebuilds from edited form values; every send error reads "couldn't reach the devnet"; a failed receipt lookup is shown as "never reached the chain / nothing charged"; samples don't update the URL or scroll into view; older responses can overwrite newer ones; no main landmark; endpoint panel omits Sourcify. Then one clean pitch-black theme with colour accents (esh's choice), fewer effects, display type only on short headings.
+- done when: each bug above is checked in the browser, build and checks pass, 1280 and 375 px look right.
+- log: **esh asked for this in chat after the 03:00 code freeze (explicit go-ahead).** Note for manjeet: ee0cabe (T61) removed 254 lines of globals.css (the T58/T59 theme, stat tiles, frame map, summary styles), probably in a merge; this ticket restyles them.
