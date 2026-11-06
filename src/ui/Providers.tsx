@@ -4,7 +4,7 @@
 // Browser wallets can't sign EIP-8141 frame transactions yet, so the connected wallet is identity only and every
 // send is signed by the shared demo account. The connect modal says so (appInfo.disclaimer).
 import '@rainbow-me/rainbowkit/styles.css'
-import { RainbowKitProvider, connectorsForWallets, darkTheme, getDefaultConfig, lightTheme, type DisclaimerComponent } from '@rainbow-me/rainbowkit'
+import { RainbowKitProvider, connectorsForWallets, darkTheme, getDefaultConfig, type DisclaimerComponent } from '@rainbow-me/rainbowkit'
 import { injectedWallet } from '@rainbow-me/rainbowkit/wallets'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { defineChain } from 'viem'
@@ -48,10 +48,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
           initialChain={devnet}
           modalSize="compact"
           appInfo={{ appName: 'Readmit', disclaimer: Disclaimer }}
-          // Follows the OS light/dark setting, like the page; coral accent from the page theme.
+          // The page is pitch black. Connect is optional (sends are signed by the demo key), so it stays quiet, not a loud primary.
           theme={{
-            lightMode: lightTheme({ accentColor: '#e8673f', accentColorForeground: '#ffffff', borderRadius: 'large', overlayBlur: 'small' }),
-            darkMode: darkTheme({ accentColor: '#ff8a65', accentColorForeground: '#1a0d07', borderRadius: 'large', overlayBlur: 'small' }),
+            lightMode: darkTheme({ accentColor: '#222226', accentColorForeground: '#f4f4f5', borderRadius: 'large', overlayBlur: 'small' }),
+            darkMode: darkTheme({ accentColor: '#222226', accentColorForeground: '#f4f4f5', borderRadius: 'large', overlayBlur: 'small' }),
           }}
         >
           {children}
