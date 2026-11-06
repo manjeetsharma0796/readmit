@@ -373,9 +373,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T24 · CROPS section in README
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
-- started: 15:55 IST
+- started: 21:25 IST
 - priority: P0
 - depends: none
 - touches: README.md (the "CROPS" section only)
@@ -387,7 +387,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
     - **S:** keys stay in the browser and are test-only; every send is dry-run first.
   - State the trade-offs.
 - done when: the section is on `main`.
-- log:
+- log: 21:25 README.md has a "## CROPS" section (C/O/P/S + trade-offs) on main. P line leaves out Nox (T25 not started); add it if T25 lands. S line assumes the T13 dry run ships; revise if it is cut.
 
 ### T25 · Nox Anon-RPC toggle (P1)
 - owner: esh
