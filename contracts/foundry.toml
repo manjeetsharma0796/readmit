@@ -6,3 +6,4 @@ solc_version = "0.8.28"
 via_ir = true
 evm_version = "cancun"
 remappings = ["@forshtat/hegota-support/=../node_modules/@forshtat/hegota-support/", "v4-core/=lib/v4-core/"]
+fs_permissions = [{ access = "read-write", path = "./deployments" }]

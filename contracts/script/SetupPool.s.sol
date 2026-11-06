@@ -29,11 +29,21 @@ contract SetupPool is Script {
         PoolSwapTest swapper = new PoolSwapTest(PM);
         tusd.approve(address(lp), type(uint256).max);
         tusd.approve(address(swapper), type(uint256).max);
-        lp.modifyLiquidity{value: 10 ether}(key, ModifyLiquidityParams(-887220, 887220, 1e12, 0), "");
+        lp.modifyLiquidity{value: 0.25 ether}(key, ModifyLiquidityParams(-887220, 887220, 1e13, 0), ""); // uses ~0.18 ETH + ~548 tUSD; the router refunds the rest
         // Deployed UNSTAKED on purpose: demo step 1 is "unstaked paymaster rejected (storage)". Stake with StakePaymaster.
-        V4PricedPaymaster pmr = new V4PricedPaymaster{value: 5 ether}(PM, key.toId(), address(tusd));
+        V4PricedPaymaster pmr = new V4PricedPaymaster{value: 0.3 ether}(PM, key.toId(), address(tusd)); // pays users' gas
         console.log("tUSD", address(tusd)); console.log("paymaster", address(pmr)); console.log("swapper", address(swapper));
         vm.stopBroadcast();
+        // The app and scripts read addresses from here (AGENTS.md section 6). tUSD uses 6-decimal semantics.
+        string memory j = "d";
+        vm.serializeUint(j, "chainId", block.chainid);
+        vm.serializeAddress(j, "tUSD", address(tusd));
+        vm.serializeUint(j, "tUSDDecimals", 6);
+        vm.serializeAddress(j, "paymaster", address(pmr));
+        vm.serializeBytes32(j, "poolId", PoolId.unwrap(key.toId()));
+        vm.serializeAddress(j, "swapper", address(swapper));
+        vm.serializeBool(j, "paymasterStaked", false);
+        vm.writeJson(vm.serializeUint(j, "deployBlock", block.number), "deployments/1337.json");
     }
 }
 
