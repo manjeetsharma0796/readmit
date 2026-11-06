@@ -30,7 +30,7 @@ export function Endpoints() {
             location.reload()
           }}
         >
-          <p className="muted">Readmit talks only to these URLs, straight from your browser. They are saved in this browser only.</p>
+          <p className="muted">Readmit talks to these URLs straight from your browser, plus the Sourcify signature lookup (api.4byte.sourcify.dev) to name function selectors. The URLs are saved in this browser only.</p>
           {FIELDS.map((f) => (
             <label key={f.key}>
               <span>{f.label}</span>
