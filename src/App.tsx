@@ -8,18 +8,36 @@ import { Wallet } from './ui/Wallet'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
+import capV2 from './samples/verify-gas-budget-v2.json'
 import sig from './samples/bad-signature.json'
 import feeLow from './samples/replacement-fee-too-low.json'
 import logic from './samples/logic-revert.json'
+import payer from './samples/payer-cannot-pay.json'
+import vOog from './samples/validation-oog.json'
+import storage from './samples/unstaked-storage.json'
+import opcode from './samples/banned-opcode.json'
+import nonce from './samples/nonce-mismatch.json'
+import paid from './samples/paid-in-tusd.json'
 
 type Loaded = { hash: string; node: NodeId; tx: TxResult; receipt: Receipt | null; source: 'live' | 'sample' }
-const SAMPLES = [
-  { label: 'Ran out of gas', data: oog },
-  { label: 'Validation gas over cap', data: cap },
-  { label: 'Bad signature', data: sig },
-  { label: 'Logic revert', data: logic },
-  { label: 'Replacement fee too low', data: feeLow },
-] as const
+type SampleData = { hash: string; node?: string; tx: unknown; receipt?: unknown }
+type Sample = { label: string; group: 'Rejected by the mempool' | 'Failed on chain' | 'Worked'; data: SampleData }
+// Every saved real case from the devnet, grouped so the coverage is visible at a glance.
+const SAMPLES: Sample[] = [
+  { label: 'Validation gas over cap', group: 'Rejected by the mempool', data: cap },
+  { label: 'Over cap (newer wording)', group: 'Rejected by the mempool', data: capV2 },
+  { label: 'Validation ran out of gas', group: 'Rejected by the mempool', data: vOog },
+  { label: 'Bad signature', group: 'Rejected by the mempool', data: sig },
+  { label: "Payer can't cover cost", group: 'Rejected by the mempool', data: payer },
+  { label: 'Unstaked storage read + opcode', group: 'Rejected by the mempool', data: storage },
+  { label: 'Banned opcode', group: 'Rejected by the mempool', data: opcode },
+  { label: 'Wrong nonce', group: 'Rejected by the mempool', data: nonce },
+  { label: 'Replacement fee too low', group: 'Rejected by the mempool', data: feeLow },
+  { label: 'Ran out of gas', group: 'Failed on chain', data: oog },
+  { label: 'Logic revert', group: 'Failed on chain', data: logic },
+  { label: 'Paid in tUSD, 0 ETH', group: 'Worked', data: paid },
+]
+const GROUPS = ['Rejected by the mempool', 'Failed on chain', 'Worked'] as const
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : 'none')
 const ago = (ms?: number) => {
@@ -99,10 +117,10 @@ export default function App() {
     }
   }
 
-  function loadSample(s: (typeof SAMPLES)[number]['data']) {
+  function loadSample(s: SampleData) {
     setError('')
     setInput(s.hash)
-    setLoaded({ hash: s.hash, node: 'gateway', tx: s.tx as unknown as TxResult, receipt: s.receipt as unknown as Receipt | null, source: 'sample' })
+    setLoaded({ hash: s.hash, node: s.node === 'miner' ? 'miner' : 'gateway', tx: s.tx as unknown as TxResult, receipt: (s.receipt ?? null) as Receipt | null, source: 'sample' })
   }
 
   function download() {
@@ -175,12 +193,17 @@ export default function App() {
             {error}
           </p>
         )}
-        <div className="samples">
-          <span>Real cases from the devnet:</span>
-          {SAMPLES.map((s) => (
-            <button type="button" key={s.label} className="chip" onClick={() => loadSample(s.data)}>
-              {s.label}
-            </button>
+        <div className="samples" aria-label="Real cases from the devnet">
+          <span className="samples-title">Real cases from the devnet ({SAMPLES.length}):</span>
+          {GROUPS.map((g) => (
+            <div key={g} className="sample-group">
+              <span className="sample-label">{g}</span>
+              {SAMPLES.filter((s) => s.group === g).map((s) => (
+                <button type="button" key={s.label} className="chip" onClick={() => loadSample(s.data)}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
           ))}
         </div>
       </form>
