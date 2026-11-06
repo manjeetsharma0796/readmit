@@ -90,7 +90,7 @@ export function Wallet() {
         <dt>Wallet</dt>
         <dd>{wallet ? <code>{wallet}</code> : <span className="muted">Not deployed yet</span>}</dd>
         <dt>tUSD</dt>
-        <dd>{bal?.tusd != null ? `${formatUnits(bal.tusd, 18)} tUSD` : <span className="muted">–</span>}</dd>
+        <dd>{bal?.tusd != null ? `${formatUnits(bal.tusd, DEPLOY.tUSDDecimals)} tUSD` : <span className="muted">–</span>}</dd>
         <dt>ETH</dt>
         <dd>{bal ? `${formatEther(bal.eth)} ETH` : <span className="muted">–</span>}</dd>
         <dt>Signing key</dt>
