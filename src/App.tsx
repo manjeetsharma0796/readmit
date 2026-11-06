@@ -74,15 +74,25 @@ export default function App() {
       return
     }
     setBusy(true)
+    // A real case we saved earlier: if the node has forgotten it (it keeps history in memory) or is unreachable, show the saved copy, labelled as saved.
+    const saved = SAMPLES.find((s) => s.data.hash.toLowerCase() === hash)?.data
     try {
-      const [tx, receipt] = await Promise.all([getTx(which, hash), getReceipt(hash).catch(() => null)])
+      const [tx, receipt] = await Promise.all([
+        getTx(which, hash).catch((e: Error) => {
+          if (/not found/i.test(e.message)) return null
+          throw e
+        }),
+        getReceipt(hash).catch(() => null),
+      ])
       if (!tx || (!tx.admission && !tx.entry)) {
-        setError(`The ${NODES[which].label.toLowerCase()} node has no record of this transaction. Try the other node, or it may be older than the node's in-memory history.`)
+        if (saved) return loadSample(saved)
+        setError(`The ${NODES[which].label.toLowerCase()} node has no record of this transaction. Try the other node. The node keeps history in memory, so older transactions are gone after a restart.`)
         return
       }
       setLoaded({ hash, node: which, tx, receipt, source: 'live' })
       history.replaceState(null, '', `?tx=${hash}&node=${which}`)
     } catch (e) {
+      if (saved) return loadSample(saved)
       setError(`Couldn't reach the devnet: ${(e as Error).message}. Try a real case below, which works offline.`)
     } finally {
       setBusy(false)
