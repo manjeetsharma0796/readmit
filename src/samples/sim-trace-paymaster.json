@@ -1,0 +1,513 @@
+{
+  "name": "sim-trace-paymaster",
+  "note": "Real dry run with trace (read-only) of the demo wallet paying gas in tUSD to our staked V4PricedPaymaster. Frame 1 (paymaster VERIFY) reads the Uniswap v4 PoolManager slot0 (shared, mutable) and the sender's tUSD balance (sender-associated).",
+  "sender": "0x1328e0a64F2fc445382e8FF59F4Ab727fBec5742",
+  "paymaster": "0xc9ca898B92fA53635959021239E190Cf22c1F1d9",
+  "tUSD": "0xFa85eaee2c9abF09Ec7c305692979C0Ab91D0024",
+  "poolManager": "0x6bF9Aa9c04fd001385742d61f6818C3236429848",
+  "frames": [
+    {
+      "mode": 1,
+      "flags": 2,
+      "target": null,
+      "limits": {
+        "execution": "0x2710",
+        "state": "0x0"
+      },
+      "value": "0x0",
+      "data": "0x"
+    },
+    {
+      "mode": 1,
+      "flags": 1,
+      "target": "0xc9ca898B92fA53635959021239E190Cf22c1F1d9",
+      "limits": {
+        "execution": "0x11170",
+        "state": "0x0"
+      },
+      "value": "0x0",
+      "data": "0x"
+    },
+    {
+      "mode": 2,
+      "flags": 0,
+      "target": "0xFa85eaee2c9abF09Ec7c305692979C0Ab91D0024",
+      "limits": {
+        "execution": "0xea60",
+        "state": "0x186a0"
+      },
+      "value": "0x0",
+      "data": "0xa9059cbb000000000000000000000000c9ca898b92fa53635959021239e190cf22c1f1d900000000000000000000000000000000000000000000000000000000002d518e"
+    },
+    {
+      "mode": 2,
+      "flags": 0,
+      "target": "0xFa85eaee2c9abF09Ec7c305692979C0Ab91D0024",
+      "limits": {
+        "execution": "0xea60",
+        "state": "0x186a0"
+      },
+      "value": "0x0",
+      "data": "0xa9059cbb0000000000000000000000002f50cb720032da2523364943291e7543c13a285c00000000000000000000000000000000000000000000000000000000000f4240"
+    }
+  ],
+  "sim": {
+    "canonicalMempoolValid": false,
+    "canonicalMempoolViolation": "StorageReadNonSender",
+    "erc7562Trace": [
+      {
+        "frameIndex": 0,
+        "root": {
+          "accessedSlots": {
+            "reads": {},
+            "transientReads": {},
+            "transientWrites": {},
+            "writes": {}
+          },
+          "contractSize": {},
+          "extCodeAccessInfo": [],
+          "from": "0x00000000000000000000000000000000000000aa",
+          "outOfGas": false,
+          "to": "0x1328e0a64f2fc445382e8ff59f4ab727fbec5742",
+          "type": "CALL",
+          "usedOpcodes": {},
+          "value": "0x0"
+        }
+      },
+      {
+        "frameIndex": 1,
+        "root": {
+          "accessedSlots": {
+            "reads": {},
+            "transientReads": {},
+            "transientWrites": {},
+            "writes": {}
+          },
+          "calls": [
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x19fcc33bae7257196fd5fca381cfe6ea8a683169",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 1,
+                "82": 1,
+                "176": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0xb07c066d6e60d73493d62eb7f467c6e4f64ff45a",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 2,
+                "82": 1,
+                "179": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0xb07c066d6e60d73493d62eb7f467c6e4f64ff45a",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 2,
+                "82": 1,
+                "179": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x807536db6e6da30786d43eb26a8995cda47a12b9",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 2,
+                "82": 1,
+                "177": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x807536db6e6da30786d43eb26a8995cda47a12b9",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 2,
+                "82": 1,
+                "177": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x807536db6e6da30786d43eb26a8995cda47a12b9",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 2,
+                "82": 1,
+                "177": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x19fcc33bae7257196fd5fca381cfe6ea8a683169",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 1,
+                "82": 1,
+                "176": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {
+                  "0x87790c8ad9b3fd8c782d969531a424d3660166613ebb962e2da27a1173705416": [
+                    "0x000000000bb8000000fd015f0000000000000000000396ed0c13c44a35a8efe1"
+                  ]
+                },
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x6bf9aa9c04fd001385742d61f6818c3236429848",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "52": 1,
+                "53": 2,
+                "54": 2,
+                "82": 2,
+                "84": 1,
+                "87": 10,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x19fcc33bae7257196fd5fca381cfe6ea8a683169",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "53": 1,
+                "82": 1,
+                "176": 1,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {
+                  "0x3289542f30c9417a8c207bb281b33bdbd31322b9116ec4e1141518661caa4bc9": [
+                    "0x0000000000000000000000000000000000000000000000000000000005b94d32"
+                  ]
+                },
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0xfa85eaee2c9abf09ec7c305692979c0ab91d0024",
+              "type": "STATICCALL",
+              "usedOpcodes": {
+                "32": 1,
+                "52": 1,
+                "53": 2,
+                "54": 2,
+                "81": 1,
+                "82": 4,
+                "84": 1,
+                "86": 45,
+                "87": 8,
+                "243": 1
+              },
+              "value": "0x0"
+            },
+            {
+              "accessedSlots": {
+                "reads": {},
+                "transientReads": {},
+                "transientWrites": {},
+                "writes": {}
+              },
+              "contractSize": {},
+              "extCodeAccessInfo": [],
+              "from": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+              "outOfGas": false,
+              "to": "0x8cd642542ea617082739f33dc8656c5b32ea3b2b",
+              "type": "DELEGATECALL",
+              "usedOpcodes": {
+                "53": 1,
+                "170": 1
+              },
+              "value": "0x0"
+            }
+          ],
+          "contractSize": {
+            "0x19fcc33bae7257196fd5fca381cfe6ea8a683169": {
+              "contractSize": 12,
+              "opcode": 250
+            },
+            "0x6bf9aa9c04fd001385742d61f6818c3236429848": {
+              "contractSize": 24009,
+              "opcode": 250
+            },
+            "0x807536db6e6da30786d43eb26a8995cda47a12b9": {
+              "contractSize": 15,
+              "opcode": 250
+            },
+            "0x8cd642542ea617082739f33dc8656c5b32ea3b2b": {
+              "contractSize": 7,
+              "opcode": 244
+            },
+            "0xb07c066d6e60d73493d62eb7f467c6e4f64ff45a": {
+              "contractSize": 15,
+              "opcode": 250
+            },
+            "0xfa85eaee2c9abf09ec7c305692979c0ab91d0024": {
+              "contractSize": 2912,
+              "opcode": 250
+            }
+          },
+          "extCodeAccessInfo": [],
+          "from": "0x00000000000000000000000000000000000000aa",
+          "keccak": [
+            "0x0000000000000000000000001328e0a64f2fc445382e8ff59f4ab727fbec57420000000000000000000000000000000000000000000000000000000000000000",
+            "0x34922fed10996ce5dd957a27451ba63cc0cefb6e33f83cad6b9bf7aa176e49750000000000000000000000000000000000000000000000000000000000000006"
+          ],
+          "outOfGas": false,
+          "to": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+          "type": "CALL",
+          "usedOpcodes": {
+            "0": 1,
+            "9": 2,
+            "11": 1,
+            "32": 1,
+            "48": 1,
+            "54": 1,
+            "61": 27,
+            "62": 8,
+            "81": 56,
+            "82": 59,
+            "86": 1273,
+            "87": 110,
+            "91": 11,
+            "244": 1,
+            "250": 10
+          },
+          "value": "0x0"
+        }
+      },
+      {
+        "frameIndex": 2,
+        "root": {
+          "accessedSlots": {
+            "reads": {
+              "0x0f96873a6a5573c6d110049a94e9d7889873617af23363baa18c56ff1dfbe23e": [
+                "0x00000000000000000000000000000000000000000000000000000000002d518e"
+              ],
+              "0x3289542f30c9417a8c207bb281b33bdbd31322b9116ec4e1141518661caa4bc9": [
+                "0x0000000000000000000000000000000000000000000000000000000005b94d32"
+              ]
+            },
+            "transientReads": {},
+            "transientWrites": {},
+            "writes": {
+              "0x0f96873a6a5573c6d110049a94e9d7889873617af23363baa18c56ff1dfbe23e": 1,
+              "0x3289542f30c9417a8c207bb281b33bdbd31322b9116ec4e1141518661caa4bc9": 1
+            }
+          },
+          "contractSize": {},
+          "extCodeAccessInfo": [],
+          "from": "0x1328e0a64f2fc445382e8ff59f4ab727fbec5742",
+          "keccak": [
+            "0x0000000000000000000000001328e0a64f2fc445382e8ff59f4ab727fbec57420000000000000000000000000000000000000000000000000000000000000000",
+            "0x000000000000000000000000c9ca898b92fa53635959021239e190cf22c1f1d90000000000000000000000000000000000000000000000000000000000000000",
+            "0x34922fed10996ce5dd957a27451ba63cc0cefb6e33f83cad6b9bf7aa176e49750000000000000000000000000000000000000000000000000000000000000006"
+          ],
+          "outOfGas": false,
+          "to": "0xfa85eaee2c9abf09ec7c305692979c0ab91d0024",
+          "type": "CALL",
+          "usedOpcodes": {
+            "32": 4,
+            "51": 3,
+            "52": 1,
+            "53": 3,
+            "54": 2,
+            "81": 2,
+            "82": 11,
+            "84": 4,
+            "85": 2,
+            "86": 197,
+            "87": 15,
+            "163": 1,
+            "243": 1
+          },
+          "value": "0x0"
+        }
+      },
+      {
+        "frameIndex": 3,
+        "root": {
+          "accessedSlots": {
+            "reads": {
+              "0x3289542f30c9417a8c207bb281b33bdbd31322b9116ec4e1141518661caa4bc9": [
+                "0x00000000000000000000000000000000000000000000000000000000058bfba4"
+              ],
+              "0x532c8902d10f3e0abde0ae34eb1669574aa4d66f841a8ecb02cff854e0520362": [
+                "0x00000000000000000000000000000000000000000000000000038d7e7e3a4c02"
+              ]
+            },
+            "transientReads": {},
+            "transientWrites": {},
+            "writes": {
+              "0x3289542f30c9417a8c207bb281b33bdbd31322b9116ec4e1141518661caa4bc9": 1,
+              "0x532c8902d10f3e0abde0ae34eb1669574aa4d66f841a8ecb02cff854e0520362": 1
+            }
+          },
+          "contractSize": {},
+          "extCodeAccessInfo": [],
+          "from": "0x1328e0a64f2fc445382e8ff59f4ab727fbec5742",
+          "keccak": [
+            "0x0000000000000000000000001328e0a64f2fc445382e8ff59f4ab727fbec57420000000000000000000000000000000000000000000000000000000000000000",
+            "0x0000000000000000000000002f50cb720032da2523364943291e7543c13a285c0000000000000000000000000000000000000000000000000000000000000000",
+            "0x000000000000000000000000c9ca898b92fa53635959021239e190cf22c1f1d90000000000000000000000000000000000000000000000000000000000000000",
+            "0x34922fed10996ce5dd957a27451ba63cc0cefb6e33f83cad6b9bf7aa176e49750000000000000000000000000000000000000000000000000000000000000006"
+          ],
+          "outOfGas": false,
+          "to": "0xfa85eaee2c9abf09ec7c305692979c0ab91d0024",
+          "type": "CALL",
+          "usedOpcodes": {
+            "32": 4,
+            "51": 3,
+            "52": 1,
+            "53": 3,
+            "54": 2,
+            "81": 2,
+            "82": 11,
+            "84": 4,
+            "85": 2,
+            "86": 197,
+            "87": 15,
+            "163": 1,
+            "243": 1
+          },
+          "value": "0x0"
+        }
+      }
+    ],
+    "erc7562TraceError": null,
+    "executionError": null,
+    "executionStatus": "success",
+    "frames": [
+      {
+        "gasUsed": "0x64",
+        "succeeded": true
+      },
+      {
+        "gasUsed": "0xce70",
+        "succeeded": true
+      },
+      {
+        "gasUsed": "0x6f2d",
+        "succeeded": true
+      },
+      {
+        "gasUsed": "0x481d",
+        "succeeded": true
+      }
+    ],
+    "gasUsed": "0x1d02a",
+    "maxCost": "0x2fa13971cf000",
+    "payer": "0xc9ca898b92fa53635959021239e190cf22c1f1d9",
+    "prefixShape": "OnlyVerifyPay"
+  }
+}

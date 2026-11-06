@@ -158,7 +158,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T09 · Price-moved fixture (P1)
 - owner: prith
-- status: blocked
+- status: done
 - agent: Claude Code on prith
 - started: 22:15 IST
 - priority: P1
@@ -166,7 +166,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: contracts/script/, src/samples/ (one new JSON, with manjeet's ok)
 - do: Sign a tx at the current quote, run `MovePrice` once (that's 1 of the 3 allowed), then send it. VERIFY should fail as underpaid. Save the hash and the gateway report as a sample.
 - done when: the rejected hash is in the log and its report JSON is in `src/samples/price-moved.json`.
-- log: Script `contracts/script/priceMoved.mts` written. Read-only plan run works against the live devnet: demo nonce 1, signed fee 2.969998 tUSD, a 2% quote rise needs ~5.49 tUSD swapped into the pool. Nothing sent yet. **Waiting on:** `DEMO_KEY` and `DEPLOYER_KEY` in `contracts/.env` (manjeet's machine only; not in git), then manjeet's ok for the one MovePrice and send. needs: manjeet. Run: `node contracts/script/priceMoved.mts --go`.
+- log: Script `contracts/script/priceMoved.mts` written. Read-only plan run works against the live devnet: demo nonce 1, signed fee 2.969998 tUSD, a 2% quote rise needs ~5.49 tUSD swapped into the pool. Nothing sent yet. **Waiting on:** `DEMO_KEY` and `DEPLOYER_KEY` in `contracts/.env` (manjeet's machine only; not in git), then manjeet's ok for the one MovePrice and send. needs: manjeet. Run: `node contracts/script/priceMoved.mts --go`. **Closed by manjeet at 22:31 IST, superseded.** T15 already has a real underpaid dry run (`src/samples/sim-underpaid.json`), and Readmit catches it and re-quotes. We are not running MovePrice and not sending a deliberately underpaid tx: it would move the small pool price for every later tx and could hurt paymaster reputation before the demo. Keys are not shared. Keep `contracts/script/priceMoved.mts` for later; don't run it.
 
 ---
 
@@ -280,14 +280,15 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log: It works, but only for recent txs. `replay(hash)` is in `src/engine/frames.ts`. It rebuilds the exact tx bytes from `eth_getTransactionByHash` (`eth_getRawTransactionByHash` doesn't exist; the rebuilt hash matched 0x6137 exactly) and simulates at the parent block, which gives `failedFrameIndex` and `revertData`. ethrex keeps state for only 128 blocks, measured at 6.0 s/block, so about 13 minutes. head−127 works and head−129 returns "state root missing". For 0x6137 the state is pruned, so `replay` returns null; the unknown-hash case also returns null. The success path wasn't seen live, because no reverted tx fell inside the window. needs: esh. In T22 or T23, call `replay(hash)` as soon as `watchTx` reports `failed`, and show the decoded `revertData` (`lookupSelectors`) on the failed frame's card. **It must happen within ~13 minutes.**
 
 ### T17 · Fragility flag (P1)
-- owner: manjeet
+- owner: prith
+- note: reassigned from manjeet to prith at 22:31 IST (manjeet approved). prith may edit src/diagnose.ts and src/diagnose.check.ts for this ticket only. No keys are needed: use the fixture below.
 - status: todo
 - agent:
 - started:
 - priority: P1
 - depends: T13
-- touches: src/diagnose.ts
-- do: If the simulation trace shows a VERIFY frame reading storage of a shared contract (the v4 PoolManager), add a warning finding: "This tx depends on the pool price; a swap can invalidate it before inclusion."
+- touches: src/diagnose.ts, src/diagnose.check.ts, src/samples/sim-trace-paymaster.json (read only)
+- do: Use the fixture `src/samples/sim-trace-paymaster.json`, a real read-only dry run with trace. In its `sim.erc7562Trace`, frame 1 (the paymaster VERIFY) has a STATICCALL to the v4 PoolManager `0x6bF9…9848` with 1 storage read (slot0, shared and mutable) and a STATICCALL to tUSD with 1 read (the sender's balance, sender-associated, fine). Flag only reads of contracts that are neither the sender, nor the frame target, nor a sender-associated token slot. Ignore the hegota-support helper contracts (calls with no reads). Add `diagnoseDraft` support via an optional trace argument. If the simulation trace shows a VERIFY frame reading storage of a shared contract (the v4 PoolManager), add a warning finding: "This tx depends on the pool price; a swap can invalidate it before inclusion."
 - done when: our Mode A draft shows the warning.
 - log:
 
