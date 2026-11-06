@@ -437,3 +437,155 @@ button:hover, .chip:hover { border-color: #3f3f46; background: var(--panel-2); }
   .stats { grid-template-columns: 1fr 1fr; }
   .tile-value { font-size: 1.8rem; }
 }
+
+/* ---- T65: matte electronics finish (esh's reference: a charcoal device knob).
+   Charcoal grain body; raised matte surfaces lit from the top left; recessed wells for inputs, meters and trays;
+   rimmed buttons that press in; LED-style status lights. Colour still only where it means something. ---- */
+:root {
+  --lightbox: #2a2a2d;
+  --panel: #2f2f33;
+  --panel-2: #27272a;
+  --ink: #ececee;
+  --ink-2: #a9a9b0;
+  --rule: rgba(0, 0, 0, 0.5);
+  --cobalt: #c9bcff;
+  --meter: #67e8f9;
+  --pass: #4ade80;
+  --pass-bg: rgba(74, 222, 128, 0.08);
+  --fail: #ff6b6b;
+  --fail-bg: rgba(255, 107, 107, 0.08);
+  --warn: #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.08);
+  --raised: linear-gradient(145deg, #34343a 0%, #2b2b2f 100%);
+  --raised-shadow: 10px 10px 24px rgba(0, 0, 0, 0.55), -6px -6px 16px rgba(255, 255, 255, 0.035), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --well: #232326;
+  --well-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(255, 255, 255, 0.035);
+  --key: linear-gradient(145deg, #3a3a3f 0%, #2c2c30 100%);
+  --key-shadow: 5px 5px 12px rgba(0, 0, 0, 0.55), -3px -3px 8px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --key-pressed: inset 3px 3px 7px rgba(0, 0, 0, 0.6), inset -2px -2px 5px rgba(255, 255, 255, 0.04);
+}
+body {
+  background-color: var(--lightbox);
+  background-image:
+    radial-gradient(900px 500px at 30% -10%, rgba(255, 255, 255, 0.05), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--ink);
+}
+a { color: var(--cobalt); }
+:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 3px; }
+
+/* Raised matte housings */
+.search, .result, .wallet, .send, .rows, .tile {
+  background: var(--raised);
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 20px;
+  box-shadow: var(--raised-shadow);
+}
+/* Recessed trays inside a housing */
+.change, .side, .table-wrap, .fixsend, .drycheck, .replay, .summary, .send-problem {
+  background: var(--panel-2);
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  border-radius: 14px;
+  box-shadow: var(--well-shadow);
+}
+.summary { border-left-width: 1px; padding-left: 40px; position: relative; }
+/* The summary carries an LED for its outcome */
+.summary::before { content: ''; position: absolute; left: 16px; top: 19px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink-2); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5); }
+.summary.pass::before { background: var(--pass); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5), 0 0 10px rgba(74, 222, 128, 0.7); }
+.summary.fail::before { background: var(--fail); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 107, 107, 0.7); }
+.summary.warn::before { background: var(--warn); box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5), 0 0 10px rgba(251, 191, 36, 0.6); }
+.send-problem { border-left: 1px solid rgba(0, 0, 0, 0.45); }
+.change .finding, .finding { background: transparent; }
+.change .finding.fail { background: var(--fail-bg); }
+
+/* LED status lights */
+.dot { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45); }
+.dot.pass { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 8px rgba(74, 222, 128, 0.7); }
+.dot.fail { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 8px rgba(255, 107, 107, 0.7); }
+.dot.warn { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 8px rgba(251, 191, 36, 0.6); }
+
+/* Header */
+.top { border-bottom: 1px solid rgba(0, 0, 0, 0.5); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04); }
+.top .mark { color: #d6d6db; filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.08)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
+.brand h1 { color: #ececee; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+.top .seg { background: var(--well); border: 1px solid rgba(0, 0, 0, 0.5); box-shadow: var(--well-shadow); padding: 4px; }
+.top .seg button { color: var(--ink-2); border: 0; background: transparent; box-shadow: none; }
+.top .seg button.on { background: var(--key); color: var(--ink); box-shadow: var(--key-shadow); }
+
+/* Keys: rimmed, raised, press in */
+button, .chip, .faucet-btn {
+  background: var(--key);
+  color: var(--ink);
+  border: 1px solid #141416;
+  border-radius: 12px;
+  box-shadow: var(--key-shadow);
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+button:hover, .chip:hover, .faucet-btn:hover { background: linear-gradient(145deg, #3f3f45, #2f2f34); border-color: #141416; color: var(--ink); }
+button:active, .chip:active, .faucet-btn:active { box-shadow: var(--key-pressed); transform: translateY(1px); }
+.primary, .search .row .primary {
+  background: var(--key);
+  color: #fff;
+  border: 1px solid #0f0f11;
+  font-weight: 600;
+  box-shadow: var(--key-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+.primary:hover, .search .row .primary:hover { background: linear-gradient(145deg, #45454b, #333338); border-color: #0f0f11; }
+.primary:active { box-shadow: var(--key-pressed), inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+.chip { border-radius: 999px; }
+
+/* Wells: inputs, meters, badges */
+.row input, .send-form input, .wallet .row input {
+  background: var(--well);
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 12px;
+  box-shadow: var(--well-shadow);
+  color: var(--ink);
+}
+.row input:focus, .send-form input:focus, .wallet .row input:focus { border-color: rgba(201, 188, 255, 0.6); box-shadow: var(--well-shadow), 0 0 0 2px rgba(201, 188, 255, 0.35); }
+.bar, .rule-bar, .fragment-meter { background: var(--well); box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.7); border-radius: 4px; }
+.bar span, .fragment-meter > span { background: var(--meter); box-shadow: 0 0 6px rgba(103, 232, 249, 0.55); }
+.frames tr.failed .bar span, .fragment.broken .fragment-meter > span, .rule-bar span { background: var(--fail); box-shadow: 0 0 6px rgba(255, 107, 107, 0.6); }
+.badge, .saved-badge { background: var(--well); border: 1px solid rgba(0, 0, 0, 0.5); box-shadow: var(--well-shadow); }
+.saved-badge { color: var(--warn); }
+.decoded code { background: var(--well); border: 1px solid rgba(0, 0, 0, 0.5); box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6); }
+
+/* Stat tiles: each its own raised key-cap */
+.stats { display: grid; gap: 14px; background: transparent; border: 0; box-shadow: none; overflow: visible; padding: 4px 0; }
+.tile-value { text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+
+/* Tables inside trays */
+.frames th { background: rgba(0, 0, 0, 0.18); color: var(--ink-2); border-bottom: 1px solid rgba(0, 0, 0, 0.45); }
+.frames td { border-bottom: 1px solid rgba(0, 0, 0, 0.35); }
+.frames tr.failed td { background: var(--fail-bg); }
+.rows li + li { border-top: 1px solid rgba(0, 0, 0, 0.4); }
+.rowbtn { background: transparent; border: 0; box-shadow: none; border-radius: 0; }
+.rowbtn:hover { background: rgba(255, 255, 255, 0.03); }
+.rowbtn:active { transform: none; box-shadow: none; }
+
+/* Frame fragments (T64): each one a raised key, the broken one lit red */
+.fragment-piece { background: transparent; border: 0; box-shadow: none; border-radius: 12px; }
+.fragment-piece::before { background: #141416; }
+.fragment-piece::after { background: var(--key); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.fragment-piece:hover::before { background: #3a3a40; }
+.fragment-piece[aria-pressed="true"]::before { background: var(--cobalt); }
+.fragment-piece[aria-pressed="true"]::after { background: linear-gradient(145deg, #3b3846, #2d2b35); }
+.fragment.broken .fragment-piece::before { background: var(--fail); }
+.fragment.broken .fragment-piece::after { background: linear-gradient(145deg, #3a2a2c, #2e2224); }
+.fragment.broken .fragment-piece { filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.35)); }
+.fragment.skipped .fragment-piece::after { background: var(--well); }
+.fragment-piece:active { transform: translateY(1px); }
+
+/* Faucet popover and other floating bits */
+.faucet-pop { background: var(--raised); border: 1px solid rgba(0, 0, 0, 0.55); box-shadow: var(--raised-shadow); }
+.timeline li.now .t-dot { border-color: var(--cobalt); background: rgba(201, 188, 255, 0.25); box-shadow: 0 0 8px rgba(201, 188, 255, 0.5); }
+.timeline li.pass .t-dot { box-shadow: 0 0 8px rgba(74, 222, 128, 0.6); }
+.timeline li.fail .t-dot { box-shadow: 0 0 8px rgba(255, 107, 107, 0.6); }
+
+@media (max-width: 720px) {
+  .search, .result, .wallet, .send, .rows, .tile { border-radius: 16px; box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
+  .stats { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, .chip, .faucet-btn { transition: none; }
+}
