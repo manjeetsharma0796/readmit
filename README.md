@@ -80,7 +80,7 @@ const { hash } = await r.sendDraft(draft, signer) // dry run, apply the fix if n
 await r.waitForInclusion(hash)                    // receipt, or TxNotIncluded with the diagnosis
 ```
 
-See the [SDK README](https://github.com/manjeetsharma0796/readmit-sdk#readme) for the full API, configuration, errors and the ERC-20 paymaster recipe.
+See the [SDK README](https://github.com/manjeetsharma0796/readmit-sdk#readme) for the full API, configuration, errors and the ERC-20 paymaster recipe. Open SDK work (CI, npm publish, moving this app onto the package, stable finding codes, and more) is in its [TASKS.md](https://github.com/manjeetsharma0796/readmit-sdk/blob/main/TASKS.md).
 
 The SDK signs the same bytes as this app's engine; its test suite checks this against a golden hash. The app still calls its own modules directly (`src/diagnose.ts`, `src/rpc.ts`, `src/engine/frames.ts`). `src/diagnose.ts` is shared: fix diagnosis bugs in both repos until the app depends on the package.
 
