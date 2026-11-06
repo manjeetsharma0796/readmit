@@ -1,7 +1,7 @@
 // Self-check on real devnet cases. Run: node src/diagnose.check.ts
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { diagnose, diagnoseDraft } from './diagnose.ts'
+import { diagnose, diagnoseDraft, errorString } from './diagnose.ts'
 
 const load = (name: string) => JSON.parse(readFileSync(new URL(`./samples/${name}.json`, import.meta.url), 'utf8'))
 
@@ -117,4 +117,16 @@ assert.equal(g.mempool.headline, 'Admitted and included')
 assert.equal(g.chain.headline, 'Executed')
 assert.equal(gold.receipt.payer.toLowerCase(), '0xc9ca898b92fa53635959021239e190cf22c1f1d9')
 
-console.log('diagnose: 17 cases OK')
+// T15: a real dry run paying 1 unit below the paymaster's quote: VERIFY frame 1 reverts Error("underpaid").
+const up = load('sim-underpaid')
+assert.equal(errorString(up.sim.revertData), 'underpaid')
+const u = diagnoseDraft(up.frames, up.sim)
+assert.equal(u.findings[0].title, "The tUSD fee is below the paymaster's price")
+assert.equal(u.findings[0].frame, 1)
+assert.deepEqual(u.findings[0].patch, { kind: 'requote' })
+
+// Out-of-gas findings carry a gas patch Fix & send can apply without parsing text.
+assert.deepEqual(a.findings[0].patch, { kind: 'gas', frame: 4, gas: 38_000 })
+assert.deepEqual(wouldOog.findings[0].patch, { kind: 'gas', frame: 4, gas: 38_000 })
+
+console.log('diagnose: 20 cases OK')

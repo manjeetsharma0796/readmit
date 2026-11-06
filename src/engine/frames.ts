@@ -4,7 +4,7 @@ import { profile } from '@forshtat/hegota-support/profiles/ethrex-eip8141-tracer
 import { decodeTx, encodeTx, newTx, secp256k1Placeholder, signTx, type FrameTx } from '@forshtat/hegota-support/tx'
 import { rpc } from '@forshtat/hegota-support/rpc'
 import { decodeFunctionResult, encodeFunctionData, toHex, type Address, type Hex } from 'viem'
-import type { Frame, Simulation } from '../diagnose.ts'
+import type { Frame, Patch, Simulation } from '../diagnose.ts'
 import { ETHREX } from '../rpc.ts'
 
 export type FrameSpec = {
@@ -71,6 +71,20 @@ export async function buildSendTx(p: { wallet: Address; to: Address; amount: big
   // The fee transfer's amount does not change the max cost (same calldata size), so quote once on the final limits.
   const fee = await quote(p.paymaster, maxCostBound({ ...base, frames: sendFrames(p, p.to, p.amount, 0n) }))
   return { ...base, frames: sendFrames(p, p.to, p.amount, fee) }
+}
+
+/** Re-reads the paymaster's price and rewrites the fee frame (the one right after the paymaster's VERIFY frame). Same nonce. */
+export async function requote(d: Draft, a: Addrs): Promise<Draft> {
+  const pm = d.frames.findIndex((f) => f.mode === 1 && f.target?.toLowerCase() === a.paymaster.toLowerCase())
+  if (pm < 0 || !d.frames[pm + 1]) throw new Error('This draft has no paymaster fee frame to re-quote')
+  const fee = await quote(a.paymaster, maxCostBound(d))
+  return { ...d, frames: d.frames.map((f, i) => (i === pm + 1 ? { ...f, data: transferData(a.paymaster, fee) } : f)) }
+}
+
+/** Applies a finding's patch for Fix & send: a new gas limit for one frame, or a re-quoted fee. Re-sign afterwards. */
+export async function applyPatch(d: Draft, p: Patch, a: Addrs): Promise<Draft> {
+  if (p.kind === 'requote') return requote(d, a)
+  return { ...d, frames: d.frames.map((f, i) => (i === p.frame ? { ...f, gas: BigInt(p.gas) } : f)) }
 }
 
 export function toFrameTx(d: Draft): FrameTx {

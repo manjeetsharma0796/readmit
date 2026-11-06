@@ -119,7 +119,7 @@ The Flow B frames are:
 2. SENDER `tUSD.transfer(paymaster, fee)`. This one must directly follow frame 1.
 3. SENDER `tUSD.transfer(to, amount)`.
 
-**Fix & send** edits a frame's `gas` in the Draft and calls `signDraft` again. Never rebuild with `buildSendTx` for a fix, because that changes the nonce and the fee.
+**Fix & send** applies the finding's `patch` and re-signs: `applyPatch(draft, finding.patch, addrs)`, then `signDraft`, `simulate`, `sendFrameTx`. A patch is `{kind:'gas', frame, gas}` for out of gas, or `{kind:'requote'}` when the tUSD fee is below the paymaster's price. Never rebuild with `buildSendTx` for a fix, because that changes the nonce.
 
 **`src/rpc.ts`** additions are owned by manjeet:
 ```ts

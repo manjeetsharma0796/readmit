@@ -1,0 +1,67 @@
+{
+  "name": "sim-underpaid",
+  "note": "Real dry run (read-only): demo wallet draft paying 1 unit below the paymaster quote for its real max cost, as after a pool price move.",
+  "quotedFee": "2765109",
+  "frames": [
+    {
+      "mode": 1,
+      "flags": 2,
+      "target": null,
+      "limits": {
+        "execution": "0x2710",
+        "state": "0x0"
+      },
+      "value": "0x0",
+      "data": "0x"
+    },
+    {
+      "mode": 1,
+      "flags": 1,
+      "target": "0xc9ca898B92fA53635959021239E190Cf22c1F1d9",
+      "limits": {
+        "execution": "0x11170",
+        "state": "0x0"
+      },
+      "value": "0x0",
+      "data": "0x"
+    },
+    {
+      "mode": 2,
+      "flags": 0,
+      "target": "0xFa85eaee2c9abF09Ec7c305692979C0Ab91D0024",
+      "limits": {
+        "execution": "0xea60",
+        "state": "0x186a0"
+      },
+      "value": "0x0",
+      "data": "0xa9059cbb000000000000000000000000c9ca898b92fa53635959021239e190cf22c1f1d900000000000000000000000000000000000000000000000000000000002a3134"
+    },
+    {
+      "mode": 2,
+      "flags": 0,
+      "target": "0xFa85eaee2c9abF09Ec7c305692979C0Ab91D0024",
+      "limits": {
+        "execution": "0xea60",
+        "state": "0x186a0"
+      },
+      "value": "0x0",
+      "data": "0xa9059cbb0000000000000000000000002f50cb720032da2523364943291e7543c13a285c00000000000000000000000000000000000000000000000000000000000f4240"
+    }
+  ],
+  "sim": {
+    "canonicalMempoolValid": false,
+    "canonicalMempoolViolation": "StorageReadNonSender",
+    "erc7562TraceError": null,
+    "executionError": "Invalid Transaction: Invalid frame transaction: VERIFY frame 1 (target 0xc9ca898b92fa53635959021239e190cf22c1f1d9, 7380 bytes of code) failed: RevertOpcode",
+    "executionStatus": null,
+    "failedFrameIndex": 1,
+    "frames": null,
+    "gasUsed": null,
+    "haltDetail": "the frame reverted",
+    "haltReason": "revert",
+    "maxCost": "0x2fa1397766fa8",
+    "payer": null,
+    "prefixShape": "OnlyVerifyPay",
+    "revertData": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000009756e646572706169640000000000000000000000000000000000000000000000"
+  }
+}

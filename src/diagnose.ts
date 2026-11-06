@@ -16,7 +16,9 @@ export type FrameReceipt = { status: string; gasUsed: string; stateGasUsed: stri
 export type Receipt = { status: string; gasUsed: string; effectiveGasPrice: string; blockNumber: string; payer?: string; frameReceipts: FrameReceipt[] }
 
 export type Tone = 'pass' | 'fail' | 'warn' | 'info'
-export type Finding = { tone: Tone; frame?: number; title: string; why: string; fix?: string; selector?: string }
+/** A fix the app can apply by itself (Fix & send): set one frame's gas limit, or re-quote the tUSD fee from the pool. */
+export type Patch = { kind: 'gas'; frame: number; gas: number } | { kind: 'requote' }
+export type Finding = { tone: Tone; frame?: number; title: string; why: string; fix?: string; selector?: string; patch?: Patch }
 export type Verdict = { tone: Tone; headline: string; sub: string }
 export type Diagnosis = { frames: Frame[]; findings: Finding[]; mempool: Verdict; chain: Verdict; spec: Verdict }
 
@@ -43,6 +45,30 @@ export function role(f: Frame): string {
   return 'Default call'
 }
 export const isVerify = (f: Frame) => f.mode === 1
+
+/** Decodes Solidity's Error(string) revert data (selector 0x08c379a0). Returns null for anything else. */
+export function errorString(data?: string | null): string | null {
+  if (!data || !data.startsWith('0x08c379a0') || data.length < 10 + 128) return null
+  const len = parseInt(data.slice(10 + 64, 10 + 128), 16)
+  const hex = data.slice(10 + 128, 10 + 128 + len * 2)
+  try { return decodeURIComponent(hex.replace(/../g, '%$&')) } catch { return null }
+}
+
+/** Our V4PricedPaymaster's require() messages, in plain words, with the fix the app can apply. */
+function paymasterReason(reason: string, i: number, w: boolean): Pick<Finding, 'title' | 'why' | 'fix' | 'patch'> | null {
+  if (reason === 'underpaid')
+    return {
+      title: "The tUSD fee is below the paymaster's price",
+      why: `The paymaster prices gas from the Uniswap v4 pool while it validates. The fee in frame ${i + 1} is lower than its quote right now, usually because the pool price moved after the transaction was signed.`,
+      fix: 'Re-quote the fee from the pool and re-sign. Fix & send does this for you.',
+      patch: { kind: 'requote' },
+    }
+  if (reason === 'sender lacks TOKEN')
+    return { title: "The sender doesn't hold enough tUSD for the fee", why: `The paymaster checks the sender's tUSD balance before it agrees to pay, and the fee is more than the sender ${w ? 'has' : 'had'}.`, fix: 'Top up the sender with tUSD, or send a smaller amount.' }
+  if (/^(next frame not SENDER|next frame not TOKEN|not transfer\(\)|not to paymaster)$/.test(reason))
+    return { title: "The paymaster's fee frame is missing or wrong", why: `The paymaster only pays if the frame right after it (frame ${i + 1}) is a SENDER frame calling tUSD.transfer(paymaster, fee). It said: "${reason}".`, fix: `Put tUSD.transfer(paymaster, fee) directly after frame ${i}.` }
+  return null
+}
 
 type ExecResult = { status: string; gasUsed: string }
 
@@ -72,6 +98,7 @@ function execFindings(frames: Frame[], results: ExecResult[], tense: 'did' | 'wo
           ? w ? `Raise frame ${i}'s gas limit to about ${newLimit} before sending.` : `Re-sign with frame ${i}'s gas limit raised to about ${newLimit}.`
           : `Check the call below and the contract state it depends on (balances, allowances, the arguments).${w ? '' : ' Simulate it to see the revert reason.'}`,
         selector,
+        patch: oog ? { kind: 'gas', frame: i, gas: roundUp(used * 1.25) } : undefined,
       })
     } else if (fr.status === '0x2') {
       out.push({
@@ -128,13 +155,17 @@ export function diagnoseDraft(frames: Frame[], sim: Simulation): Diagnosis {
       why: `The payer${who ? ` ${who.slice(0, 6)}…${who.slice(-4)}` : ''} has ${eth(sim.balance)} ETH, but the transaction could cost up to ${eth(sim.required ?? sim.maxCost)} ETH.`,
       fix: `Fund the payer with at least ${eth(sim.required ?? sim.maxCost)} ETH, or lower the gas limits or maxFeePerGas.`,
     })
+  } else if (halted && errorString(sim.revertData) && sim.failedFrameIndex != null && paymasterReason(errorString(sim.revertData)!, sim.failedFrameIndex, true)) {
+    const i = sim.failedFrameIndex
+    findings.push({ tone: 'fail', frame: i, ...paymasterReason(errorString(sim.revertData)!, i, true)! })
   } else if (halted) {
     const i = sim.failedFrameIndex
+    const reason = errorString(sim.revertData)
     findings.push({
       tone: 'fail',
       frame: i,
       title: i != null ? `Frame ${i} would reject the transaction during validation` : 'The transaction would be rejected',
-      why: sim.haltDetail ?? sim.executionError ?? sim.canonicalMempoolViolation ?? 'The simulator gave no detail.',
+      why: reason ? `It reverted with "${reason}".` : sim.haltDetail ?? sim.executionError ?? sim.canonicalMempoolViolation ?? 'The simulator gave no detail.',
       fix: 'Check what this frame requires: the signature, the payment frame that must follow it, or the balances it reads.',
       selector: sim.revertData && sim.revertData.length >= 10 ? sim.revertData.slice(0, 10) : undefined,
     })
@@ -235,6 +266,9 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
           ? `Raise frame ${i}'s gas limit above ${fmt(Number(vOog[3]))}, plus what its code needs. Keep all verification frames under the mempool cap together.`
           : `Raise frame ${i}'s gas limit. Simulate first to see what it uses, and keep all verification frames under the mempool cap together.`,
       })
+    } else if (vrev && errorString(vrev[2]) && paymasterReason(errorString(vrev[2])!, Number(vrev[1]), false)) {
+      const i = Number(vrev[1])
+      findings.push({ tone: 'fail', frame: i, ...paymasterReason(errorString(vrev[2])!, i, false)!, why: paymasterReason(errorString(vrev[2])!, i, false)!.why + ruleNote })
     } else if (vrev) {
       const i = Number(vrev[1])
       findings.push({

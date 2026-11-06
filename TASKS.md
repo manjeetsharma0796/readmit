@@ -256,7 +256,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T15 · Uniswap re-quote fix (P1)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 22:10 IST
 - priority: P1
@@ -264,7 +264,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/engine/, src/diagnose.ts
 - do: When the paymaster VERIFY fails as underpaid, re-read the price (paymaster `quote()`, or V4Quoter `0xeEa49CC6419125E2f706bf7f95Cf34ac7e93087D`) and set the fix to "pay X tUSD". Fix & send then uses the new amount.
 - done when: T09's sample shows the re-quoted amount, and a resend with it is admitted.
-- log:
+- log: The diagnosis now decodes Error(string) reverts, so the paymaster's require messages become plain findings: underpaid, sender lacks tUSD, and a wrong or missing fee frame. That works for both admission reports and dry runs. Findings carry a machine-readable `patch` (`{kind:'gas',frame,gas}` or `{kind:'requote'}`). `frames.ts` adds `requote(draft, addrs)` and `applyPatch(draft, patch, addrs)`; both keep the nonce. Live read-only check on chain 1337: a draft paying 10% under today's quote showed "Wouldn't run: The tUSD fee is below the paymaster's price". `applyPatch` re-quoted 2.488597 to 2.969998 tUSD, then the dry run said "Would succeed, Ready to send". The real underpaid dry run is saved as `src/samples/sim-underpaid.json`. `npm run check` prints "diagnose: 20 cases OK". Finding: the builder already quotes with about 7.4% headroom (the overhead slack), so small price moves don't fail. A real resend of a fixed tx waits for the T40 demo run, which needs one more approved send. needs: esh. For T23 Fix & send: `const d2 = await applyPatch(draft, finding.patch, addrs)`, then `signDraft`, `simulate`, `sendFrameTx`.
 
 ### T16 · "Why did it revert" spike (P1, 20 minute cap)
 - owner: manjeet
