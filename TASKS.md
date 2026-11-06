@@ -88,10 +88,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T05 · GATE 22:30: golden Mode A tx admitted on the gateway
 - owner: manjeet
-- status: todo
+- status: doing
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
-- agent:
-- started:
+- agent: Claude Code on manjeet
+- started: 22:01 IST
 - priority: P0
 - depends: T04
 - touches: contracts/script/golden.mts
