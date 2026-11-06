@@ -26,4 +26,25 @@ assert.equal(c.findings[0].selector, '0x5cd5d233')
 const fee = load('replacement-fee-too-low')
 assert.equal(diagnose(fee.tx, fee.receipt).spec.headline, 'Not a validity rule')
 
-console.log('diagnose: 4 cases OK')
+// 0x6137…: included, frame 2 reverted after 8,158 of 50,000 gas (a logic revert), and the node lost its report.
+const rev = load('logic-revert')
+const d = diagnose(rev.tx, rev.receipt)
+assert.equal(d.findings[0].title, 'Frame 2 reverted (not a gas problem)')
+assert.match(d.findings[0].why, /8,158 of its 50,000/)
+assert.match(d.findings[0].why, /raising gas won't help/)
+assert.equal(d.findings[0].selector, '0x6e5141ba')
+const charged = d.findings.find((f) => /charged/.test(f.title))!
+assert.equal(charged.title, 'It failed on chain, and the payer was still charged')
+assert.match(charged.why, /0xEe22…5Ba6 paid 0\.000482 ETH/i)
+assert.equal(d.mempool.headline, 'No admission report')
+assert.equal(d.chain.tone, 'fail')
+
+// Same tx with frame 3 marked skipped (0x2), as in a failed atomic batch.
+const skipped = structuredClone(rev.receipt)
+skipped.frameReceipts[3].status = '0x2'
+const e = diagnose(rev.tx, skipped)
+const s = e.findings.find((f) => f.frame === 3)!
+assert.equal(s.title, 'Frame 3 was skipped')
+assert.match(s.fix!, /Fix frame 2 first/)
+
+console.log('diagnose: 6 cases OK')

@@ -23,6 +23,8 @@ export type Diagnosis = { frames: Frame[]; findings: Finding[]; mempool: Verdict
 // Numbers from the sidecar's own error text and the ERC-8421 draft budget rule.
 const SIDECAR_VERIFY_CAP = 100_000
 const ERC8421_STAKED_CAP = 1_000_000
+// A failed frame that used at least this share of its limit is treated as out of gas; below it, a logic revert.
+const OOG_SHARE = 0.98
 
 export const n = (hex?: string | null) => (hex ? Number(BigInt(hex)) : 0)
 export const fmt = (x: number) => x.toLocaleString('en-US')
@@ -98,22 +100,36 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
   // Execution results from the chain.
   if (receipt) {
     const price = n(receipt.effectiveGasPrice)
+    const firstFailed = receipt.frameReceipts.findIndex((fr) => fr.status === '0x0')
     receipt.frameReceipts.forEach((fr, i) => {
       const f = frames[i]
       if (!f) return
       const used = n(fr.gasUsed)
       const limit = n(f.limits.execution)
+      const pct = limit > 0 ? ((used / limit) * 100).toFixed(1) : '?'
+      const selector = f.data.length >= 10 ? f.data.slice(0, 10) : undefined
       if (fr.status === '0x0') {
-        const oog = limit > 0 && used / limit >= 0.98
+        const oog = limit > 0 && used / limit >= OOG_SHARE
         findings.push({
           tone: 'fail',
           frame: i,
-          title: oog ? `Frame ${i} ran out of gas` : `Frame ${i} reverted`,
+          title: oog ? `Frame ${i} ran out of gas` : `Frame ${i} reverted (not a gas problem)`,
           why: oog
-            ? `It used ${fmt(used)} of its ${fmt(limit)} gas limit (${((used / limit) * 100).toFixed(1)}%), so it almost certainly hit the limit.`
-            : `It stopped after ${fmt(used)} of ${fmt(limit)} gas, so it reverted on logic, not gas.`,
-          fix: oog ? `Re-sign with frame ${i}'s gas limit raised to about ${fmt(roundUp(used * 1.25))}.` : 'Check the call below: the target contract rejected it.',
-          selector: f.data.length >= 10 ? f.data.slice(0, 10) : undefined,
+            ? `It used ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it almost certainly hit the limit.`
+            : `It stopped after ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it did not run out. The call itself reverted, and raising gas won't help.`,
+          fix: oog
+            ? `Re-sign with frame ${i}'s gas limit raised to about ${fmt(roundUp(used * 1.25))}.`
+            : 'Check the call below and the contract state it depends on (balances, allowances, the arguments). Simulate it to see the revert reason.',
+          selector,
+        })
+      } else if (fr.status === '0x2') {
+        findings.push({
+          tone: 'warn',
+          frame: i,
+          title: `Frame ${i} was skipped`,
+          why: `It never ran, because ${firstFailed >= 0 ? `frame ${firstFailed}` : 'another frame'} in the same atomic batch failed, so the whole batch was rolled back.`,
+          fix: firstFailed >= 0 ? `Fix frame ${firstFailed} first. This frame runs again once it succeeds.` : undefined,
+          selector,
         })
       } else if (isVerify(f) && limit > SIDECAR_VERIFY_CAP && used < SIDECAR_VERIFY_CAP) {
         findings.push({
@@ -127,10 +143,12 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
     })
     if (receipt.status === '0x0') {
       const paid = (n(receipt.gasUsed) * price) / 1e18
+      const payer = receipt.payer ?? tx.entry?.payer
+      const passed = adm && adm.outcome !== 'rejected'
       findings.push({
         tone: 'warn',
-        title: 'Admitted, but it still failed, and the payer was charged',
-        why: `Every admission rule passed, yet execution failed on chain. The payer paid ${paid.toFixed(6)} ETH for ${fmt(n(receipt.gasUsed))} gas.`,
+        title: passed ? 'Admitted, but it still failed, and the payer was charged' : 'It failed on chain, and the payer was still charged',
+        why: `${passed ? 'Every admission rule passed, yet execution failed on chain. ' : ''}The payer${payer ? ` ${payer.slice(0, 6)}…${payer.slice(-4)}` : ''} paid ${paid.toFixed(6)} ETH for ${fmt(n(receipt.gasUsed))} gas.`,
         fix: 'Simulate the full transaction, not just validation, before sending.',
       })
     }
@@ -142,7 +160,9 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
 
   const outcome = adm?.outcome ?? tx.entry?.status ?? 'unknown'
   const mempool: Verdict = !adm
-    ? { tone: 'info', headline: 'Not seen', sub: 'This node has no admission record' }
+    ? tx.entry
+      ? { tone: 'info', headline: 'No admission report', sub: 'This node saw the tx, but keeps reports in memory, so a restart cleared it' }
+      : { tone: 'info', headline: 'Not seen', sub: 'This node has no admission record' }
     : outcome === 'rejected'
       ? { tone: 'fail', headline: 'Rejected', sub: fails.map((c) => c.rule).join(', ') || `error ${adm.errorCode}` }
       : outcome === 'included' || outcome === 'accepted'

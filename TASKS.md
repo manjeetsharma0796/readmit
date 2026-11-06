@@ -179,7 +179,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T10 · Classify failed frames correctly
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:17 IST
 - priority: P0
@@ -187,7 +187,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/diagnose.ts, src/diagnose.check.ts, src/samples/
 - do: Classify each failed frame as **out of gas** (≥98% of its limit), **logic revert** (below 98%; the text must say "raising gas won't help"), or **skipped** (status 0x2), plus "payer charged anyway". Add tx `0x6137f039a0b152e5b1d20be99abd3f3a1a24891cd4f30fcc22ad9b59f7a93c75` as a sample. It's a logic revert: frame 2 used 8,158 of 50,000.
 - done when: `node src/diagnose.check.ts` passes with ≥5 cases, including the 0x6137 logic revert.
-- log:
+- log: `npm run check` → "diagnose: 6 cases OK" (adds the real 0x6137 logic revert and a skipped-frame case). Live check in the UI for 0x6137: "Frame 2 reverted (not a gas problem), 8,158 of its 50,000 gas limit (16.3%)", plus the payer charged 0.000482 ETH and "No admission report". `npm run build` passes. needs: esh. Add a "Logic revert" sample chip for `src/samples/logic-revert.json` in App.tsx during T20.
 
 ### T11 · Correct advice and parse thresholds
 - owner: manjeet
