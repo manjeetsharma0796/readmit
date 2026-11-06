@@ -763,3 +763,39 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Fix the bugs from esh's UI review: an invalid key (e.g. all zeros) passes validation, is saved and crashes every reload; balances shown for a different account than the signer; Send not locked while the draft builds; Fix & send rebuilds from edited form values; every send error reads "couldn't reach the devnet"; a failed receipt lookup is shown as "never reached the chain / nothing charged"; samples don't update the URL or scroll into view; older responses can overwrite newer ones; no main landmark; endpoint panel omits Sourcify. Then one clean pitch-black theme with colour accents (esh's choice), fewer effects, display type only on short headings.
 - done when: each bug above is checked in the browser, build and checks pass, 1280 and 375 px look right.
 - log: **esh asked for this in chat after the 03:00 code freeze (explicit go-ahead).** Verified in the browser: a stored all-zero key no longer crashes the page and an all-f key is refused ("outside the allowed range", aria-invalid); a non-demo key shows "Sends from" its own address and balances with a warning; Send disables within 50 ms and ignores repeat clicks (dry run refused an empty account, nothing broadcast); clicking a case sets ?tx=…&node=…, switches the node selector and jumps to the result with focus; 3 examples up front, 9 under "More examples"; one <main>. Build, tsc and checks pass. Also edited src/ui/Providers.tsx (Connect button accent made neutral; removed an unused import). Not done from the review: a full confirm step before send (#7, fee is now shown during the flow), RPC timeouts (#19, rpc.ts is manjeet's), copy buttons for addresses (#20), capture times on saved cases (#21), a skip link (#24) and field-level errors on the send form (#25). Note for manjeet: ee0cabe (T61) removed 254 lines of globals.css (the T58/T59 theme, stat tiles, frame map, summary styles), probably in a merge; this ticket restyles them.
+
+### T63 · Remove unrelated header decoration
+- owner: esh
+- status: done
+- agent: esh
+- started: 03:40 IST
+- priority: P1
+- depends: none
+- touches: src/App.tsx, src/app/globals.css
+- do: Remove the floating frame stack rejected in chat and recheck the current UI. Local only.
+- done when: build passes; desktop and mobile render without the stack or layout overflow.
+- log: Local only. Removed header markup and all stack3d styles. npm run build passes. Browser at 1280 and 375 px: no stack, no horizontal overflow, no runtime errors, one main landmark. Three initial examples; selecting a case updates the URL. Screenshots: C:/Users/eshit/.codex/visualizations/2026/11/06/01a1b1c2-59ac-7771-924b-3e93ee18efe5/recheck-1280.png and recheck-375.png.
+
+### T64 · Represent transaction frames as connected fragments
+- owner: esh
+- status: done
+- agent: esh
+- started: 04:00 IST
+- priority: P1
+- depends: none
+- touches: src/ui/FramesTable.tsx, src/app/globals.css
+- do: Replace the proportional gas map with an ordered fragment sequence, selectable frame details and a collapsed full table. Local only, directly requested after freeze.
+- done when: all saved cases render, desktop/mobile have no overflow or errors, keyboard selection works and build passes.
+- log: npm run build passes. All 12 saved cases checked at 1280 and 375 px: one piece per table row, no page overflow with the table closed or open, no runtime errors. Enter/Tab selection updates the inspector. Frame sequence accessibility scan: zero violations. Screenshots: C:/Users/eshit/.codex/visualizations/2026/11/06/01a1b1c2-59ac-7771-924b-3e93ee18efe5/frames-1280.png and frames-375.png. No signing, sends, commits or pushes.
+
+### T65 · Matte electronics finish
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 03:30 IST
+- priority: P1
+- depends: T62
+- touches: src/app/globals.css
+- do: esh's reference (a matte charcoal device knob): charcoal grain background, raised matte surfaces with soft top-left light and bottom-right shadow, inset wells for inputs and meters, rim-lit buttons that press in, LED-style status lights. CSS only; colour still only where it means something.
+- done when: build passes, text contrast stays WCAG AA, all flows look right at 1280 and 375 px.
+- log: esh asked for this in chat after the code freeze (explicit go-ahead).
