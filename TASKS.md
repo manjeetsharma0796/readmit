@@ -970,3 +970,14 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: the Demo account pill and Connect wallet look different, so give them one shape and height. Replace the boxed finding cards and the dashed "Why it reverted" box with an unboxed list: hairline rows, the number in a left gutter, the status as a coloured word.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
 - log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow. Demo account and Connect wallet: both 38px high, 8px corners, same surface and type. Findings: hairline rows, 01/02 in a mono gutter, the tag as a small coloured word above the title, the fix kept as a violet side line; "Why it reverted" is a row of the same list, not a dashed box.
+
+### T80 · Demo account dropdown clipped on desktop
+- owner: manjeet
+- status: doing
+- agent: Claude Code on manjeet
+- started: 05:35 IST
+- priority: P0 (demo)
+- touches: src/app/globals.css (one rule inside the T75 `.acct-pop` block, not at the end of the file)
+- do: At ≥901 px the wallet panel inside the dropdown keeps the page's 200px label column, so the address, the key input and Import spill past the 420px dropdown and get clipped. Use a narrow label column inside `.acct-pop`, as `.flow-grid .wallet .overview` did before T75.
+- done when: at 1280 px nothing in the open dropdown extends past its right edge; 375 px unchanged; build passes; console clean.
+- log:

@@ -853,6 +853,8 @@ button, .chip, .faucet-btn, .top .seg button.on { background-image: none; }
 .acct-pop .faucet { margin-top: 10px; }
 .acct-pop .faucet-btn { width: 100%; }
 .acct-pop .faucet-pop { position: static; width: auto; margin-top: 8px; box-shadow: none; }
+.acct-pop .overview { grid-template-columns: 96px minmax(0, 1fr); }
+.acct-pop .overview code { font-size: 0.82rem; }
 .flow-single { margin-top: 14px; }
 .flow-single .send { margin-top: 0; }
 @media (max-width: 720px) {
