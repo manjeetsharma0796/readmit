@@ -243,7 +243,7 @@ export function diagnoseDraft(frames: Frame[], sim: Simulation, opts?: { sender:
       findings.push({
         tone: 'warn',
         frame: r.frame,
-        title: 'This tx depends on the pool price; a swap can invalidate it before inclusion.',
+        title: 'This tx depends on the pool price; a swap can invalidate it before inclusion',
         why: `VERIFY frame ${r.frame} reads storage of ${who}, which other transactions can change. If it moves before inclusion, validation can fail.`,
         fix: 'Send it soon after the dry run. If it is rejected as underpaid, re-quote and send again.',
       })

@@ -133,7 +133,7 @@ assert.deepEqual(wouldOog.findings[0].patch, { kind: 'gas', frame: 4, gas: 38_00
 // (shared, mutable) and the sender's tUSD balance (sender-associated, fine).
 const tr = load('sim-trace-paymaster')
 const fr17 = diagnoseDraft(tr.frames, tr.sim, { sender: tr.sender })
-const frag = fr17.findings.filter((f) => f.title === 'This tx depends on the pool price; a swap can invalidate it before inclusion.')
+const frag = fr17.findings.filter((f) => f.title === 'This tx depends on the pool price; a swap can invalidate it before inclusion')
 assert.equal(frag.length, 1)
 assert.equal(frag[0].tone, 'warn')
 assert.equal(frag[0].frame, 1)

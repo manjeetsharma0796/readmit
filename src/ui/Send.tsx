@@ -13,8 +13,10 @@ type Step = 0 | 1 | 2 | 3 | 4 | 5 // index of the step in progress; 5 = all done
 type Problem = { title: string; next: string; findings?: Finding[] }
 type Fix = { finding: Finding & { patch: Patch }; oldHash: string | null; newHash: string | null }
 
-// Demo only: a last-frame limit far below what a tUSD transfer needs, so the dry run (or the chain) reports out of gas.
-const LOW_GAS = 20_000n
+// Demo only: a last-frame limit below what a tUSD transfer needs, so the dry run (or the chain) reports out of gas.
+// A transfer to an existing holder uses 18,461 gas, so 20,000 was not low. 16,000 fails, and Readmit's own patch (×1.25 = 20,000)
+// passes in one fix (checked with read-only dry runs, Sat 00:20).
+const LOW_GAS = 16_000n
 const ADDRS = { tUSD: DEPLOY.tUSD, paymaster: DEPLOY.paymaster }
 
 // The fee frame is `tUSD.transfer(paymaster, fee)`: the amount is the last 32 bytes of its calldata.
