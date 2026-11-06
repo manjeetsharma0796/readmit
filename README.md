@@ -2,7 +2,7 @@
 
 Find out which frame of an EIP-8141 frame transaction failed, why, and what to change. Then send your own transaction with a dry run first, and fix it in one click.
 
-**Live:** https://readmit-kohl.vercel.app · runs against the EF alt-mempool devnet (chain 1337).
+**Live:** https://readmit-kohl.vercel.app · **SDK:** [readmit-sdk](https://github.com/manjeetsharma0796/readmit-sdk) · runs against the EF alt-mempool devnet (chain 1337).
 
 Paste a transaction hash from the alt-mempool devnet (chain 1337). Readmit shows:
 
@@ -51,60 +51,38 @@ Share a result with `?tx=<hash>&node=gateway|miner`.
 | `contracts/` | `V4PricedPaymaster` and its deploy scripts (Foundry) |
 | `docs/` | Pitch, research notes, judge Q&A and submission text |
 
-## Use the engine as a library
+## SDK: [`readmit-sdk`](https://github.com/manjeetsharma0796/readmit-sdk)
 
-**Packaged as [`@readmit/sdk`](sdk/README.md) (`sdk/`).** It has a configurable client (`createReadmit({ ethrex, gateway, miner, chainId })`), a generic frame builder, pluggable signers (key, viem account or custom scheme), `explain(hash)`, a dry-run → fix → send loop, `waitForInclusion`, monitoring stats, viem `client.extend(frameActions(...))` and typed errors. `node sdk/check.ts --live` runs 21 offline cases plus read-only calls to the devnet.
+Readmit's engine is also a standalone TypeScript package for your own code, **[@readmit/sdk](https://github.com/manjeetsharma0796/readmit-sdk)**. It covers:
+- explaining any tx by hash;
+- the admission simulator (dry run);
+- machine-readable fixes and the dry-run → fix → send loop;
+- `waitForInclusion`;
+- mempool monitoring stats;
+- the fragility check;
+- a generic frame builder;
+- pluggable signers (key, viem account, or custom schemes such as post-quantum);
+- viem `client.extend(frameActions(...))`;
+- typed errors.
 
-The app itself calls the three modules below directly. They are plain functions on viem, with no framework or backend.
-
-**Explain any transaction by hash.** This works on anyone's tx, including ones the mempool rejected, which never reach a block explorer.
-
-```ts
-import { getTx, getReceipt } from './src/rpc.ts'
-import { diagnose } from './src/diagnose.ts'
-
-const hash = '0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c'
-const dx = diagnose((await getTx('miner', hash))!, await getReceipt(hash))
-dx.mempool.headline   // "Admitted and included"
-dx.chain.headline     // "Executed"
-dx.findings[0]        // { tone, frame?, title, why, fix?, patch? }, worst first
+```bash
+npm install github:manjeetsharma0796/readmit-sdk viem
 ```
 
-**Dry-run before sending, apply the fix, send, and watch.**
-
 ```ts
-import { simulate, sendFrameTx, watchTx } from './src/rpc.ts'
-import { diagnoseDraft } from './src/diagnose.ts'
-import { buildSendTx, signDraft, draftFrames, applyPatch } from './src/engine/frames.ts'
+import { createReadmit, ALT_MEMPOOL_DEVNET } from '@readmit/sdk'
 
-const addrs = { tUSD, paymaster }   // from contracts/deployments/1337.json
-let draft = await buildSendTx({ wallet, to, amount: 1_000_000n, ...addrs })   // nonce, fees and the tUSD fee read live
+const r = createReadmit(ALT_MEMPOOL_DEVNET)
+const dx = await r.explain('0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c')
+dx.findings[0] // { tone, frame?, title, why, fix?, patch? }
 
-// Dry run: nothing is broadcast. With a trace, it also flags VERIFY frames that read shared state.
-let raw = await signDraft(draft, key)
-let dx = diagnoseDraft(draftFrames(draft), await simulate(raw, true), { sender: draft.sender })
-// e.g. "Frame 3 would run out of gas", with patch { kind: 'gas', frame: 3, gas: 20000 }
-
-const patch = dx.findings.find((f) => f.patch)?.patch
-if (patch) {
-  draft = await applyPatch(draft, patch, addrs)   // new gas limit, or a re-quoted fee
-  raw = await signDraft(draft, key)               // every frame is signed, so re-sign after any change
-}
-
-const sent = await sendFrameTx(raw)               // to the miner sidecar by default
-const stop = watchTx(sent, (stage) => console.log(stage))   // pending → admitted → included | rejected | failed | dropped
+const { hash } = await r.sendDraft(draft, signer) // dry run, apply the fix if needed, then send
+await r.waitForInclusion(hash)                    // receipt, or TxNotIncluded with the diagnosis
 ```
 
-**Also exported:**
-- `recent(node, limit)`: the latest admission decisions from a sidecar, for mempool monitoring.
-- `sharedReads(frames, trace, sender)`: VERIFY frames that read storage someone else can change.
-- `replay(hash)`: the revert reason for a fresh on-chain failure. It works for about 128 blocks, roughly 13 minutes.
-- `errorString(data)`, `role(frame)`, `decodeDraft(raw)`, `maxCostBound(draft)`, `quote(paymaster, wei)`.
+See the [SDK README](https://github.com/manjeetsharma0796/readmit-sdk#readme) for the full API, configuration, errors and the ERC-20 paymaster recipe.
 
-**Limits today.**
-- The app's modules are chain 1337 only, use a plain secp256k1 key, and `buildSendTx` is our ERC-20 paymaster recipe.
-- The SDK removes those limits: any chain id, any signer, any frames.
-- Not on npm yet; no ethers adapter.
+The SDK signs the same bytes as this app's engine; its test suite checks this against a golden hash. The app still calls its own modules directly (`src/diagnose.ts`, `src/rpc.ts`, `src/engine/frames.ts`). `src/diagnose.ts` is shared: fix diagnosis bugs in both repos until the app depends on the package.
 
 ## Contracts (`contracts/`)
 
