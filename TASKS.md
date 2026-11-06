@@ -141,10 +141,11 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log: The demo wallet is a plain key address, `0x1328e0a64F2fc445382e8FF59F4Ab727fBec5742`, with no contract (the default VERIFY code checks the signature). It got 100 tUSD (raw 100000000, 6 decimals) in tx `0xbee97973…8458`, and its ETH is 0. The key is in manjeet's `contracts/.env` as DEMO_KEY, never committed. manjeet shares it with esh privately for T21. `demoWallet` is in deployments. needs: esh. T21 can unblock: read `contracts/deployments/1337.json` (tUSD has 6 decimals; `tUSDDecimals`).
 
 ### T08 · Uniswap qualification: README section and FEEDBACK.md
-- owner: prith
-- status: todo
-- agent:
-- started:
+- owner: manjeet
+- note: reassigned from prith to manjeet at 22:14 IST (prith asleep; manjeet approved)
+- status: doing
+- agent: Claude Code on manjeet
+- started: 22:14 IST
 - priority: P0
 - depends: T04
 - touches: FEEDBACK.md, README.md (the "Uniswap integration" section only)
