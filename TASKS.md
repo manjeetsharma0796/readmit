@@ -286,9 +286,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T30 · Pitch, video script and submission text
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:35 IST
 - priority: P0
 - depends: none (finalise after 01:00)
 - touches: docs/PITCH.md, docs/SUBMISSION.md
