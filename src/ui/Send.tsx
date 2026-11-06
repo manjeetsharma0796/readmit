@@ -37,7 +37,7 @@ export function Send() {
     if (!isAddress(to.trim())) return setProblem({ title: 'That recipient is not an address', next: 'Enter 0x followed by 40 hex characters.' })
     let value: bigint
     try {
-      value = parseUnits(amount.trim(), 18)
+      value = parseUnits(amount.trim(), DEPLOY.tUSDDecimals)
     } catch {
       value = 0n
     }
@@ -136,7 +136,7 @@ export function Send() {
       )}
       {fee !== null && step === 5 && (
         <p className="send-fee">
-          Gas paid: {formatUnits(fee, 18)} tUSD, ETH used: 0
+          Gas paid: {formatUnits(fee, DEPLOY.tUSDDecimals)} tUSD, ETH used: 0
         </p>
       )}
 
