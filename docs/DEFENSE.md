@@ -59,12 +59,40 @@ Our paymaster reads the Uniswap pool's storage while validating. The canonical r
 - Evidence: the dry run of `0x3fd93ca4…` reports the public mempool would refuse it with `StorageReadNonSender` (README, "A transaction paid in tUSD").
 - Say it as "the canonical rules would refuse it", not "another mempool refused it": we show the canonical check, not a second live mempool.
 
+## From the research (full sources in [RESEARCH.md](RESEARCH.md))
+
+**"ERC-8421 gives staked entities 1M validation gas. Why do you say 100k?"**
+Because that's what the running sidecar enforces: it sums every validation frame plus the signature cost and rejects anything over `MAX_VERIFY_GAS = 100_000`, before it looks at stake. The spec's 1M is per staked entity, and the sidecar change for it (PR #3, opened 6 Nov) is still open.
+- Evidence: [`validationPrefix.ts` line 10](https://github.com/forshtat/mempool-workshop-sidecar/blob/master/packages/executor/src/services/UserOpValidation/utils/validationPrefix.ts); [sidecar PR #3](https://github.com/forshtat/mempool-workshop-sidecar/pull/3) (open, not merged).
+
+**"What does `COD-010` mean?"**
+On this sidecar it means the validation touched an address with no code, which ERC-8421 calls CALLING-010; it is not ERC-7562's "code hash changed" rule of the same name. Readmit shows the sidecar's own detail text word for word, so it doesn't inherit the mislabel.
+- Evidence: [`sidecar_explorer.md`](https://github.com/forshtat/mempool-workshop-sidecar/blob/master/docs/sidecar_explorer.md); [ERC-7562](https://eips.ethereum.org/EIPS/eip-7562).
+
+**"Is 98% a standard out-of-gas test?"**
+No, it's our heuristic. It fits the 1/64 rule (a parent keeps 1/64 of its gas, so a nested out-of-gas lands at about 98.4% used), but it can mislabel failures that burn all gas without being fixable with more (INVALID, old-style `assert`), so the dry run before sending is the real check.
+
+**"Why 1.25× and not something else?"**
+There is no standard: MetaMask multiplies its estimate by 1.5, SDKs commonly use about 1.2, and ours is applied to the gas actually used. For validation frames the result must also fit the combined 100k cap.
+
+**"Is the payer always charged when a frame fails?"**
+Only once a payer exists. If a VERIFY frame fails, the transaction is invalid, never lands and nobody pays; that's why Readmit says "payer charged" only for transactions that landed with a failed frame.
+- Evidence: [EIP-8141](https://eips.ethereum.org/EIPS/eip-8141); [ethrex frame docs](https://github.com/forshtat/ethrex/blob/9aa3645d795945c64400f41a70aace0edfa7f383/docs/eip-8141.md).
+
+**"Does staking make your paymaster safe?"**
+Staking makes the pool read admissible in the alt mempool; it doesn't make the price safe. The spot price can still move within a block and every swap forces revalidation, so we rely on the 10% markup and the transaction's max fee, and a cached or oracle price is the next step.
+
+**"Is there any other tool for frame transactions?"**
+We found a draft frame-transaction PR in viem and a design post from Ethernal, and nothing that names the failed frame or proposes and sends a fix. That is absence of evidence, so we say "we found none", not "none exists".
+- Evidence: [viem #4486](https://github.com/wevm/viem/pull/4486).
+
 ## Limits we say plainly
 
 - **Devnet only.** Frame transactions are expected with the Hegotá upgrade; nothing runs on mainnet.
 - **Endpoints default to the EF devnet** (ethrex RPC and two sidecars); you can point Readmit at your own nodes in the footer.
 - **The ERC-8421 check is partial:** the validation-gas budget and validation reverts only.
 - **Revert reasons need fresh state:** the replay works for about 13 minutes after inclusion, and the node returns no message for execution-phase reverts.
+- **Atomic batches:** frames that ran before a failure in the same atomic batch keep status 0x1 but are rolled back; the frames table shows them as "Succeeded".
 - **Fix & send applies gas fixes.** The engine also makes a re-quote patch; the UI doesn't apply it yet.
 - **History is in memory:** the sidecar forgets admissions on restart, so saved cases are labelled as saved.
 - **Privacy trade-off:** the RPCs see your IP, and the selector lookup tells Sourcify which selectors you decoded.
