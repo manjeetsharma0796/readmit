@@ -24,8 +24,10 @@ async function rpc<T>(url: string, method: string, params: unknown[] = []): Prom
 export const getTx = (node: NodeId, hash: string) => rpc<TxResult | null>(NODES[node].url, 'skandha_explorer_getTransaction', [hash])
 export const getReceipt = (hash: string) => rpc<Receipt | null>(ETHREX, 'eth_getTransactionReceipt', [hash])
 
-// Send: the gateway takes the wire object (not raw bytes). This broadcasts: callers must have the user's go-ahead.
-export async function sendFrameTx(rawTx: Hex, node: NodeId = 'gateway'): Promise<Hex> {
+// Send: the sidecar takes the wire object (not raw bytes). This broadcasts: callers must have the user's go-ahead.
+// Default is the miner: it is the docs' mempool RPC and bundles automatically. The gateway runs in manual bundling mode,
+// so a tx sent only there is admitted but waits until someone triggers a bundle (seen live Fri 22:01).
+export async function sendFrameTx(rawTx: Hex, node: NodeId = 'miner'): Promise<Hex> {
   return rpc<Hex>(NODES[node].url, 'eth_sendFrameTransaction', [toWire(decodeTx(profile, rawTx))])
 }
 
@@ -46,7 +48,7 @@ export function txStage(r: TxResult | null): Stage {
 }
 
 /** Polls every 2 s until a final stage or 120 s. Calls onUpdate on each change. Returns a stop function. */
-export function watchTx(hash: string, onUpdate: (s: Stage) => void, node: NodeId = 'gateway'): () => void {
+export function watchTx(hash: string, onUpdate: (s: Stage) => void, node: NodeId = 'miner'): () => void {
   let last: Stage | null = null
   let stopped = false
   const started = Date.now()

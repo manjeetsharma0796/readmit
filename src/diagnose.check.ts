@@ -109,4 +109,12 @@ const ok = diagnoseDraft(fr, simOf([[100, true], [45_429, true], [116_322, true]
 assert.equal(ok.findings[0].title, 'Ready to send')
 assert.equal(ok.chain.headline, 'Would succeed')
 
-console.log('diagnose: 16 cases OK')
+// Our own golden tx: demo wallet (0 ETH) sends 1 tUSD, gas paid in tUSD to our staked V4PricedPaymaster.
+const gold = load('paid-in-tusd')
+const g = diagnose(gold.tx, gold.receipt)
+assert.equal(g.findings[0].title, 'Nothing to fix')
+assert.equal(g.mempool.headline, 'Admitted and included')
+assert.equal(g.chain.headline, 'Executed')
+assert.equal(gold.receipt.payer.toLowerCase(), '0xc9ca898b92fa53635959021239e190cf22c1f1d9')
+
+console.log('diagnose: 17 cases OK')

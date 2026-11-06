@@ -17,8 +17,8 @@ The product spec is in `docs/PRD.md`. Read sections 6, 7 and 11 before your firs
 | What | Endpoint |
 |---|---|
 | ethrex RPC | `https://altmempool.forshtat.com` |
-| Gateway sidecar (send here) | `https://altmempoolgateway.forshtat.com/rpc` |
-| Miner sidecar | `https://altmempool.forshtat.com/rpc` |
+| Miner sidecar (**send here**: the docs' mempool RPC, auto-bundles) | `https://altmempool.forshtat.com/rpc` |
+| Gateway sidecar (manual bundling: admits, but includes only when someone triggers a bundle) | `https://altmempoolgateway.forshtat.com/rpc` |
 | Explorer | `https://explorer.altmempool.wtf` |
 
 Test ETH only. Never claim mainnet impact.

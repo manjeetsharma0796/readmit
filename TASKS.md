@@ -88,7 +88,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T05 · GATE 22:30: golden Mode A tx admitted on the gateway
 - owner: manjeet
-- status: doing
+- status: done
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent: Claude Code on manjeet
 - started: 22:01 IST
@@ -106,7 +106,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - **Ask your human before sending.**
 - done when: `skandha_explorer_getTransaction` on the gateway shows `admitted` or `included`. Put the explorer link in the log.
 - If it's rejected with "unstaked … accessed … slot", paste the detail into the log, set `blocked` with `needs: manjeet` (ask EF), and start T06.
-- log:
+- log: **GATE MET at 22:01 IST.** Golden Mode A tx `0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c`. The demo wallet (plain key, 0 ETH) sent 1 tUSD and paid 2.969998 tUSD gas to our **staked** V4PricedPaymaster, which reads the v4 pool slot0 during VERIFY. Gateway admission: 24 checks, 0 failed. The public mempool would refuse it (simulate: canonicalMempoolValid false, "StorageReadNonSender"). Included in block 6065, status 0x1, payer = paymaster, frames 100 / 52,848 / 28,461 / 18,461 gas. Afterwards the demo wallet holds 96.030002 tUSD and 0 ETH; the paymaster spent 0.000217 ETH. Explorer: https://explorer.altmempool.wtf/tx/0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc . It was sent with `src/engine/frames.ts` plus `src/rpc.ts`, not a separate script. Saved as `src/samples/paid-in-tusd.json`. Lesson: the gateway is manual-bundling. The identical signed tx (same hash) was handed to the miner, which included it in 14 s. sendFrameTx now defaults to the miner. T06 (Mode B) is not needed.
 
 ### T06 · FALLBACK (only if T05 fails): Mode B swap-to-pay paymaster
 - owner: prith
@@ -244,7 +244,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T14 · Send and watch status
 - owner: manjeet
-- status: blocked
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:32 IST
 - priority: P0
@@ -252,7 +252,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/rpc.ts
 - do: `sendFrameTx(raw)` uses `eth_sendFrameTransaction` on the **gateway**. `watchTx(hash, cb)` polls `skandha_explorer_getTransaction` every 2 s, then the receipt, and goes pending → admitted/rejected → included/failed. Stop after 120 s.
 - done when: one real send of a T12 draft (**ask your human first**) reports admitted, then included. The hash goes in the log.
-- log: The code is done in `src/rpc.ts`: `sendFrameTx` (wire format via hegota-support `toWire`, same as the workshop golden script), plus `watchTx` and `txStage`. The status mapping uses the sidecar explorer's mempool statuses (New/Pending/Submitted = admitted, OnChain/Finalized = included, Reverted = failed, Cancelled = dropped). `npm run check` prints "rpc: send-status mapping OK" on real samples, and the build passes. **Blocked:** the done-check needs one real send. That needs manjeet's go-ahead (AGENTS §5) and a funded wallet. needs: prith (T04 paymaster plus T07 demo key with tUSD), then manjeet approves one send.
+- log: The code is done in `src/rpc.ts`: `sendFrameTx` (wire format via hegota-support `toWire`, same as the workshop golden script), plus `watchTx` and `txStage`. The status mapping uses the sidecar explorer's mempool statuses (New/Pending/Submitted = admitted, OnChain/Finalized = included, Reverted = failed, Cancelled = dropped). `npm run check` prints "rpc: send-status mapping OK" on real samples, and the build passes. **Blocked:** the done-check needs one real send. That needs manjeet's go-ahead (AGENTS §5) and a funded wallet. needs: prith (T04 paymaster plus T07 demo key with tUSD), then manjeet approves one send. **Unblocked and verified live at 22:01** with manjeet's approved send: `0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c` went admitted (0 s), then included (14 s) on the miner via `watchTx`. Default node is now the miner (gateway = manual bundling).
 
 ### T15 · Uniswap re-quote fix (P1)
 - owner: manjeet

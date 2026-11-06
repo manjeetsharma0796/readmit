@@ -31,6 +31,6 @@ assert.equal(fixedBack.frames[3].gas, 90_000n)
 assert.equal(fixedBack.frames[2].gas, draft.frames[2].gas)
 
 // Max-cost bound covers every limit plus overhead.
-assert.equal(maxCostBound(draft), (25_000n + 60_000n + 160_000n + 160_000n + 50_000n) * 4_000_000_000n)
+assert.equal(maxCostBound(draft), (10_000n + 70_000n + 160_000n + 160_000n + 50_000n) * 4_000_000_000n)
 
 console.log('frames: build/sign/decode OK')

@@ -22,7 +22,11 @@ export type Addrs = { tUSD: Address; paymaster: Address }
 const CHAIN_ID = 1337
 // Default limits. The dry run (simulate) reports real usage; Fix & send adjusts from there.
 // The two VERIFY frames together must stay under the sidecar's 100,000 validation cap (signature cost included).
-const GAS = { walletVerify: 25_000n, paymasterVerify: 60_000n, transfer: 60_000n, transferState: 100_000n }
+// Measured in a dry run on chain 1337 (Fri 21:55): wallet VERIFY 100, paymaster VERIFY 52,848, fee transfer 8,461, transfer 28,461.
+const GAS = { walletVerify: 10_000n, paymasterVerify: 70_000n, transfer: 60_000n, transferState: 100_000n }
+// The devnet's gas price can drop to a few wei, which would quote a 0 tUSD fee. A 2 gwei max fee keeps the fee
+// meaningful; the chain still only charges basefee + tip.
+const MIN_MAX_FEE = 2_000_000_000n
 // Overhead the chain adds on top of the frame limits (intrinsic + signature). The simulator showed ~16,750; keep slack.
 const OVERHEAD = 50_000n
 
@@ -62,7 +66,8 @@ export async function buildSendTx(p: { wallet: Address; to: Address; amount: big
     rpc(ETHREX, 'eth_getTransactionCount', [p.wallet, 'pending']).then(BigInt),
     rpc(ETHREX, 'eth_gasPrice', []).then(BigInt),
   ])
-  const base = { sender: p.wallet, nonce, maxFeePerGas: gasPrice * 2n, maxPriorityFeePerGas: gasPrice }
+  const maxFeePerGas = gasPrice * 2n > MIN_MAX_FEE ? gasPrice * 2n : MIN_MAX_FEE
+  const base = { sender: p.wallet, nonce, maxFeePerGas, maxPriorityFeePerGas: maxFeePerGas / 2n }
   // The fee transfer's amount does not change the max cost (same calldata size), so quote once on the final limits.
   const fee = await quote(p.paymaster, maxCostBound({ ...base, frames: sendFrames(p, p.to, p.amount, 0n) }))
   return { ...base, frames: sendFrames(p, p.to, p.amount, fee) }
