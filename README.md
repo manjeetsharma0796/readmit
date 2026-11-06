@@ -1,6 +1,6 @@
 # Readmit
 
-Find out why an EIP-8141 frame transaction was rejected, and what to change.
+Find out which frame of an EIP-8141 frame transaction failed, why, and what to change. Then send your own transaction with a dry run first, and fix it in one click.
 
 Paste a transaction hash from the alt-mempool devnet (chain 1337). Readmit shows:
 
@@ -11,9 +11,12 @@ Paste a transaction hash from the alt-mempool devnet (chain 1337). Readmit shows
 - **What happened**, in plain language, with the failing frame and a concrete fix. Example: "frame 4 used 29,925 of 30,000 gas, so raise it to about 38,000".
 - **Frames in execution order.** Each frame shows its role, its target, the decoded call and a gas-used vs gas-limit bar.
 - **Every admission rule the sidecar ran**, plus a downloadable JSON report.
-- **The latest admissions from the node.** Click any of them to inspect it.
+- **The latest admissions from the node**, with live stats: how many were rejected, from how many senders, and the top rule names. Click any of them to inspect it.
+- **12 saved real cases** from the devnet, grouped by where they failed (rejected by the mempool, failed on chain, worked).
+- **Send with a dry run first.** A demo wallet holding tUSD and 0 ETH sends tUSD. Gas is paid in tUSD through our staked paymaster. `ethrex_simulateFrameTransaction` runs before anything is broadcast, and the send stops if it finds a problem.
+- **Fix & send.** If a frame would run out of gas, or did on chain, one button applies the new limit, re-quotes the tUSD fee, runs the dry run again and sends. The old hash ❌ shows next to the new one ✅.
 
-It runs entirely in the browser. It talks directly to the sidecar and ethrex RPCs, which allow CORS from any origin, and to the sourcify signature database for decoding 4-byte selectors. There is no backend, and it uses no keys and no analytics.
+It runs entirely in the browser. It talks directly to the sidecar and ethrex RPCs, which allow CORS from any origin, and to the sourcify signature database for decoding 4-byte selectors. There is no backend and no analytics. The only key is an optional devnet demo key, imported into your browser for the send flow.
 
 ## Screenshots
 
@@ -110,8 +113,8 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 
 ## Not built yet
 
-- Pasting raw transaction bytes and simulating before sending (`ethrex_simulateFrameTransaction`).
-- Fix and resend.
+- Editable RPC endpoints: today the app is fixed to the EF devnet's ethrex RPC and its two sidecars.
+- Fix & send for anything other than a gas limit (the engine also produces a re-quote patch; the UI applies gas fixes only).
 - Stake helper.
 - The full ERC-8421 rule set.
 - Fuzzing and minimisation.
