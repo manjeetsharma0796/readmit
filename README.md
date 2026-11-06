@@ -24,7 +24,7 @@ It runs entirely in the browser. It talks directly to the sidecar and ethrex RPC
 |---|---|---|
 | ![Readmit on tx 0xe97e…: frame 4 ran out of gas, raise it to about 38,000](docs/img/diagnosis.png) | ![Readmit on tx 0x6137…: frame 2 reverted at 8,158 of 50,000 gas](docs/img/logic-revert.png) | ![Readmit at 390 px wide, with the fix first](docs/img/mobile.png) |
 
-Both are real devnet transactions, shown from saved copies because the node keeps history in memory.
+Both are real devnet transactions, shown from saved copies. `0x6137…` is on the current chain (block 2,993). `0xe97e…` is from an earlier run of the devnet (block 405,125) that has since been reset, so its explorer link no longer opens.
 
 ## Run
 
