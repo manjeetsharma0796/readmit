@@ -291,7 +291,7 @@ export default function App() {
                 </feMerge>
               </filter>
             </defs>
-            <g fill="url(#mark-fill)" filter="url(#mark-emboss)">
+            <g fill="url(#mark-fill)">
               <path d="M80 24C160 28 212 92 224 176 198 142 168 118 140 104 116 92 104 80 96 60L80 24Z" />
               <path d="M32 80C120 80 180 136 216 204 178 176 150 160 112 150 80 142 56 148 48 128L32 80Z" />
               <path d="M24 168C100 144 164 174 208 224 148 200 112 196 72 212 48 222 40 208 24 168Z" />
@@ -320,7 +320,8 @@ export default function App() {
           inspect(input, node)
         }}
       >
-        <label htmlFor="hash">Transaction hash on the alt-mempool devnet (chain 1337)</label>
+        <label htmlFor="hash">Transaction hash</label>
+        <p className="hint" id="hash-hint">From the alt-mempool devnet (chain 1337). You get which frame failed, why, and the exact change to make.</p>
         <div className="row">
           <input
             id="hash"
@@ -335,7 +336,8 @@ export default function App() {
                 inspect(pasted, node)
               }
             }}
-            placeholder="Paste a transaction hash, 0x…"
+            aria-describedby="hash-hint"
+            placeholder="0x…"
             spellCheck={false}
             autoComplete="off"
           />
@@ -349,7 +351,7 @@ export default function App() {
           </p>
         )}
         <div className="samples" aria-label="Real cases from the devnet">
-          <span className="samples-title">Try a real case:</span>
+          <span className="samples-title">No hash to hand? Open a real case:</span>
           <div className="sample-group">
             {SAMPLES.filter((x) => FEATURED.includes(x.label)).map((x) => (
               <button type="button" key={x.label} className="chip" onClick={() => loadSample(x.data)}>
@@ -376,7 +378,7 @@ export default function App() {
       {loaded && dx && (
         <section className="result" aria-label="Result">
           <div className="result-head">
-            <h2 ref={resultRef} tabIndex={-1}>Transaction</h2>
+            <h2 ref={resultRef} tabIndex={-1}>What happened</h2>
             <div className="actions">
               <a href={EXPLORER(loaded.hash, loaded.node)} target="_blank" rel="noreferrer">
                 Open in explorer
@@ -384,6 +386,7 @@ export default function App() {
               <button onClick={download}>Download report</button>
             </div>
           </div>
+          <p className={`summary lead ${status.tone}`}>{summary}</p>
           <p className="tx-hash">
             <Copy text={loaded.hash} label="transaction hash">
               <code className="hash">{loaded.hash}</code>
@@ -422,8 +425,6 @@ export default function App() {
             <VerdictRow label="On chain" v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
             <VerdictRow label="ERC-8421 spec" v={dx.spec} />
           </dl>
-
-          <p className={`summary ${status.tone}`}>{summary}</p>
 
           <section aria-label="Frames">
             <h2>Frames, in execution order</h2>
@@ -501,7 +502,7 @@ export default function App() {
       <section id="send" className="flow" aria-label="Send your own transaction">
         <div className="flow-head">
           <h2>Send your own</h2>
-          <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first. If a frame would run out of gas, Fix &amp; send raises its limit and sends; other problems are explained so you can fix them.</p>
+          <p className="muted">A test wallet that holds tUSD and no ETH. Each send is dry-run first; if a frame would run out of gas, Fix &amp; send raises its limit and sends.</p>
         </div>
         <div className="flow-grid">
           <Wallet />

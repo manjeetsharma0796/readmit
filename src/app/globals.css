@@ -805,3 +805,40 @@ button:active, .chip:active, .faucet-btn:active { box-shadow: none; background: 
 
 /* Wallet note: a quiet note, not a yellow warning. */
 .wallet .note { color: var(--ink-2); }
+
+/* ---- T73: approachable by clarity, not by simplifying. Flat surfaces (no 3D shading, gradients or grain),
+   one accent, steady contrast, and the answer first so the eye knows where to land. ---- */
+body::after { display: none; }
+.top .mark { filter: none; }
+
+/* Flat controls. */
+.primary, .search .row .primary, .fixsend .primary,
+.primary:hover, .search .row .primary:hover, .fixsend .primary:hover { background: #b9a2e6; border: 1px solid #b9a2e6; color: #1a1030; box-shadow: none; transform: none; filter: none; }
+.primary:hover, .search .row .primary:hover, .fixsend .primary:hover { background: #c7b4ec; border-color: #c7b4ec; }
+.primary:active, .search .row .primary:active { background: #a991d8; }
+button, .chip, .faucet-btn, .top .seg button.on { background-image: none; }
+
+/* Frames: flat tiles in a row. Selected and failed states use a border, not light or depth. */
+.fragment-list { background: transparent; border: 0; padding: 0; gap: 8px; }
+.fragment-piece, .fragment:first-child .fragment-piece, .fragment:last-child .fragment-piece { background: #1d1d22; border: 1px solid #2e2e35; border-radius: 10px; box-shadow: none; margin-top: 0; }
+.fragment-piece:hover { border-color: #45454e; }
+.fragment.validation .fragment-piece, .fragment.execution .fragment-piece { border-bottom: 1px solid #2e2e35; }
+.fragment.broken .fragment-piece, .shell .fragment.broken .fragment-piece { border-color: #6a3e46; background: #211b1e; box-shadow: none; }
+.fragment.broken::before, .fragment.broken .fragment-piece::before, .fragment::before, .fragment-piece::before { display: none; }
+.fragment-piece[aria-pressed="true"], .fragment-piece[aria-selected="true"], .fragment.selected .fragment-piece, .fragment.is-selected .fragment-piece { border-color: #8f7ab8; box-shadow: none; }
+.fragment-meter { background: #2a2a31; box-shadow: none; }
+.frame-inspector, .frame-inspector.is-failed { border-radius: 10px; box-shadow: none; background: #19191d; }
+
+/* Panels and fields: one flat surface colour, one hairline. */
+.wallet, .send, .rows, .tile, .table-wrap, .drycheck, .fixsend, .faucet-pop { background: #1a1a1e; border: 1px solid var(--rule); box-shadow: none; }
+.row input, .send-form input, .wallet .row input { background: #111114; box-shadow: none; }
+.row input:focus, .send-form input:focus, .wallet .row input:focus { border-color: #8f7ab8; box-shadow: 0 0 0 3px #8f7ab833; outline: none; }
+.bar, .rule-bar { background: #2a2a31; box-shadow: none; }
+:focus-visible { outline: 2px solid #b9a2e6; outline-offset: 2px; }
+
+/* Search: label, then a one-line hint, then the field. */
+.shell .search label { margin-bottom: 2px; font-size: 1rem; }
+.hint { margin: 0 0 10px; color: var(--ink-2); font-size: 0.9rem; }
+
+/* The answer leads the result: larger type, a calm tone edge, then the evidence below it. */
+.shell .summary.lead { margin: 10px 0 14px; font-size: 1.12rem; line-height: 1.5; color: var(--ink); max-width: 70ch; }

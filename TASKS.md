@@ -888,15 +888,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T73 · Approachable first screen and plain wording
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 05:20 IST
 - priority: P2
 - depends: T71
 - touches: src/App.tsx, src/app/globals.css
-- do: esh asked to make it more approachable and simple to get. Plain labels and headings, a three-step "how it works" before the first result, the plain-language answer first in the result, a short note on what a frame is.
+- do: esh asked to make it more approachable through better UX, without dumbing it down: no 3D, no colours that pull the eye. The answer first in the result, a clear label and one-line hint on the search, flat surfaces with one accent and steady contrast.
 - done when: build passes; all saved cases render at 1280 and 375 px with no overflow or console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow, and the answer leads every result. Removed: film grain, logo emboss, raised/inset shading on frames, panels and buttons, gradient buttons. The result heading is now "What happened" with the plain answer right under it.
 
 ### T74 · Move the SDK to its own repo, cross-link both READMEs
 - owner: prith
