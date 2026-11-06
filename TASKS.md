@@ -934,3 +934,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: The Next dev overlay showed "1 Issue": wagmi's Hydrate reconnects during render when ssr is off, which updates RainbowKit's ConnectModal mid-render. Set ssr: true on both wagmi configs so the reconnect runs after the first render.
 - done when: build passes; no warning in the console or the dev overlay after reload and opening Connect.
 - log: npm run build passes. Reloaded twice and opened Connect: the dev overlay shows no issues and no new console errors (before: "Cannot update a component (ConnectModal) while rendering a different component (Hydrate)" on every load).
+
+### T77 · Richer "What to change" and frame status
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 05:45 IST
+- priority: P2
+- depends: T73
+- touches: src/App.tsx, src/app/globals.css
+- do: esh found the findings bland. Each finding becomes a numbered card with a small status tag and a highlighted fix box; "Why it reverted" becomes a panel; the frame status in the inspector becomes a pill with a dot. Still flat, one accent.
+- done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
+- log:
