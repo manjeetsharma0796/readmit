@@ -32,3 +32,6 @@ dist-ssr
 .next/
 out/
 next-env.d.ts
+
+# vercel
+.vercel

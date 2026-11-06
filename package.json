@@ -8,7 +8,7 @@
     "build": "next build",
     "lint": "oxlint",
     "check": "node src/diagnose.check.ts && node src/engine/frames.check.ts && node src/rpc.check.ts",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks || exit 0"
   },
   "dependencies": {
     "@forshtat/hegota-support": "0.0.1",
