@@ -1,87 +1,163 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatUnits, isAddress, parseUnits, type Address, type Hex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { diagnoseDraft, type Finding } from '../diagnose'
-import { buildSendTx, draftFrames, signDraft, type Draft } from '../engine/frames'
-import { EXPLORER, sendFrameTx, simulate, watchTx, type Stage } from '../rpc'
+import { diagnose, diagnoseDraft, type Finding, type Patch } from '../diagnose'
+import { applyPatch, buildSendTx, draftFrames, requote, signDraft, type Draft } from '../engine/frames'
+import { EXPLORER, getReceipt, getTx, sendFrameTx, simulate, watchTx, type Stage } from '../rpc'
 import { DEPLOY } from './deploy'
+import { FixAndSend } from './FixAndSend'
 import { loadKey } from './Wallet'
 
 const STEPS = ['Checking (dry run)', 'Signing', 'Sent', 'Admitted', 'Included'] as const
 type Step = 0 | 1 | 2 | 3 | 4 | 5 // index of the step in progress; 5 = all done
 type Problem = { title: string; next: string; findings?: Finding[] }
+type Fix = { finding: Finding & { patch: Patch }; oldHash: string | null; newHash: string | null }
+
+// Demo only: a last-frame limit far below what a tUSD transfer needs, so the dry run (or the chain) reports out of gas.
+const LOW_GAS = 20_000n
+const ADDRS = { tUSD: DEPLOY.tUSD, paymaster: DEPLOY.paymaster }
 
 // The fee frame is `tUSD.transfer(paymaster, fee)`: the amount is the last 32 bytes of its calldata.
 const feeOf = (d: Draft) => BigInt(`0x${d.frames[2].data.slice(-64)}`)
+const fixable = (fs: Finding[]) => fs.find((f): f is Finding & { patch: Patch } => f.tone === 'fail' && f.patch?.kind === 'gas')
 
 export function Send() {
   const [to, setTo] = useState('')
   const [amount, setAmount] = useState('')
+  const [lowGas, setLowGas] = useState(false)
   const [step, setStep] = useState<Step | null>(null)
   const [hash, setHash] = useState<Hex | null>(null)
   const [fee, setFee] = useState<bigint | null>(null)
   const [problem, setProblem] = useState<Problem | null>(null)
+  const [fix, setFix] = useState<Fix | null>(null)
+  const [caught, setCaught] = useState<Draft | null>(null) // a low-gas draft the dry run stopped, for "Send anyway"
   const stop = useRef<() => void>(() => {})
   useEffect(() => () => stop.current(), [])
 
   const busy = step !== null && step < 5 && !problem
 
-  async function send() {
+  function reset() {
+    stop.current()
     setProblem(null)
     setHash(null)
     setFee(null)
-    stop.current()
+    setCaught(null)
+  }
+
+  /** Validates the form and returns what a send needs, or shows why it can't. */
+  function inputs(): { key: Hex; to: Address; value: bigint } | null {
     const key = loadKey()
-    if (!key) return setProblem({ title: 'No key imported', next: 'Import the demo key in the wallet panel first.' })
-    if (!DEPLOY.tUSD || !DEPLOY.paymaster) return setProblem({ title: 'The tUSD token and paymaster are not deployed yet', next: 'Sending works once the contracts are on the devnet.' })
-    if (!isAddress(to.trim())) return setProblem({ title: 'That recipient is not an address', next: 'Enter 0x followed by 40 hex characters.' })
-    let value: bigint
+    if (!key) {
+      setProblem({ title: 'No key imported', next: 'Import the demo key in the wallet panel first.' })
+      return null
+    }
+    if (!isAddress(to.trim())) {
+      setProblem({ title: 'That recipient is not an address', next: 'Enter 0x followed by 40 hex characters.' })
+      return null
+    }
+    let value = 0n
     try {
       value = parseUnits(amount.trim(), DEPLOY.tUSDDecimals)
-    } catch {
-      value = 0n
+    } catch {}
+    if (value <= 0n) {
+      setProblem({ title: 'Enter an amount above 0', next: 'For example 1 or 0.5 tUSD.' })
+      return null
     }
-    if (value <= 0n) return setProblem({ title: 'Enter an amount above 0', next: 'For example 1 or 0.5 tUSD.' })
+    return { key, to: to.trim() as Address, value }
+  }
 
-    try {
-      setStep(0)
-      const wallet = privateKeyToAccount(key).address
-      const draft = await buildSendTx({ wallet, to: to.trim() as Address, amount: value, tUSD: DEPLOY.tUSD, paymaster: DEPLOY.paymaster })
-      setFee(feeOf(draft))
+  /** Dry run (unless skipped), then sign, send and watch. The timeline shows each stage. */
+  async function run(draft: Draft, key: Hex, opts: { skipCheck?: boolean; fixing?: Fix } = {}) {
+    setStep(0)
+    setFee(feeOf(draft))
+    if (!opts.skipCheck) {
       // The simulator needs signed bytes; this signature is only used for the dry run.
-      const dx = diagnoseDraft(draftFrames(draft), await simulate(await signDraft(draft, key)))
-      if (dx.findings.some((f) => f.tone === 'fail' || f.tone === 'warn')) {
-        return setProblem({ title: 'The dry run found a problem, so nothing was sent', next: 'Apply the change below, then press Send again.', findings: dx.findings })
+      const dx = diagnoseDraft(draftFrames(draft), await simulate(await signDraft(draft, key)), { sender: draft.sender })
+      if (dx.findings.some((f) => f.tone === 'fail')) {
+        const f = fixable(dx.findings)
+        if (f && !opts.fixing) setFix({ finding: f, oldHash: null, newHash: null })
+        if (lowGas && !opts.fixing) setCaught(draft)
+        setProblem({ title: 'The dry run found a problem, so nothing was sent', next: f && !opts.fixing ? 'Press Fix & send to apply the change and send.' : 'Apply the change below, then press Send again.', findings: dx.findings })
+        return
       }
-      setStep(1)
-      const raw = await signDraft(draft, key)
-      const h = await sendFrameTx(raw)
-      setHash(h)
-      setStep(2)
-      let final = false
-      const timer = setTimeout(() => {
-        if (!final) setProblem({ title: 'No result after 2 minutes', next: 'The mempool may still include it. Open it in the explorer, or check the hash above in a minute.' })
-      }, 125_000)
-      stop.current = watchTx(h, (s: Stage) => {
-        if (s === 'admitted') setStep(3)
-        else if (s === 'included') {
-          final = true
-          clearTimeout(timer)
-          setStep(5)
-        } else if (s === 'rejected' || s === 'failed' || s === 'dropped') {
-          final = true
-          clearTimeout(timer)
-          setProblem(
-            s === 'rejected'
-              ? { title: 'The mempool rejected it', next: 'Paste the hash into the search box above to see which rule failed and what to change.' }
-              : s === 'failed'
-                ? { title: 'It was included, but a frame failed', next: 'Paste the hash into the search box above to see which frame failed and why.' }
-                : { title: 'The mempool dropped it before inclusion', next: 'Press Send again to build a fresh transaction.' },
-          )
-        }
-      })
+    }
+    setStep(1)
+    const h = await sendFrameTx(await signDraft(draft, key))
+    setHash(h)
+    setStep(2)
+    let final = false
+    const timer = setTimeout(() => {
+      if (!final) setProblem({ title: 'No result after 2 minutes', next: 'The mempool may still include it. Open it in the explorer, or check the hash in a minute.' })
+    }, 125_000)
+    stop.current = watchTx(h, (s: Stage) => {
+      if (s === 'admitted') return setStep(3)
+      if (s === 'pending') return
+      final = true
+      clearTimeout(timer)
+      if (s === 'included') {
+        setStep(5)
+        if (opts.fixing) setFix({ ...opts.fixing, newHash: h })
+      } else if (s === 'failed') failedOnChain(h)
+      else
+        setProblem(
+          s === 'rejected'
+            ? { title: 'The mempool rejected it', next: 'Paste the hash into the search box above to see which rule failed and what to change.' }
+            : { title: 'The mempool dropped it before inclusion', next: 'Press Send again to build a fresh transaction.' },
+        )
+    })
+  }
+
+  /** Included but a frame failed: diagnose the receipt, and offer Fix & send when it's a gas problem. */
+  async function failedOnChain(h: Hex) {
+    const [tx, receipt] = await Promise.all([getTx('miner', h).catch(() => null), getReceipt(h).catch(() => null)])
+    const findings = tx && receipt ? diagnose(tx, receipt).findings : []
+    const f = fixable(findings)
+    if (f) setFix({ finding: f, oldHash: h, newHash: null })
+    setProblem({ title: 'It was included, but a frame failed', next: f ? 'Press Fix & send to apply the change and send again.' : 'Paste the hash into the search box above to see which frame failed and why.', findings })
+  }
+
+  const fail = (e: unknown) => setProblem({ title: "Couldn't reach the devnet", next: `${(e as Error).message}. Check your connection and try again.` })
+
+  async function send() {
+    reset()
+    setFix(null)
+    const p = inputs()
+    if (!p) return
+    try {
+      const built = await buildSendTx({ wallet: privateKeyToAccount(p.key).address, to: p.to, amount: p.value, ...ADDRS })
+      const draft = lowGas ? { ...built, frames: built.frames.map((f, i, all) => (i === all.length - 1 ? { ...f, gas: LOW_GAS } : f)) } : built
+      await run(draft, p.key)
     } catch (e) {
-      setProblem({ title: "Couldn't reach the devnet", next: `${(e as Error).message}. Check your connection and press Send again.` })
+      fail(e)
+    }
+  }
+
+  async function sendAnyway() {
+    const key = loadKey()
+    if (!caught || !key) return
+    const draft = caught
+    reset()
+    setFix(null)
+    try {
+      await run(draft, key, { skipCheck: true })
+    } catch (e) {
+      fail(e)
+    }
+  }
+
+  async function fixAndSend() {
+    const p = inputs()
+    if (!p || !fix) return
+    const current = fix
+    reset()
+    try {
+      // Rebuild for a fresh nonce (a failed tx on chain used the old one), apply the gas fix, then re-quote the fee,
+      // because a higher gas limit raises the maximum cost the paymaster prices.
+      const built = await buildSendTx({ wallet: privateKeyToAccount(p.key).address, to: p.to, amount: p.value, ...ADDRS })
+      const fixed = await requote(await applyPatch(built, current.finding.patch, ADDRS), ADDRS)
+      await run(fixed, p.key, { fixing: current })
+    } catch (e) {
+      fail(e)
     }
   }
 
@@ -106,10 +182,14 @@ export function Send() {
           Amount (tUSD)
           <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="1.0" inputMode="decimal" autoComplete="off" />
         </label>
-        <button type="submit" className="primary" disabled={busy}>
+        {/* One primary button per screen: while a fix is offered, Fix & send is the primary one. */}
+        <button type="submit" className={fix && !fix.newHash ? '' : 'primary'} disabled={busy}>
           {busy ? 'Sending' : 'Send'}
         </button>
       </form>
+      <label className="toggle send-low">
+        <input type="checkbox" checked={lowGas} onChange={(e) => setLowGas(e.target.checked)} /> Send with low gas (demo)
+      </label>
 
       {step !== null && (
         <ol className="timeline" aria-live="polite">
@@ -140,10 +220,17 @@ export function Send() {
         </p>
       )}
 
+      {fix && <FixAndSend finding={fix.finding} oldHash={fix.oldHash} newHash={fix.newHash} busy={busy} onFix={fixAndSend} />}
+
       {problem && (
         <div className="send-problem" role="alert">
           <p className="f-title">{problem.title}</p>
           <p>{problem.next}</p>
+          {caught && (
+            <button type="button" onClick={sendAnyway}>
+              Send anyway (demo: it will fail on chain)
+            </button>
+          )}
           {problem.findings && (
             <ol className="findings">
               {problem.findings.map((f, i) => (
