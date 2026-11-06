@@ -661,7 +661,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - done when: Connect works with an injected wallet; the faucet dry-run passes and one approved faucet send is included; build passes; Vercel redeployed and checked.
 - log: Built and committed. `src/ui/Connect.tsx`: wagmi 3.7.11 with the injected connector and EIP-6963 wallet discovery. `src/ui/Faucet.tsx`, plus `buildFaucetTx` and `mintData` in frames.ts. Mount lines in App.tsx and a balance-refresh listener in Wallet.tsx. Checked on the static build at 1280 px: with no wallet installed, Connect shows "No browser wallet found… use the demo account"; with an EIP-1193 test provider it showed "Connected 0x0000…dEaD · Injected" and Disconnect worked. At 375 px both cards are 343 px wide with no overflow. Console clean, build and `npm run check` pass. Faucet dry run on chain 1337 passed: 4 frames OK, fee 2.97 tUSD, mint frame succeeded. Pending: one approved real faucet send, a real MetaMask/Rabby connect (manjeet's own browser), and a Vercel redeploy.
 
-### T57 · Sleek dark HUD theme and favicon
+### T58 · Sleek dark HUD theme and favicon
 - owner: esh
 - status: doing
 - agent: Claude Code on esh
@@ -671,4 +671,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/app/globals.css, src/app/layout.tsx (display font), public/favicon.svg
 - do: Restyle to esh's references: near-black background with a faint grid, chamfered panels, hatch-stripe accents, condensed letter-spaced display type, cyan accent. Theme only, no layout or logic changes. New favicon to match.
 - done when: build passes, text contrast stays WCAG AA, all flows work at 1280 and 375 px with a clean console.
-- log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme.
+- log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme. Renumbered from T57, which another agent claimed first for the wagmi connect wallet (commits 128004f "T57: add and claim" is this ticket).
