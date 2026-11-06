@@ -958,3 +958,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: scale everything to 90%; bigger text in the status pills; less circular corners on the input, buttons and pills; the Fix box inside a card becomes a side line; frame tiles lose the gas bar and the big "00" numbers.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
 - log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow. Root font at 90% (body 14.4px); fields, buttons and tags at 6-8px corners; status and tag pills at 0.9rem; the fix is a violet side line inside its card; frame tiles show phase, "Frame N" + role and a coloured status word, with no gas bar.
+
+### T79 · Matching header buttons; findings without boxes
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 06:05 IST
+- priority: P2
+- depends: T78
+- touches: src/App.tsx, src/app/globals.css
+- do: esh: the Demo account pill and Connect wallet look different, so give them one shape and height. Replace the boxed finding cards and the dashed "Why it reverted" box with an unboxed list: hairline rows, the number in a left gutter, the status as a coloured word.
+- done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
+- log:
