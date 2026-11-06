@@ -6,16 +6,26 @@ import { DEPLOY } from './deploy'
 
 
 const KEY = 'readmit.demoKey'
-const isKey = (k: string): k is Hex => /^0x[0-9a-fA-F]{64}$/.test(k)
+// The right shape is not enough: 0x00…00 or 0xff…ff look like keys but are outside the secp256k1 range and crash signing.
+const isKey = (k: string): k is Hex => {
+  if (!/^0x[0-9a-fA-F]{64}$/.test(k)) return false
+  try {
+    privateKeyToAccount(k as Hex)
+    return true
+  } catch {
+    return false
+  }
+}
+// Used when the browser blocks localStorage, so the key still works until the page is reloaded.
+let memoryKey: Hex | null = null
 
-/** The imported test key, or null. It lives in this browser's localStorage only. */
+/** The imported test key, or null. It lives in this browser's localStorage only (or memory, if storage is blocked). */
 export function loadKey(): Hex | null {
   try {
     const k = localStorage.getItem(KEY) ?? ''
-    return isKey(k) ? k : null
-  } catch {
-    return null
-  }
+    if (isKey(k)) return k
+  } catch {}
+  return memoryKey
 }
 
 async function call<T>(method: string, params: unknown[]): Promise<T> {
@@ -42,7 +52,10 @@ export function Wallet() {
   const [error, setError] = useState('')
   const [bal, setBal] = useState<Balances | null>(null)
   const [balError, setBalError] = useState('')
-  const wallet = DEPLOY.demoWallet
+  // Balances are for the account that actually signs sends; before a key is imported, for the demo wallet.
+  const signer = key ? privateKeyToAccount(key).address : null
+  const wallet = signer ?? DEPLOY.demoWallet
+  const notDemo = !!signer && !!DEPLOY.demoWallet && signer.toLowerCase() !== DEPLOY.demoWallet.toLowerCase()
 
   const refresh = async () => {
     if (!wallet) return
@@ -66,13 +79,15 @@ export function Wallet() {
   function save() {
     const k = draft.trim()
     if (!isKey(k)) {
-      setError('A private key is 0x followed by 64 hex characters.')
+      setError(/^0x[0-9a-fA-F]{64}$/.test(k) ? "That isn't a valid private key (it's outside the allowed range)." : 'A private key is 0x followed by 64 hex characters.')
       return
     }
+    setError('')
+    memoryKey = k
     try {
       localStorage.setItem(KEY, k)
     } catch {
-      setError("This browser won't let the page store the key. It will be kept until you reload.")
+      setError("This browser won't let the page store the key. It will work until you reload.")
     }
     setKey(k)
     setDraft('')
@@ -82,6 +97,7 @@ export function Wallet() {
     try {
       localStorage.removeItem(KEY)
     } catch {}
+    memoryKey = null
     setKey(null)
   }
 
@@ -94,8 +110,11 @@ export function Wallet() {
       <p className="muted wallet-why">Browser wallets can&apos;t sign EIP-8141 frame transactions yet, so sends are signed by this shared demo account. A wallet connected at the top is for identity only.</p>
 
       <dl className="overview">
-        <dt>Wallet</dt>
-        <dd>{wallet ? <code>{wallet}</code> : <span className="muted">Not deployed yet</span>}</dd>
+        <dt>{signer ? 'Sends from' : 'Demo wallet'}</dt>
+        <dd>
+          {wallet ? <code>{wallet}</code> : <span className="muted">Not deployed yet</span>}
+          {notDemo && <span className="note"> This key is not the demo wallet, so balances and sends use this account.</span>}
+        </dd>
         <dt>tUSD</dt>
         <dd>{bal?.tusd != null ? `${formatUnits(bal.tusd, DEPLOY.tUSDDecimals)} tUSD` : <span className="muted">–</span>}</dd>
         <dt>ETH</dt>
@@ -104,7 +123,7 @@ export function Wallet() {
         <dd>
           {key ? (
             <span className="wallet-key">
-              <code>{privateKeyToAccount(key).address}</code>
+              <span className="muted">Imported</span>
               <button type="button" onClick={forget}>
                 Forget key
               </button>
@@ -120,14 +139,14 @@ export function Wallet() {
               <label htmlFor="demo-key" className="sr">
                 Import demo key
               </label>
-              <input id="demo-key" type="password" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Import demo key (0x…)" autoComplete="off" spellCheck={false} />
+              <input id="demo-key" type="password" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Import demo key (0x…)" autoComplete="off" spellCheck={false} aria-invalid={!!error} aria-describedby={error ? 'demo-key-error' : undefined} />
               <button type="submit">Import</button>
             </form>
           )}
         </dd>
       </dl>
       {error && (
-        <p className="error" role="alert">
+        <p className="error" role="alert" id="demo-key-error">
           {error}
         </p>
       )}
