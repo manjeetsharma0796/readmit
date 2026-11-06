@@ -863,15 +863,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T71 · Explorer-style layout
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 04:45 IST
 - priority: P2
 - depends: T70
 - touches: src/App.tsx, src/app/globals.css
-- do: esh asked for the layout of the devnet explorer's tx page: a left sidebar with the brand and the node list (Gateway, Miner), one flat main column with plain section headings and thin rules instead of floating cards; the result reads Transaction (hash, "as seen by"), a key/value list, frames, what to change, the admission rules as a visible checklist. Asked in chat after the freeze.
+- do: esh asked for the devnet explorer's simple reading order, without copying it: Readmit's own header, one flat column with plain headings and thin rules; the result reads Transaction (hash, "as seen by"), a key/value list, the frame strip, what to change, the admission report. Soft charcoal instead of pure black, no highlight colours (colour only on status), plainer findings, one-click copy of the hash and addresses. Asked in chat after the freeze.
 - done when: build passes; all saved cases render at 1280 and 375 px with no overflow or console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1280 and 375 px: no overflow. Real click on the hash shows "Copied" (copies through a hidden text area first, because the in-app browser blocks the async clipboard API). Also: pasting a full hash inspects it straight away; the admission report shows failed rules and folds the rest away; the findings are a plain numbered list; the wallet note is no longer yellow.
 
 ### T72 · `@readmit/sdk`: the engine as a configurable package
 - owner: prith

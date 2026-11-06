@@ -43,6 +43,8 @@ const SAMPLES: Sample[] = [
 ]
 const GROUPS = ['Rejected by the mempool', 'Failed on chain', 'Worked'] as const
 // One of each kind up front; the rest sit under "More examples".
+// How each node handles what it admits, in the explorer's words.
+const NODE_ROLE: Record<NodeId, string> = { gateway: 'manual bundling', miner: 'auto-bundles' }
 const FEATURED = ['Ran out of gas', 'Validation gas over cap', 'Logic revert']
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : 'none')
@@ -243,10 +245,26 @@ export default function App() {
     }
   }, [rows])
 
+  type Check = NonNullable<TxResult['admission']>['checks'][number]
+  const renderCheck = (c: Check, i: number) => (
+                    <li key={i} className={c.verdict}>
+                      <Dot tone={c.verdict === 'pass' ? 'pass' : c.verdict === 'fail' ? 'fail' : 'info'} />
+                      <code>{c.rule}</code>
+                      {c.frameIndex !== undefined && (
+                        <span className="muted">
+                          frame {c.frameIndex}, {c.entity}
+                        </span>
+                      )}
+                      <span className="muted">{c.verdict}</span>
+                      {c.detail && <span className="detail">{c.detail}</span>}
+                    </li>
+  )
+
   const shown = rows?.filter((r) => !onlyRejected || r.outcome === 'rejected').slice(0, 12) ?? []
 
   return (
-    <main className="page" id="main">
+    <div className="shell">
+      <main className="page" id="main">
       <header className="top">
         <div className="brand">
           <svg className="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
@@ -286,7 +304,7 @@ export default function App() {
         </div>
         <div className="seg" role="group" aria-label="Mempool node">
           {(Object.keys(NODES) as NodeId[]).map((id) => (
-            <button key={id} className={id === node ? 'on' : ''} aria-pressed={id === node} onClick={() => setNode(id)}>
+            <button key={id} className={id === node ? 'on' : ''} aria-pressed={id === node} title={`Chain 1337, ${NODE_ROLE[id]}`} onClick={() => setNode(id)}>
               {NODES[id].label}
             </button>
           ))}
@@ -295,6 +313,7 @@ export default function App() {
       </header>
 
       <form
+        id="inspect"
         className="search"
         onSubmit={(e) => {
           e.preventDefault()
@@ -303,7 +322,23 @@ export default function App() {
       >
         <label htmlFor="hash">Transaction hash on the alt-mempool devnet (chain 1337)</label>
         <div className="row">
-          <input id="hash" value={input} onChange={(e) => setInput(e.target.value)} placeholder="0x…" spellCheck={false} autoComplete="off" />
+          <input
+            id="hash"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onPaste={(e) => {
+              // Pasting a whole hash is the common case: inspect it straight away.
+              const pasted = e.clipboardData.getData('text').trim()
+              if (/^0x[0-9a-fA-F]{64}$/.test(pasted)) {
+                e.preventDefault()
+                setInput(pasted)
+                inspect(pasted, node)
+              }
+            }}
+            placeholder="Paste a transaction hash, 0x…"
+            spellCheck={false}
+            autoComplete="off"
+          />
           <button type="submit" className="primary" disabled={busy}>
             {busy ? 'Inspecting' : 'Inspect'}
           </button>
@@ -341,30 +376,71 @@ export default function App() {
       {loaded && dx && (
         <section className="result" aria-label="Result">
           <div className="result-head">
-            <h2 ref={resultRef} tabIndex={-1}>What happened</h2>
+            <h2 ref={resultRef} tabIndex={-1}>Transaction</h2>
             <div className="actions">
-              {loaded.source === 'sample' && <span className="saved-badge">Saved copy · recorded earlier on the devnet, not a live check</span>}
               <a href={EXPLORER(loaded.hash, loaded.node)} target="_blank" rel="noreferrer">
                 Open in explorer
               </a>
               <button onClick={download}>Download report</button>
             </div>
           </div>
+          <p className="tx-hash">
+            <Copy text={loaded.hash} label="transaction hash">
+              <code className="hash">{loaded.hash}</code>
+            </Copy>
+          </p>
+          <p className="seen">
+            As seen by {NODES[loaded.node].label}
+            {loaded.source === 'sample' && <span className="saved-badge">Saved copy · recorded earlier on the devnet, not a live check</span>}
+          </p>
 
+          <dl className="overview kv">
+            <dt>Status</dt>
+            <dd>
+              <span className={`badge ${status.tone}`}>
+                <Dot tone={status.tone} />
+                {status.text}
+              </span>
+            </dd>
+            <dt>Block</dt>
+            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
+            <dt>Sender</dt>
+            <dd>{sender ? <Copy text={sender} label="sender address"><code>{sender}</code></Copy> : <span className="muted">Unknown</span>}</dd>
+            <dt>Payer</dt>
+            <dd>{payer ? <Copy text={payer} label="payer address"><code>{payer}</code></Copy> : <span className="muted">Unknown</span>}</dd>
+            <dt>Fee</dt>
+            <dd>
+              {loaded.receipt ? (
+                <>
+                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
+                </>
+              ) : (
+                <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
+              )}
+            </dd>
+            <VerdictRow label={`Admission (${NODES[loaded.node].label.toLowerCase()} node)`} v={dx.mempool} />
+            <VerdictRow label="On chain" v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
+            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
+          </dl>
 
           <p className={`summary ${status.tone}`}>{summary}</p>
-          <div className="result-body">
-            <div className="main-col">
+
+          <section aria-label="Frames">
+            <h2>Frames, in execution order</h2>
+            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
+          </section>
+
           <section className="change" aria-label="What to change">
             <h2>{receipt?.status === '0x1' && loaded.tx.admission?.outcome === 'rejected' ? 'Why that one copy was rejected (no action needed)' : dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
             <ol className="findings">
               {dx.findings.map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
-                  <div className="f-title">
-                    <Dot tone={f.tone} />
-                    {f.title}
-                  </div>
-                  {f.fix && <p className="fix">{f.fix}</p>}
+                  <p className="f-title">{f.title}</p>
+                  {f.fix && (
+                    <p className="fix">
+                      <span className="fix-label">Fix</span> {f.fix}
+                    </p>
+                  )}
                   {f.patch?.kind === 'gas' && f.frame !== undefined && loaded.receipt?.frameReceipts[f.frame] && (
                     <p className="how">
                       How we got {fmt(f.patch.gas)}: frame {f.frame} used {fmt(n(loaded.receipt.frameReceipts[f.frame].gasUsed))} gas, plus 25% headroom, rounded up to
@@ -382,7 +458,7 @@ export default function App() {
             </ol>
             {why && why.hash === loaded.hash && (
               <p className={`replay ${why.state}`} aria-live="polite">
-                <strong>Why it reverted: </strong>
+                <span className="replay-label">Why it reverted:</span>{' '}
                 {why.state === 'loading' && 'replaying it on the block before it…'}
                 {why.state === 'found' && (
                   <>
@@ -400,77 +476,29 @@ export default function App() {
             )}
           </section>
 
-          <section aria-label="Frames">
-            <h2>Frames, in execution order</h2>
-            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
-          </section>
-
-          <details className="checks">
-            <summary>Technical details</summary>
+          <section className="checks" aria-label="Admission report">
+            <h2>Admission report</h2>
             {loaded.tx.admission ? (
               <>
-                <h3>Every admission rule the sidecar ran ({loaded.tx.admission.checks.length})</h3>
-                <ul>
-                  {loaded.tx.admission.checks.map((c, i) => (
-                    <li key={i} className={c.verdict}>
-                      <Dot tone={c.verdict === 'pass' ? 'pass' : c.verdict === 'fail' ? 'fail' : 'info'} />
-                      <code>{c.rule}</code>
-                      {c.frameIndex !== undefined && (
-                        <span className="muted">
-                          frame {c.frameIndex}, {c.entity}
-                        </span>
-                      )}
-                      <span className="muted">{c.verdict}</span>
-                      {c.detail && <span className="detail">{c.detail}</span>}
-                    </li>
-                  ))}
-                </ul>
+                <p className="muted">
+                  {loaded.tx.admission.checks.filter((c) => c.verdict === 'pass').length} of {loaded.tx.admission.checks.length} rules passed.
+                </p>
+                {loaded.tx.admission.checks.some((c) => c.verdict === 'fail') && (
+                  <ul>{loaded.tx.admission.checks.filter((c) => c.verdict === 'fail').map((c, i) => renderCheck(c, i))}</ul>
+                )}
+                <details className="passed">
+                  <summary>Show the other {loaded.tx.admission.checks.filter((c) => c.verdict !== 'fail').length} rules</summary>
+                  <ul>{loaded.tx.admission.checks.filter((c) => c.verdict !== 'fail').map((c, i) => renderCheck(c, i))}</ul>
+                </details>
               </>
             ) : (
               <p className="muted">This node kept no admission report for this transaction.</p>
             )}
-          </details>
-            </div>
-            <aside className="side" aria-label="Transaction details">
-              <h3>Transaction</h3>
-          <dl className="overview">
-            <dt>Transaction hash</dt>
-            <dd>
-              <code className="hash">{loaded.hash}</code>
-            </dd>
-            <dt>Status</dt>
-            <dd>
-              <span className={`badge ${status.tone}`}>
-                <Dot tone={status.tone} />
-                {status.text}
-              </span>
-            </dd>
-            <dt>Block</dt>
-            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
-            <dt>Sender</dt>
-            <dd>{sender ? <code>{sender}</code> : <span className="muted">Unknown</span>}</dd>
-            <dt>Payer</dt>
-            <dd>{payer ? <code>{payer}</code> : <span className="muted">Unknown</span>}</dd>
-            <dt>Fee</dt>
-            <dd>
-              {loaded.receipt ? (
-                <>
-                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
-                </>
-              ) : (
-                <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
-              )}
-            </dd>
-            <VerdictRow label={`Admission check (${NODES[loaded.node].label.toLowerCase()} node)`} v={dx.mempool} />
-            <VerdictRow label="On chain" v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
-            <VerdictRow label="ERC-8421 spec check" v={dx.spec} />
-          </dl>
-            </aside>
-          </div>
+          </section>
         </section>
       )}
 
-      <section className="flow" aria-label="Send your own transaction">
+      <section id="send" className="flow" aria-label="Send your own transaction">
         <div className="flow-head">
           <h2>Send your own</h2>
           <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first. If a frame would run out of gas, Fix &amp; send raises its limit and sends; other problems are explained so you can fix them.</p>
@@ -481,7 +509,7 @@ export default function App() {
         </div>
       </section>
 
-      <section className="recent" aria-label="Recent admissions">
+      <section id="live" className="recent" aria-label="Recent admissions">
         <div className="recent-head">
           <h2>Live from the {NODES[node].label.toLowerCase()} node</h2>
           <label className="toggle">
@@ -573,6 +601,51 @@ export default function App() {
         <Endpoints />
       </footer>
     </main>
+    </div>
+  )
+}
+
+// One-click copy: the label says what was copied, and the button confirms for a moment.
+function Copy({ text, label, children }: { text: string; label: string; children?: React.ReactNode }) {
+  const [done, setDone] = useState(false)
+  return (
+    <button
+      type="button"
+      className={`copy${children ? ' copy-value' : ''}${done ? ' done' : ''}`}
+      aria-label={done ? 'Copied' : `Copy ${label}`}
+      title={done ? 'Copied' : `Copy ${label}`}
+      onClick={() => {
+        const ok = () => {
+          setDone(true)
+          setTimeout(() => setDone(false), 1200)
+        }
+        // Copy from a hidden text area first: it works inside the click even where the async clipboard API is blocked.
+        const legacy = () => {
+          const t = document.createElement('textarea')
+          t.value = text
+          t.setAttribute('readonly', '')
+          t.style.position = 'fixed'
+          t.style.opacity = '0'
+          document.body.appendChild(t)
+          t.select()
+          const copied = document.execCommand('copy')
+          t.remove()
+          if (copied) ok()
+          else navigator.clipboard?.writeText(text).then(ok, () => {})
+        }
+        try {
+          legacy()
+        } catch {
+          navigator.clipboard?.writeText(text).then(ok, () => {})
+        }
+      }}
+    >
+      {children}
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {done ? <path d="M3.5 8.5l3 3 6-7" /> : <><rect x="5.5" y="5.5" width="8" height="8" rx="2" /><path d="M10.5 3.5v-.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" /></>}
+      </svg>
+      {children && <span className="copy-note" aria-hidden="true">{done ? 'Copied' : ''}</span>}
+    </button>
   )
 }
 
