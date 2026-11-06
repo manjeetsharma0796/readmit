@@ -411,9 +411,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T26 · Mobile and accessibility pass, plus README screenshots (P1)
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 23:35 IST
 - priority: P1
 - depends: T23
 - touches: src/app/globals.css, docs/img/
@@ -487,3 +487,18 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - do: Replace the header mark and favicon with the approved sculpted sweep. Local changes only; no commits or pushes.
 - done when: build passes and the logo renders at 1280 px and 375 px without console errors.
 - log: Header mark (inline SVG, 48 px, currentColor) and favicon replaced with the approved sculpted sweep; source in public/logo.svg. Favicon turns white in dark browser themes. `npm run build` passes; checked at 1280 and 375 px with no horizontal overflow and no console errors.
+
+### T45 · Demo-path polish: saved-case fallback, dry-run verdicts, sponsor lines
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 23:35 IST
+- priority: P0
+- depends: T22, T17
+- touches: src/App.tsx, src/ui/Send.tsx, src/app/globals.css
+- do:
+  - Pasting a demo hash (0xe97e…, 0x6137…) the node has forgotten falls back to the saved real case, labelled as saved. "Not found" no longer says "couldn't reach the devnet".
+  - The send dry run requests the trace and passes the sender, so T17's pool-price warning shows (needs: esh from T17). Show the dry run's two verdicts (public mempool vs alt mempool, would-succeed) even when it goes on to send.
+  - Fee line names where the price comes from: the paymaster's quote from the Uniswap v4 ETH/tUSD pool.
+- done when: pasting 0xe97e… shows the saved case, the dry-run verdicts render, and `npm run build` passes.
+- log:
