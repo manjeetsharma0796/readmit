@@ -411,32 +411,43 @@ export default function App() {
           <button onClick={() => loadRecent(node)}>Refresh</button>
         </div>
         {stats && (
-          <p className="stats">
-            <span className="stat-big">{Math.round((stats.rejected / stats.total) * 100)}%</span>
-            <strong>
-              {stats.rejected} of the last {stats.total}
-            </strong>{' '}
-            transactions this node saw were rejected
-            {stats.senders > 0 && (
-              <>
-                , from <strong>{stats.senders}</strong> different {stats.senders === 1 ? 'sender' : 'senders'}
-              </>
-            )}
-            , over {stats.span}.
+          <div className="stats" aria-label="Rejections on this node">
+            <div className="tile">
+              <span className="tile-label">
+                <span className="dot fail" aria-hidden="true" /> Rejected
+              </span>
+              <span className="tile-value">{Math.round((stats.rejected / stats.total) * 100)}%</span>
+              <span className="tile-sub">
+                {stats.rejected} of the last {stats.total}
+              </span>
+            </div>
+            <div className="tile">
+              <span className="tile-label">Senders hit</span>
+              <span className="tile-value">{stats.senders}</span>
+              <span className="tile-sub">distinct accounts</span>
+            </div>
+            <div className="tile">
+              <span className="tile-label">Window</span>
+              <span className="tile-value tile-value-sm">{stats.span}</span>
+              <span className="tile-sub">of this node's memory</span>
+            </div>
             {stats.top.length > 0 && (
-              <>
-                {' '}
-                Top rules:{' '}
-                {stats.top.map(([rule, count], i) => (
-                  <span key={rule}>
-                    {i > 0 && ', '}
-                    <code>{rule}</code> ×{count}
-                  </span>
-                ))}
-                .
-              </>
+              <div className="tile tile-rules">
+                <span className="tile-label">Top rules</span>
+                <ul>
+                  {stats.top.map(([rule, count]) => (
+                    <li key={rule}>
+                      <code>{rule}</code>
+                      <span className="rule-bar" aria-hidden="true">
+                        <span style={{ width: `${(count / stats.top[0][1]) * 100}%` }} />
+                      </span>
+                      <span className="rule-n">{count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-          </p>
+          </div>
         )}
         {rowsError && <p className="error">{rowsError}</p>}
         {rows === null ? (
