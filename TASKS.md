@@ -685,9 +685,9 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - done when: build passes, all 12 cases read correctly, 1280 and 375 px look right.
 - log: esh asked for this in chat after the feature freeze (override as T56). Done 02:50. Summary checked on all 12 saved cases and on live 0xfd7a32da… (gateway rejected a copy with `simulation`, tx landed): "The transaction landed on chain and every frame worked. The gateway node rejected one copy of it (rule simulation), but another copy got in … Nothing to fix", with the fix panel retitled "Why that one copy was rejected (no action needed)". Frame map: out-of-gas case shows frame 4 red at 100%; logic revert shows frame 2 red at 16%. 1280 and 375 px, no overflow; build and checks pass. Also found the 21:34 dev server stuck (half-closed socket serving stale output) and restarted it.
 
-### T58 · Frame boxes strip (design from the explorer reference)
+### T60 · Frame boxes strip (design from the explorer reference)
 - owner: esh
-- note: added by manjeet at 02:53 IST as "right now" priority. If esh is busy, manjeet's agent takes it; check the board first.
+- note: added by manjeet at 02:53 IST as "right now" priority (renumbered from a duplicate T58 at 02:55). If esh is busy, manjeet's agent takes it. **First look at esh's T59 frame map**, and extend it into these boxes rather than building a second frame view.
 - status: todo
 - agent:
 - started:
@@ -713,4 +713,41 @@ Goal: every claim a judge can check is true, and every hard question has an answ
   - all 12 saved cases plus a live hash render the strip correctly: 0xe97e frame 4 red as "Ran out of gas"; 0x6137 frame 2 red as "Reverted"; a rejected case shows "Before the frames"; the golden tx shows all green;
   - screenshots at 1280 and 375 px look like the reference;
   - console clean, `npm run build` passes.
+- log:
+
+### T61 · Connect wallet (RainbowKit) and faucet button in the top-right header
+- owner: manjeet
+- note: added by manjeet at 02:55 IST. It touches esh's header in src/App.tsx, so tell esh before starting. It replaces the Connect card from T57.
+- status: todo
+- agent:
+- started:
+- priority: P0 (demo UX)
+- depends: T57 (done)
+- touches: src/ui/Connect.tsx, src/ui/Faucet.tsx, src/App.tsx (header only), src/app/globals.css, package.json, package-lock.json
+- reference: `docs/img/ref/connect-and-faucet-current.webp` shows where they are now (in the Send section) and what to move. EIP-6963 discovery already lists Phantom, OKX Wallet and Backpack there.
+- do:
+  - **Library:** RainbowKit `@rainbow-me/rainbowkit@2.2.11`, the familiar wallet modal.
+    - It needs **wagmi 2.x**: its peer dependency is `wagmi ^2.9.0`, and we're on wagmi 3.7.11. Switch to `wagmi@2.19.5`. Port Connect.tsx to the v2 hooks: `useAccount` instead of `useConnection`; `useConnect` and `useDisconnect` stay.
+    - Keep the custom chain 1337 definition and `ssr: false`. The page is client-only already.
+  - **WalletConnect projectId:** RainbowKit's `getDefaultConfig` needs one for QR and mobile wallets.
+    - Get a free one at cloud.reown.com. That's a human signup, so ask manjeet. Put it in `NEXT_PUBLIC_WC_PROJECT_ID`, both in `.env.local` (gitignored) and in Vercel env.
+    - **Fallback with no projectId:** `connectorsForWallets` with injected wallets only. Installed extensions still appear through EIP-6963 (Phantom, OKX, Backpack, MetaMask, Rabby). Only QR and mobile is lost. Say so in the log.
+  - **Top-right of the header**, on one row: `[Get 100 test tUSD]` then RainbowKit's `<ConnectButton chainStatus="none" showBalance={false} accountStatus="address" />`.
+    - Remove the Connect card from the Send section.
+    - The honest note moves into RainbowKit's `appInfo.disclaimer`, shown inside the connect modal: "Browser wallets can't sign EIP-8141 frame transactions yet, so on this devnet sends are signed by the shared demo account 0x1328…5742." Keep one short muted line under the Demo wallet panel too.
+  - **Faucet in the header:** a compact button.
+    - Progress (dry run, sent, admitted, included, then the hash with an explorer link) shows in a small popover or toast under the button.
+    - It's disabled while busy.
+    - If no demo key is imported, the popover says "Import the demo key in the wallet panel first", with a link that scrolls there.
+    - Keep the `readmit:balances` event so the wallet panel refreshes.
+  - **Theme:** RainbowKit `darkTheme({ accentColor, accentColorForeground, borderRadius: 'small' })`, using the current theme tokens from esh's T58/T59 palette so the modal matches the page.
+  - **Chain:** never prompt a network switch (we only identify the wallet; frame txs are signed by the demo account). `chainStatus="none"`, no `switchChain` calls.
+  - **375 px:** the header wraps cleanly. Use the compact button (`accountStatus="avatar"`) and the shortened label "Get tUSD". No horizontal scroll.
+- done when:
+  - At 1280 px both buttons sit top right. The RainbowKit modal opens and lists the installed wallets.
+  - Connecting shows the address chip. Disconnect works from the account modal.
+  - The faucet completes **one approved real send**, the balance updates, and the hash goes in this log.
+  - 375 px looks right, the console is clean, and `npm run build` and `npm run check` pass.
+  - Vercel is redeployed (`vercel --prod`, manjeet approves) and the live URL is re-checked.
+  - manjeet tests Connect once with a real extension, because the agent's browser has no wallet.
 - log:
