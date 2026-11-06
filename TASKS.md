@@ -299,7 +299,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
   Also write the ETHGlobal submission text (description, how it's made, tracks), plus answers for "why the alt mempool" and "why Uniswap".
 - done when: both docs are on `main` and the script reads out in under 3 minutes.
-- log:
+- log: First drafts are on main: `docs/PITCH.md` (a 90 s script built on the real 0xe97e and 0x6137 cases, plus judge Q&A) and `docs/SUBMISSION.md` (form text and prize checklist). They read under 3 minutes. Every hash, address and number that doesn't exist yet is marked `[TODO]` and gets filled after T05, T22 and T40. Status stays `doing` until those are filled after 01:00.
 
 ---
 
