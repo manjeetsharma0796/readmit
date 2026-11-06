@@ -860,3 +860,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Pill-round the hash input and buttons; a modern flat primary button; stop the global key style leaking into RainbowKit's modal (back, close and help buttons, wallet rows). esh asked in chat after the freeze.
 - done when: build passes, input, Inspect and the Connect modal look right at 1280 and 375 px.
 - log: esh asked in chat after the freeze. npm run build and git diff --check pass; no console errors. Checked at 1280 and 375 px: pill input and Inspect, gradient primary with hover lift. Connect modal: the matte key shadows no longer leak onto its buttons; the back arrow and Learn More link were near-invisible (theme accent #222226), now violet inside the modal only; section labels brighter.
+
+### T71 · Explorer-style layout
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 04:45 IST
+- priority: P2
+- depends: T70
+- touches: src/App.tsx, src/app/globals.css
+- do: esh asked for the layout of the devnet explorer's tx page: a left sidebar with the brand and the node list (Gateway, Miner), one flat main column with plain section headings and thin rules instead of floating cards; the result reads Transaction (hash, "as seen by"), a key/value list, frames, what to change, the admission rules as a visible checklist. Asked in chat after the freeze.
+- done when: build passes; all saved cases render at 1280 and 375 px with no overflow or console errors.
+- log:
