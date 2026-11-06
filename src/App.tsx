@@ -5,8 +5,7 @@ import { diagnose, errorString, fmt, n, type Diagnosis, type Receipt, type Tone,
 import { FramesTable } from './ui/FramesTable'
 import { Send } from './ui/Send'
 import { Wallet } from './ui/Wallet'
-import { Connect } from './ui/Connect'
-import { Faucet } from './ui/Faucet'
+import { HeaderWallet } from './ui/Connect'
 import { Endpoints } from './ui/Endpoints'
 import { replay } from './engine/frames'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
@@ -245,6 +244,7 @@ export default function App() {
             </button>
           ))}
         </div>
+        <HeaderWallet />
       </header>
 
       <form
@@ -418,12 +418,8 @@ export default function App() {
           <h2>Send your own</h2>
           <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first; if it would fail, Fix &amp; send repairs it.</p>
         </div>
-        <Connect />
         <div className="flow-grid">
-          <div className="flow-stack">
-            <Wallet />
-            <Faucet />
-          </div>
+          <Wallet />
           <Send />
         </div>
       </section>

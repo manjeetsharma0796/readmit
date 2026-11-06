@@ -91,6 +91,7 @@ export function Wallet() {
         <h2>Demo wallet</h2>
         <span className="note">Test key, devnet only. Stored in this browser, never sent anywhere.</span>
       </div>
+      <p className="muted wallet-why">Browser wallets can&apos;t sign EIP-8141 frame transactions yet, so sends are signed by this shared demo account. A wallet connected at the top is for identity only.</p>
 
       <dl className="overview">
         <dt>Wallet</dt>
