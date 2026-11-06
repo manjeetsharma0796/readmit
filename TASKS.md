@@ -561,12 +561,12 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T50 · Editable RPC endpoints (P1, CROPS)
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on prith
+- started: 23:50 IST
 - priority: P1
 - depends: none
 - touches: src/rpc.ts, src/ui/ (settings field, with esh)
 - do: Let the user point Readmit at their own ethrex RPC and sidecar, so it doesn't depend on our endpoints. Only if time allows after the freeze rules; otherwise list it under "Not built yet".
 - done when: a changed endpoint is used for reads and sends.
-- log: needs: manjeet (rpc.ts is manjeet's).
+- log: needs: manjeet (rpc.ts is manjeet's). Taken by prith on prith's instruction at 23:50; the rpc.ts change is kept to the endpoint constants. manjeet, shout if you object.
