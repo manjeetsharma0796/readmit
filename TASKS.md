@@ -191,7 +191,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T11 · Correct advice and parse thresholds
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:23 IST
 - priority: P0
@@ -204,7 +204,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - For an unknown rule, show its detail verbatim.
   - Add the classes "payer can't cover cost", "unstaked foreign storage read" and "banned opcode" (PRD §11).
 - done when: the self-check passes, and a grep for "or stake" in `src/` returns nothing.
-- log:
+- log: `npm run check` gives "diagnose: 12 cases OK", with 6 new real samples from the gateway and miner. The cap fix no longer says "stake". It also handles the newer cap wording "prefix gas budget exceeded: N > N (MAX_VERIFY_GAS)", which the old parser missed (6 recent hits). New classes: state-gas cap, payer can't cover max cost, validation out of gas, unstaked storage read (stake advice is correct here), banned opcode, wrong nonce, already known. Every finding names the sidecar rule, and all numbers come from the detail text. When several rules fail, the spec column keeps the most severe. Zero "or stake" matches remain in src/. Live UI check on 0x5c67…dafd4 (miner) showed both findings, with the spec verdict "Also invalid". `npm run build` passes.
 
 ### T12 · Frame tx builder and signer (`src/engine/frames.ts`)
 - owner: manjeet

@@ -1,0 +1,146 @@
+{
+  "name": "unstaked-storage",
+  "hash": "0x5c67278061579d14f04170e8c9452662284a9f601f129dfa1658114006cdafd4",
+  "node": "miner",
+  "tx": {
+    "hash": "0x5c67278061579d14f04170e8c9452662284a9f601f129dfa1658114006cdafd4",
+    "entry": null,
+    "admission": {
+      "id": 554,
+      "txHash": "0x5c67278061579d14f04170e8c9452662284a9f601f129dfa1658114006cdafd4",
+      "sender": "0xaef740e2e0d3eb476f6790d2ead1d2913e1c29d7",
+      "nonce": "0x0",
+      "nonceKeys": [
+        "0x11e0da4ea07f4294cf2d536d684631fd534d01a600ba67bc256841ea1878764"
+      ],
+      "at": 1793976927692,
+      "source": "rpc",
+      "outcome": "rejected",
+      "errorCode": -32502,
+      "checks": [
+        {
+          "rule": "gas-limit",
+          "verdict": "pass"
+        },
+        {
+          "rule": "recent-root",
+          "verdict": "pass"
+        },
+        {
+          "rule": "prefix",
+          "verdict": "pass"
+        },
+        {
+          "rule": "structure",
+          "verdict": "pass"
+        },
+        {
+          "rule": "signature",
+          "verdict": "pass"
+        },
+        {
+          "rule": "simulation",
+          "verdict": "pass"
+        },
+        {
+          "rule": "trace-alignment",
+          "verdict": "pass"
+        },
+        {
+          "rule": "OP-061",
+          "verdict": "pass"
+        },
+        {
+          "rule": "execution",
+          "verdict": "pass"
+        },
+        {
+          "rule": "trace-alignment",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "pass"
+        },
+        {
+          "rule": "out-of-gas",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "pass"
+        },
+        {
+          "rule": "OP-011",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "fail",
+          "detail": "payer uses banned opcode: SELFBALANCE"
+        },
+        {
+          "rule": "create",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "pass"
+        },
+        {
+          "rule": "storage",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "fail",
+          "detail": "unstaked payer accessed 0xf8d72424d07721ab219cdbd2852657f3301673fc slot 0x2130007fc8a8cd6417c7b62d1b067d5360173e5b597c6979428da8651d5914b3"
+        },
+        {
+          "rule": "COD-010",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "pass"
+        },
+        {
+          "rule": "entrypoint-access",
+          "frameIndex": 0,
+          "entity": "payer",
+          "verdict": "pass"
+        },
+        {
+          "rule": "mempool",
+          "verdict": "skipped"
+        }
+      ],
+      "frames": [
+        {
+          "mode": 1,
+          "flags": 3,
+          "target": null,
+          "limits": {
+            "execution": "0x6ddd0",
+            "state": "0x0"
+          },
+          "value": "0x0",
+          "data": "0x60f7aff6"
+        },
+        {
+          "mode": 2,
+          "flags": 0,
+          "target": "0xF8d72424D07721aB219cdbd2852657F3301673fC",
+          "limits": {
+            "execution": "0x93378",
+            "state": "0x55f00"
+          },
+          "value": "0x0",
+          "data": "0x21a0adb600000000000000000000000000000000000000000000000000000000000000e02d7a4a5bdfb7992d5012cee040520c3c330a1c7ee34baf19daca22fbcffdaaaa011e0da4ea07f4294cf2d536d684631fd534d01a600ba67bc256841ea187876400000000000000000000000012735ed5f797565fc4284d318564402d0df53ce4000000000000000000000000aef740e2e0d3eb476f6790d2ead1d2913e1c29d7000000000000000000000000000000000000000000000000000b2418214804000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010025a3b1002ad0a369228e5fb179534d3edbb342f7b8a8006da5e83da9760439370840e5031e4313d25e32752be37735e8df61b159c9fc7dcbd0623fbd680b67ac2392bcfba5d1699117d8ccd5630112306015bab34e25e1e98d0fd17e48146a4a1157aa7f6a4ed5f5e904554e625adab6cf65c27dce304244e4843fdb0b1778e312dd5a107971308feb2fad831958a86a260b02161cfb4f015489bb6b615a699412b7119bd94aa83460302948edcb3bf20ef92c2fcee309b3ee3f3e256e2455c41d3607f88e0a268bf26a86d227597affbb62a449a649123c409c5c5ab9d95a502960a08b4e23eb1044b8c8b5b5c127263bbf0309ede5f8541071b3c03612d902"
+        }
+      ],
+      "frameStatuses": [
+        "success",
+        "success"
+      ]
+    },
+    "events": [
+      {
+        "seq": 1569,
+        "txHash": "0x5c67278061579d14f04170e8c9452662284a9f601f129dfa1658114006cdafd4",
+        "at": 1793976927736,
+        "kind": "rejected",
+        "reason": "payer uses banned opcode: SELFBALANCE"
+      }
+    ]
+  },
+  "receipt": null
+}

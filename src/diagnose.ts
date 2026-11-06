@@ -52,49 +52,125 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
 
   let spec: Verdict = { tone: 'info', headline: 'No conflict found', sub: 'Partial check: budget and validation rules only' }
 
+  // Every number below is read from the sidecar's own detail text, never assumed, so a config change shows up as-is.
+  const severity: Record<Tone, number> = { fail: 0, warn: 1, info: 2, pass: 3 }
+  let specFromRule = false
   for (const c of fails) {
+    const before = spec
     const d = c.detail ?? ''
-    const budget = d.match(/gas sum (\d+) \+ signature-verification cost (\d+) = (\d+) exceeds MAX_VERIFY_GAS (\d+)/)
-    const vrev = d.match(/validation frame (\d+): reverted with data (0x[0-9a-fA-F]*)/)
-    if (budget) {
-      const total = Number(budget[3])
-      const cap = Number(budget[4])
+    const ruleNote = ` Sidecar rule: ${c.rule}.`
+    // Two wordings of the same cap, from different sidecar versions.
+    const budgetOld = d.match(/gas sum (\d+) \+ signature-verification cost (\d+) = (\d+) exceeds MAX_VERIFY_GAS (\d+)/)
+    const budgetNew = d.match(/prefix gas budget exceeded: (\d+) > (\d+) \(MAX_VERIFY_GAS\)/)
+    const stateCap = d.match(/state gas sum (\d+) exceeds MAX_VERIFY_STATE_GAS (\d+)/)
+    const payer = d.match(/the payer (0x[0-9a-fA-F]{40}) has (\d+) wei, the transaction's maximum cost is (\d+) wei/)
+    const vOog = d.match(/validation frame (\d+): ran out of gas(?: \(the frame's gas limit (\d+) cannot cover its entry charge of (\d+) gas\))?/)
+    const vrev = d.match(/validation frame (\d+): reverted(?: with data (0x[0-9a-fA-F]*))?/)
+    const storage = d.match(/unstaked (\w+) accessed (\S+) slot (0x[0-9a-fA-F]+)/)
+    const opcode = d.match(/(\w+) uses banned opcode: (\w+)/)
+    const nonce = d.match(/Nonce mismatch: expected (\d+), got (\d+)/)
+    if (budgetOld || budgetNew) {
+      const total = Number(budgetOld ? budgetOld[3] : budgetNew![1])
+      const cap = Number(budgetOld ? budgetOld[4] : budgetNew![2])
+      const parts = budgetOld ? `${fmt(Number(budgetOld[1]))} gas plus ${fmt(Number(budgetOld[2]))} for the signature, ` : ''
       findings.push({
         tone: 'fail',
         title: 'Validation gas is over the mempool cap',
-        why: `The verification frames declare ${fmt(Number(budget[1]))} gas plus ${fmt(Number(budget[2]))} for the signature, ${fmt(total)} in total. This sidecar caps validation at ${fmt(cap)} for every account, staked or not.`,
-        fix:
-          total <= ERC8421_STAKED_CAP
-            ? `Either lower the verification limits so the total is under ${fmt(cap)} (simulate first to see what they really use), or stake the sender. ERC-8421 lets staked entities use up to ${fmt(ERC8421_STAKED_CAP)}, but this sidecar does not apply that yet.`
-            : `Lower the verification limits. ${fmt(total)} is over even the ${fmt(ERC8421_STAKED_CAP)} that ERC-8421 allows staked entities.`,
+        why: `The verification frames declare ${parts}${fmt(total)} in total. This sidecar caps validation at ${fmt(cap)} for every account, staked or not.${ruleNote}`,
+        fix: `Lower the verification frames' gas limits so their total is under ${fmt(cap)}. Simulate first to see what they really use. Staking does not raise this sidecar's cap. If validation truly needs more (for example a post-quantum signature), this sidecar can't admit it today.`,
       })
       spec =
         total <= ERC8421_STAKED_CAP
-          ? { tone: 'warn', headline: 'Admissible if staked', sub: `ERC-8421 allows up to ${fmt(ERC8421_STAKED_CAP)} for staked entities. The sidecar is stricter than the spec here.` }
+          ? { tone: 'warn', headline: 'Admissible if staked', sub: `The spec says staked entities may use up to ${fmt(ERC8421_STAKED_CAP)}. This sidecar doesn't apply that yet.` }
           : { tone: 'fail', headline: 'Also rejected', sub: `Over the ${fmt(ERC8421_STAKED_CAP)} staked budget` }
+    } else if (stateCap) {
+      findings.push({
+        tone: 'fail',
+        title: 'Validation state gas is over the mempool cap',
+        why: `The verification frames declare ${fmt(Number(stateCap[1]))} state gas in total, over this sidecar's cap of ${fmt(Number(stateCap[2]))}.${ruleNote}`,
+        fix: `Lower the state gas limits of the verification frames to ${fmt(Number(stateCap[2]))} or less in total. Validation rarely needs state gas, so 0 often works.`,
+      })
+    } else if (payer) {
+      const cost = Number(payer[3]) / 1e18
+      findings.push({
+        tone: 'fail',
+        title: "The payer can't cover the maximum cost",
+        why: `The payer ${payer[1].slice(0, 6)}…${payer[1].slice(-4)} has ${(Number(payer[2]) / 1e18).toFixed(6)} ETH, but the transaction could cost up to ${cost.toFixed(6)} ETH (all gas limits × maxFeePerGas).${ruleNote}`,
+        fix: `Fund the payer with at least ${cost.toFixed(6)} ETH, or lower the gas limits or maxFeePerGas so the maximum cost fits its balance.`,
+      })
+      spec = { tone: 'info', headline: 'Same rule', sub: 'The spec also requires the payer to cover the maximum cost' }
+    } else if (vOog) {
+      const i = Number(vOog[1])
+      findings.push({
+        tone: 'fail',
+        frame: i,
+        title: `Frame ${i} ran out of gas during validation`,
+        why: vOog[3]
+          ? `Its gas limit of ${fmt(Number(vOog[2]))} doesn't even cover the ${fmt(Number(vOog[3]))} gas charged to enter the frame.${ruleNote}`
+          : `The verification code used up its whole gas limit before approving.${ruleNote}`,
+        fix: vOog[3]
+          ? `Raise frame ${i}'s gas limit above ${fmt(Number(vOog[3]))}, plus what its code needs. Keep all verification frames under the mempool cap together.`
+          : `Raise frame ${i}'s gas limit. Simulate first to see what it uses, and keep all verification frames under the mempool cap together.`,
+      })
     } else if (vrev) {
       const i = Number(vrev[1])
       findings.push({
         tone: 'fail',
         frame: i,
         title: `Frame ${i} rejected the transaction during validation`,
-        why: `This frame's verification code (${frames[i] ? role(frames[i]).toLowerCase() : 'verification'}) reverted, so the account or paymaster refused to approve the transaction.`,
-        fix: 'Check the error above. A signature error usually means the transaction was signed over the wrong hash or with the wrong key.',
-        selector: vrev[2].slice(0, 10),
+        why: `This frame's verification code (${frames[i] ? role(frames[i]).toLowerCase() : 'verification'}) reverted, so the account or paymaster refused to approve the transaction.${ruleNote}`,
+        fix: vrev[2] && vrev[2].length >= 10
+          ? 'Check the error above. A signature error usually means the transaction was signed over the wrong hash or with the wrong key.'
+          : 'It reverted without an error message. Check what this frame requires: the signature, the payment frame that must follow it, or the balances it reads.',
+        selector: vrev[2] && vrev[2].length >= 10 ? vrev[2].slice(0, 10) : undefined,
       })
       spec = { tone: 'fail', headline: 'Also invalid', sub: 'A revert in validation is invalid under ERC-8421 too' }
+    } else if (storage) {
+      const [, who, what, slot] = storage
+      findings.push({
+        tone: 'fail',
+        frame: c.frameIndex,
+        title: `The ${who} read storage it isn't allowed to read unstaked`,
+        why: `During validation the ${who} read ${what === who ? 'its own storage' : `${what.slice(0, 6)}…${what.slice(-4)}`} at slot ${slot.slice(0, 10)}…. Unstaked entities may only read storage tied to the sender, because other storage can change and invalidate many pending transactions at once.${ruleNote}`,
+        fix: `Stake the ${who} in the alt mempool's staking registry (more than 0.01 ETH, for example 0.012, with an unstake delay), or stop reading that storage during validation.`,
+      })
+      spec = { tone: 'info', headline: 'Same rule', sub: 'The spec also requires stake for this access' }
+    } else if (opcode) {
+      const [, who, op] = opcode
+      findings.push({
+        tone: 'fail',
+        frame: c.frameIndex,
+        title: `The ${who} uses ${op}, which validation can't use`,
+        why: `${op} returns a value that can change between validation and inclusion, so the mempool can't trust the result of the check.${ruleNote}`,
+        fix: `Remove ${op} from the ${who}'s validation code. Read it in an execution frame instead, if you need it.`,
+      })
+      spec = { tone: 'fail', headline: 'Also invalid', sub: 'The spec bans the same opcodes in validation' }
+    } else if (nonce) {
+      findings.push({
+        tone: 'fail',
+        title: 'Wrong nonce',
+        why: `The account's next nonce is ${nonce[1]}, but the transaction uses ${nonce[2]}.${ruleNote}`,
+        fix: `Re-sign with nonce ${nonce[1]}.`,
+      })
+      spec = { tone: 'info', headline: 'Not a spec conflict', sub: 'Nonces must be in order everywhere' }
     } else if (/cannot be replaced: fee too low/.test(d)) {
       findings.push({
         tone: 'fail',
         title: 'A transaction with this nonce is already pending',
-        why: 'The mempool already holds a transaction from this sender with the same nonce, and this one does not pay enough more to replace it.',
+        why: `The mempool already holds a transaction from this sender with the same nonce, and this one does not pay enough more to replace it.${ruleNote}`,
         fix: 'Raise both maxFeePerGas and maxPriorityFeePerGas above the pending transaction (bump by at least 10%), or send it with the next nonce or a new nonce key.',
       })
       spec = { tone: 'info', headline: 'Not a validity rule', sub: 'Replacement pricing is mempool policy, not part of the transaction rules' }
+    } else if (/already known/.test(d)) {
+      findings.push({ tone: 'info', title: 'Already in the mempool', why: `This exact transaction was already submitted, so nothing new happened.${ruleNote}` })
     } else {
+      // Unknown rule: show the sidecar's words as they are rather than guessing.
       findings.push({ tone: 'fail', frame: c.frameIndex, title: `Rule "${c.rule}" failed`, why: d || 'The sidecar gave no detail for this rule.' })
-      spec = { tone: 'info', headline: 'Not checked', sub: `FrameLab has no ERC-8421 mapping for "${c.rule}" yet` }
+      spec = { tone: 'info', headline: 'Not checked', sub: `Readmit has no spec mapping for "${c.rule}" yet` }
     }
+    // Several failed rules: keep the most severe spec verdict, not just the last one.
+    if (specFromRule && severity[before.tone] < severity[spec.tone]) spec = before
+    specFromRule = true
   }
 
   // Execution results from the chain.

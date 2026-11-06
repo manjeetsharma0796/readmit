@@ -1,0 +1,115 @@
+{
+  "name": "payer-cannot-pay",
+  "hash": "0x93a3355ffd57a2b5917ec7a8e033995b8e1002ca86e1ac3170683a552c4b7812",
+  "node": "gateway",
+  "tx": {
+    "hash": "0x93a3355ffd57a2b5917ec7a8e033995b8e1002ca86e1ac3170683a552c4b7812",
+    "entry": null,
+    "admission": {
+      "id": 77,
+      "txHash": "0x93a3355ffd57a2b5917ec7a8e033995b8e1002ca86e1ac3170683a552c4b7812",
+      "sender": "0x30f26D0265b3729cB42cA6FF76E4980e5BadaB2f",
+      "nonce": "0x0",
+      "nonceKeys": [
+        "0x0"
+      ],
+      "at": 1793978106291,
+      "source": "rpc",
+      "outcome": "rejected",
+      "errorCode": -32500,
+      "checks": [
+        {
+          "rule": "gas-limit",
+          "verdict": "pass"
+        },
+        {
+          "rule": "recent-root",
+          "verdict": "pass"
+        },
+        {
+          "rule": "prefix",
+          "verdict": "pass"
+        },
+        {
+          "rule": "structure",
+          "verdict": "pass"
+        },
+        {
+          "rule": "signature",
+          "verdict": "pass"
+        },
+        {
+          "rule": "simulation",
+          "verdict": "fail",
+          "detail": "validation frame 0: the payer 0x30f26d0265b3729cb42ca6ff76e4980e5badab2f has 0 wei, the transaction's maximum cost is 2032680000000000 wei"
+        },
+        {
+          "rule": "trace-alignment",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "OP-061",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "execution",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "mempool",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "out-of-gas",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "OP-011",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "create",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "storage",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "COD-010",
+          "verdict": "skipped"
+        },
+        {
+          "rule": "entrypoint-access",
+          "verdict": "skipped"
+        }
+      ],
+      "frames": [
+        {
+          "mode": 1,
+          "flags": 3,
+          "target": null,
+          "limits": {
+            "execution": "0xf4241",
+            "state": "0x0"
+          },
+          "value": "0x0",
+          "data": "0x"
+        }
+      ],
+      "frameStatuses": [
+        "not-run"
+      ]
+    },
+    "events": [
+      {
+        "seq": 142,
+        "txHash": "0x93a3355ffd57a2b5917ec7a8e033995b8e1002ca86e1ac3170683a552c4b7812",
+        "at": 1793978106537,
+        "kind": "rejected",
+        "reason": "validation frame 0: the payer 0x30f26d0265b3729cb42ca6ff76e4980e5badab2f has 0 wei, the transaction's maximum cost is 2032680000000000 wei"
+      }
+    ]
+  },
+  "receipt": null
+}
