@@ -422,3 +422,7 @@ button:hover { border-color: var(--cobalt); }
 .t-gas > span:first-child { font-variant-numeric: tabular-nums; }
 @media (max-width: 900px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tile-rules { grid-column: 1 / -1; } }
 @media (max-width: 520px) { .stats { grid-template-columns: 1fr 1fr; } .tile-value { font-size: 2rem; } }
+.summary { margin: 12px 0 0; padding: 12px 16px; font-size: 1.05rem; line-height: 1.5; border-left: 3px solid var(--info); background: rgba(255, 255, 255, 0.03); }
+.summary.pass { border-left-color: var(--pass); }
+.summary.fail { border-left-color: var(--fail); }
+.summary.warn { border-left-color: var(--warn); }
