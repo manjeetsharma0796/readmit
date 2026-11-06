@@ -5,12 +5,44 @@ import { decodeTx } from '@forshtat/hegota-support/tx'
 import type { Hex } from 'viem'
 
 // Alt-mempool devnet (chain 1337). All endpoints send CORS *, so this runs in the browser with no backend.
+// T50: the user can point Readmit at their own ethrex RPC and sidecars (Endpoints panel). Overrides live in this
+// browser's localStorage and apply on the next page load, so every caller keeps reading plain constants.
+export const DEFAULT_ENDPOINTS = {
+  ethrex: 'https://altmempool.forshtat.com',
+  gateway: 'https://altmempoolgateway.forshtat.com/rpc',
+  miner: 'https://altmempool.forshtat.com/rpc',
+}
+export type Endpoints = typeof DEFAULT_ENDPOINTS
+const ENDPOINTS_KEY = 'readmit.endpoints'
+const isHttp = (u: unknown): u is string => typeof u === 'string' && /^https?:\/\/\S+$/.test(u)
+
+/** The user's saved overrides (only valid http(s) URLs). Empty on the server or when storage is blocked. */
+export function savedEndpoints(): Partial<Endpoints> {
+  try {
+    const raw = JSON.parse(globalThis.localStorage?.getItem(ENDPOINTS_KEY) ?? '{}')
+    return Object.fromEntries(Object.keys(DEFAULT_ENDPOINTS).filter((k) => isHttp(raw?.[k])).map((k) => [k, raw[k]]))
+  } catch {
+    return {}
+  }
+}
+/** Saves overrides (an empty or default value clears that one). The caller reloads the page to apply them. */
+export function saveEndpoints(e: Partial<Endpoints>): void {
+  const keep = Object.fromEntries(Object.entries(e).filter(([k, v]) => isHttp(v) && v !== DEFAULT_ENDPOINTS[k as keyof Endpoints]))
+  try {
+    if (Object.keys(keep).length) globalThis.localStorage?.setItem(ENDPOINTS_KEY, JSON.stringify(keep))
+    else globalThis.localStorage?.removeItem(ENDPOINTS_KEY)
+  } catch {
+    // storage blocked: nothing to persist
+  }
+}
+export const ENDPOINTS: Endpoints = { ...DEFAULT_ENDPOINTS, ...savedEndpoints() }
+
 export const NODES = {
-  gateway: { label: 'Gateway', url: 'https://altmempoolgateway.forshtat.com/rpc' },
-  miner: { label: 'Miner', url: 'https://altmempool.forshtat.com/rpc' },
+  gateway: { label: 'Gateway', url: ENDPOINTS.gateway },
+  miner: { label: 'Miner', url: ENDPOINTS.miner },
 } as const
 export type NodeId = keyof typeof NODES
-export const ETHREX = 'https://altmempool.forshtat.com'
+export const ETHREX = ENDPOINTS.ethrex
 export const EXPLORER = (hash: string, node: NodeId) => `https://explorer.altmempool.wtf/tx/${hash}?node=${encodeURIComponent(NODES[node].url)}`
 
 async function rpc<T>(url: string, method: string, params: unknown[] = []): Promise<T> {

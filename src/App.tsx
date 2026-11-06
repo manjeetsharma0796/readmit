@@ -5,6 +5,7 @@ import { diagnose, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResul
 import { FramesTable } from './ui/FramesTable'
 import { Send } from './ui/Send'
 import { Wallet } from './ui/Wallet'
+import { Endpoints } from './ui/Endpoints'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
@@ -405,6 +406,7 @@ export default function App() {
           .
         </p>
         <p>The ERC-8421 column is a partial check that covers the validation budget and validation reverts only.</p>
+        <Endpoints />
       </footer>
     </div>
   )

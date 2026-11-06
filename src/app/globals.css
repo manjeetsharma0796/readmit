@@ -175,6 +175,11 @@ h2 { font-size: 1.1rem; margin: 26px 0 10px; }
 
 footer { margin-top: 32px; font-size: 0.85rem; color: var(--ink-2); max-width: 80ch; }
 footer p { margin: 0 0 6px; }
+.endpoints { margin-top: 12px; }
+.endpoints summary { cursor: pointer; color: var(--ink); }
+.endpoints form { display: grid; gap: 10px; margin-top: 10px; }
+.endpoints label { display: grid; gap: 4px; }
+.endpoints input { width: 100%; font-family: inherit; }
 
 @media (max-width: 720px) {
   .page { padding: 18px 16px 40px; }
