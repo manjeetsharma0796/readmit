@@ -208,9 +208,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T12 · Frame tx builder and signer (`src/engine/frames.ts`)
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:26 IST
 - priority: P0
 - depends: T10 (stub the addresses until T04 is done)
 - touches: src/engine/frames.ts, src/engine/frames.check.ts, package.json (add `@forshtat/hegota-support`)
