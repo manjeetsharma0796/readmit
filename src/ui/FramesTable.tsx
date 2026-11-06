@@ -16,8 +16,55 @@ function frameStatus(i: number, dx: Diagnosis, tx: TxResult, receipt: Receipt | 
   return { text: !s || s === 'not-run' ? 'Not run' : s[0].toUpperCase() + s.slice(1), failed: false }
 }
 
+// Short label for a frame segment in the map.
+const tag = (mode: number, flags: number) => (mode === 1 ? ((flags & 1) !== 0 ? 'Pay' : 'Verify') : mode === 2 ? 'Call' : 'Default')
+
+/** The transaction as its pieces: one strip, split into validation and execution, each frame sized by its gas limit and filled to what it used. */
+function FrameMap({ dx, tx, receipt }: { dx: Diagnosis; tx: TxResult; receipt: Receipt | null }) {
+  const frames = dx.frames.map((f, i) => {
+    const limit = n(f.limits.execution)
+    const rc = receipt?.frameReceipts[i]
+    const used = rc ? n(rc.gasUsed) : null
+    const st = frameStatus(i, dx, tx, receipt)
+    const state = st.failed ? 'bad' : rc?.status === '0x2' ? 'skip' : used === null ? 'idle' : 'ok'
+    return { i, f, limit, used, st, state, pct: used !== null && limit ? Math.min(100, (used / limit) * 100) : 0 }
+  })
+  const zones = [
+    { name: 'Validation', items: frames.filter((x) => x.f.mode === 1) },
+    { name: 'Execution', items: frames.filter((x) => x.f.mode !== 1) },
+  ].filter((z) => z.items.length)
+  const total = frames.reduce((a, x) => a + Math.max(x.limit, 1), 0)
+  return (
+    <div className="framemap" role="img" aria-label={frames.map((x) => `frame ${x.i} ${x.st.text}`).join(', ')}>
+      {zones.map((z) => (
+        <div key={z.name} className="fm-zone" style={{ flexGrow: z.items.reduce((a, x) => a + Math.max(x.limit, 1), 0) / total }}>
+          <span className="fm-zone-name">{z.name}</span>
+          <div className="fm-row">
+            {z.items.map((x) => (
+              <div
+                key={x.i}
+                className={`fm-seg ${x.state}`}
+                style={{ flexGrow: Math.max(x.limit, 1) }}
+                title={`Frame ${x.i} · ${role(x.f)} · ${x.used !== null ? `${fmt(x.used)} of ${fmt(x.limit)} gas (${x.pct.toFixed(1)}%)` : `limit ${fmt(x.limit)}`} · ${x.st.text}`}
+              >
+                <span className="fm-fill" style={{ width: `${x.pct}%` }} />
+                <span className="fm-label">
+                  <b>{x.i}</b> {tag(x.f.mode, x.f.flags)}
+                </span>
+                <span className="fm-pct">{x.used !== null ? `${Math.round(x.pct)}%` : x.st.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult; receipt: Receipt | null; names: Map<string, string | null> }) {
   return (
+    <>
+    <FrameMap dx={dx} tx={tx} receipt={receipt} />
     <div className="table-wrap">
       <table className="frames">
         <thead>
@@ -66,5 +113,6 @@ export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxR
         </tbody>
       </table>
     </div>
+    </>
   )
 }
