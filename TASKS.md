@@ -238,7 +238,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T14 · Send and watch status
 - owner: manjeet
-- status: doing
+- status: blocked
 - agent: Claude Code on manjeet
 - started: 21:32 IST
 - priority: P0
@@ -246,7 +246,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/rpc.ts
 - do: `sendFrameTx(raw)` uses `eth_sendFrameTransaction` on the **gateway**. `watchTx(hash, cb)` polls `skandha_explorer_getTransaction` every 2 s, then the receipt, and goes pending → admitted/rejected → included/failed. Stop after 120 s.
 - done when: one real send of a T12 draft (**ask your human first**) reports admitted, then included. The hash goes in the log.
-- log:
+- log: The code is done in `src/rpc.ts`: `sendFrameTx` (wire format via hegota-support `toWire`, same as the workshop golden script), plus `watchTx` and `txStage`. The status mapping uses the sidecar explorer's mempool statuses (New/Pending/Submitted = admitted, OnChain/Finalized = included, Reverted = failed, Cancelled = dropped). `npm run check` prints "rpc: send-status mapping OK" on real samples, and the build passes. **Blocked:** the done-check needs one real send. That needs manjeet's go-ahead (AGENTS §5) and a funded wallet. needs: prith (T04 paymaster plus T07 demo key with tUSD), then manjeet approves one send.
 
 ### T15 · Uniswap re-quote fix (P1)
 - owner: manjeet

@@ -126,8 +126,9 @@ The Flow B frames are:
 export function simulate(rawTx: string): Promise<Simulation>   // built (T13). Raw ethrex response, read-only dry run
 // then: diagnoseDraft(draftFrames(draft), sim) from src/diagnose.ts + src/engine/frames.ts gives the same Diagnosis shape the UI already renders,
 //   with "would" wording ("Frame 3 would run out of gas, raise to about N before sending") and verdicts for the public mempool and the dry run.
-export function sendFrameTx(rawTx: `0x${string}`): Promise<`0x${string}`>          // tx hash, via the gateway
-export function watchTx(hash: `0x${string}`, onUpdate: (s: 'pending'|'admitted'|'rejected'|'included'|'failed') => void): () => void
+export function sendFrameTx(rawTx: Hex, node?: NodeId): Promise<Hex>   // eth_sendFrameTransaction with the wire object; BROADCASTS, needs the human's go-ahead
+export function watchTx(hash: string, onUpdate: (s: Stage) => void, node?: NodeId): () => void   // Stage = 'pending'|'admitted'|'rejected'|'included'|'failed'|'dropped'; polls 2 s, stops at a final stage or 120 s
+export function txStage(r: TxResult | null): Stage   // pure mapping from the explorer record
 ```
 
 **Ownership of shared files:**
