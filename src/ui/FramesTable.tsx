@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { fmt, n, role, type Diagnosis, type Receipt, type TxResult } from '../diagnose'
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : 'none')
@@ -16,47 +17,49 @@ function frameStatus(i: number, dx: Diagnosis, tx: TxResult, receipt: Receipt | 
   return { text: !s || s === 'not-run' ? 'Not run' : s[0].toUpperCase() + s.slice(1), failed: false }
 }
 
-// Short label for a frame segment in the map.
-const tag = (mode: number, flags: number) => (mode === 1 ? ((flags & 1) !== 0 ? 'Pay' : 'Verify') : mode === 2 ? 'Call' : 'Default')
+const tag = (mode: number, flags: number) => mode === 1 ? ((flags & 1) !== 0 ? 'Pay gas' : 'Verify') : mode === 2 ? 'Call' : 'Default'
 
-/** The transaction as its pieces: one strip, split into validation and execution, each frame sized by its gas limit and filled to what it used. */
-function FrameMap({ dx, tx, receipt }: { dx: Diagnosis; tx: TxResult; receipt: Receipt | null }) {
-  const frames = dx.frames.map((f, i) => {
-    const limit = n(f.limits.execution)
-    const rc = receipt?.frameReceipts[i]
-    const used = rc ? n(rc.gasUsed) : null
-    const st = frameStatus(i, dx, tx, receipt)
-    const state = st.failed ? 'bad' : rc?.status === '0x2' ? 'skip' : used === null ? 'idle' : 'ok'
-    return { i, f, limit, used, st, state, pct: used !== null && limit ? Math.min(100, (used / limit) * 100) : 0 }
-  })
-  const zones = [
-    { name: 'Validation', items: frames.filter((x) => x.f.mode === 1) },
-    { name: 'Execution', items: frames.filter((x) => x.f.mode !== 1) },
-  ].filter((z) => z.items.length)
-  const total = frames.reduce((a, x) => a + Math.max(x.limit, 1), 0)
+function FrameSequence({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult; receipt: Receipt | null; names: Map<string, string | null> }) {
+  const initial = dx.frames.findIndex((_, i) => frameStatus(i, dx, tx, receipt).failed)
+  const [selected, setSelected] = useState(initial >= 0 ? initial : 0)
+  const index = Math.min(selected, dx.frames.length - 1)
+  const frame = dx.frames[index]
+  if (!frame) return <p className="muted">No frame data was recorded for this transaction.</p>
+  const st = frameStatus(index, dx, tx, receipt)
+  const rc = receipt?.frameReceipts[index]
+  const limit = n(frame.limits.execution)
+  const selector = frame.data.length >= 10 ? frame.data.slice(0, 10) : null
+  const beforeFrames = !receipt && tx.admission?.outcome === 'rejected' && !dx.frames.some((_, i) => frameStatus(i, dx, tx, receipt).failed)
   return (
-    <div className="framemap" role="img" aria-label={frames.map((x) => `frame ${x.i} ${x.st.text}`).join(', ')}>
-      {zones.map((z) => (
-        <div key={z.name} className="fm-zone" style={{ flexGrow: z.items.reduce((a, x) => a + Math.max(x.limit, 1), 0) / total }}>
-          <span className="fm-zone-name">{z.name}</span>
-          <div className="fm-row">
-            {z.items.map((x) => (
-              <div
-                key={x.i}
-                className={`fm-seg ${x.state}`}
-                style={{ flexGrow: Math.max(x.limit, 1) }}
-                title={`Frame ${x.i} · ${role(x.f)} · ${x.used !== null ? `${fmt(x.used)} of ${fmt(x.limit)} gas (${x.pct.toFixed(1)}%)` : `limit ${fmt(x.limit)}`} · ${x.st.text}`}
-              >
-                <span className="fm-fill" style={{ width: `${x.pct}%` }} />
-                <span className="fm-label">
-                  <b>{x.i}</b> {tag(x.f.mode, x.f.flags)}
-                </span>
-                <span className="fm-pct">{x.used !== null ? `${Math.round(x.pct)}%` : x.st.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+    <div className="frame-sequence">
+      <div className="sequence-caption"><span>{dx.frames.length} frames in transaction order</span><span>Select a frame for details</span></div>
+      {beforeFrames && <p className="sequence-rejection">Admission rejected. No failing frame was identified.</p>}
+      <ol className="fragment-list">
+        {dx.frames.map((f, i) => {
+          const status = frameStatus(i, dx, tx, receipt)
+          const r = receipt?.frameReceipts[i]
+          const cap = n(f.limits.execution)
+          const pct = r && cap ? Math.min(100, n(r.gasUsed) / cap * 100) : 0
+          return (
+            <li key={i} className={`fragment ${status.failed ? 'broken' : ''} ${r?.status === '0x2' ? 'skipped' : ''} ${f.mode === 1 ? 'validation' : 'execution'}`}>
+              <button type="button" className="fragment-piece" aria-pressed={index === i} onClick={() => setSelected(i)}>
+                <span className="fragment-phase">{f.mode === 1 ? 'Validation' : 'Execution'}</span>
+                <span className="fragment-name"><b><span className="sr">Frame </span>{String(i).padStart(2, '0')}</b>{tag(f.mode, f.flags)}</span>
+                <span className="fragment-status">{status.failed ? '× ' : r?.status === '0x1' ? '✓ ' : ''}{status.text}</span>
+                <span className="fragment-meter" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+      <section className={`frame-inspector ${st.failed ? 'is-failed' : ''}`} aria-label="Selected frame" aria-live="polite">
+        <div className="frame-inspector-head"><strong>Frame {index}</strong><span>{role(frame)}</span><span className={`frame-state ${st.failed ? 'failed' : st.text === 'Succeeded' ? 'succeeded' : ''}`}>{st.text}</span></div>
+        <dl className="frame-facts">
+          <div><dt>Target</dt><dd><code>{frame.target ?? 'Sender'}</code></dd></div>
+          <div><dt>Call</dt><dd><code>{selector ? (names.get(selector) ?? selector) : 'No call data'}</code></dd></div>
+          <div><dt>Gas used / limit</dt><dd>{rc ? fmt(n(rc.gasUsed)) : 'Not recorded'} / {fmt(limit)}</dd></div>
+        </dl>
+      </section>
     </div>
   )
 }
@@ -64,7 +67,8 @@ function FrameMap({ dx, tx, receipt }: { dx: Diagnosis; tx: TxResult; receipt: R
 export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult; receipt: Receipt | null; names: Map<string, string | null> }) {
   return (
     <>
-    <FrameMap dx={dx} tx={tx} receipt={receipt} />
+    <FrameSequence key={`${tx.entry?.sender ?? ""}:${dx.frames.map((f) => `${f.target}:${f.data}:${f.limits.execution}`).join("|")}:${receipt?.blockNumber ?? tx.admission?.outcome ?? ""}`} dx={dx} tx={tx} receipt={receipt} names={names} />
+    <details className="frame-table-details"><summary>Full frame table</summary>
     <div className="table-wrap">
       <table className="frames">
         <thead>
@@ -86,7 +90,7 @@ export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxR
             const sel = f.data.length >= 10 ? f.data.slice(0, 10) : null
             const st = frameStatus(i, dx, tx, receipt)
             return (
-              <tr key={i} className={`${f.mode === 1 ? 'verify' : 'op'} ${st.failed ? 'failed' : ''}`}>
+              <tr key={i} className={`${f.mode === 1 ? 'verify' : 'op'} ${st.failed ? 'failed' : st.text === 'Succeeded' ? 'succeeded' : ''}`}>
                 <td data-label="#" className="t-num">
                   {i}
                 </td>
@@ -113,6 +117,7 @@ export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxR
         </tbody>
       </table>
     </div>
+    </details>
     </>
   )
 }
