@@ -282,7 +282,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ### T17 · Fragility flag (P1)
 - owner: prith
 - note: reassigned from manjeet to prith at 22:31 IST (manjeet approved). prith may edit src/diagnose.ts and src/diagnose.check.ts for this ticket only. No keys are needed: use the fixture below.
-- status: doing
+- status: done
 - agent: Claude Code on prith
 - started: 22:45 IST
 - priority: P1
@@ -290,7 +290,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/diagnose.ts, src/diagnose.check.ts, src/samples/sim-trace-paymaster.json (read only)
 - do: Use the fixture `src/samples/sim-trace-paymaster.json`, a real read-only dry run with trace. In its `sim.erc7562Trace`, frame 1 (the paymaster VERIFY) has a STATICCALL to the v4 PoolManager `0x6bF9…9848` with 1 storage read (slot0, shared and mutable) and a STATICCALL to tUSD with 1 read (the sender's balance, sender-associated, fine). Flag only reads of contracts that are neither the sender, nor the frame target, nor a sender-associated token slot. Ignore the hegota-support helper contracts (calls with no reads). Add `diagnoseDraft` support via an optional trace argument. If the simulation trace shows a VERIFY frame reading storage of a shared contract (the v4 PoolManager), add a warning finding: "This tx depends on the pool price; a swap can invalidate it before inclusion."
 - done when: our Mode A draft shows the warning.
-- log:
+- log: `npm run check` -> "diagnose: 21 cases OK / frames: build/sign/decode OK / rpc: send-status mapping OK"; tsc --noEmit and oxlint clean. `diagnoseDraft(frames, sim, { sender, trace? })` (trace defaults to `sim.erc7562Trace`) adds a warn finding on frame 1 of `sim-trace-paymaster`: reads of PoolManager 0x6bf9…9848 are flagged; the tUSD read is sender-associated (keccak preimage sender||0) and is not flagged; reads by the sender and frame target, and helper calls with no reads, are ignored. Without a sender or trace, behaviour is unchanged. needs: esh. The UI is not wired yet: `src/ui/Send.tsx` must call `simulate(raw, true)` and pass `{ sender: draft.sender }` to show the warning (I didn't touch that file).
 
 ### T30 · Pitch, video script and submission text
 - owner: manjeet
