@@ -63,6 +63,25 @@ button:hover { border-color: var(--ink-2); }
 .wallet .row input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 0.9rem; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; background: #fbfcfd; }
 .wallet-refresh { margin-top: 12px; }
 
+.send { margin-top: 20px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 4px 18px 18px; }
+.send-form { display: grid; grid-template-columns: 2fr 1fr auto; gap: 12px; align-items: end; margin-top: 12px; }
+.send-form label { display: grid; gap: 4px; font-weight: 600; font-size: 0.92rem; }
+.send-form input { min-width: 0; font-family: var(--mono); font-size: 0.95rem; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; background: #fbfcfd; font-weight: 400; }
+.timeline { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 0; margin: 16px 0 0; }
+.timeline li { display: flex; align-items: center; gap: 8px; color: var(--ink-2); font-size: 0.92rem; }
+.t-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--rule); background: var(--panel); flex: none; }
+.timeline li.pass { color: var(--pass); }
+.timeline li.pass .t-dot { background: var(--pass); border-color: var(--pass); }
+.timeline li.now { color: var(--ink); font-weight: 600; }
+.timeline li.now .t-dot { border-color: var(--cobalt); background: var(--info-bg); }
+.timeline li.fail { color: var(--fail); font-weight: 600; }
+.timeline li.fail .t-dot { background: var(--fail); border-color: var(--fail); }
+.send-hash { margin: 12px 0 0; overflow-wrap: anywhere; }
+.send-fee { margin: 8px 0 0; font-weight: 600; color: var(--pass); }
+.send-problem { margin-top: 14px; border-left: 4px solid var(--fail); background: var(--fail-bg); padding: 10px 14px; }
+.send-problem > p { margin: 2px 0; }
+.send-problem .findings { margin-top: 10px; }
+
 .result { margin-top: 24px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; }
 .result-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
 .hash { overflow-wrap: anywhere; color: var(--ink-2); }
@@ -146,6 +165,7 @@ footer { margin-top: 32px; font-size: 0.85rem; color: var(--ink-2); max-width: 8
 @media (max-width: 720px) {
   .page { padding: 18px 16px 40px; }
   .row { flex-direction: column; }
+  .send-form { grid-template-columns: 1fr; }
   .overview { grid-template-columns: 1fr; }
   .overview dt { border-bottom: 0; padding-bottom: 0; }
   .overview dd { padding-top: 2px; }
