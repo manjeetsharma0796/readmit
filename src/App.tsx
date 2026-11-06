@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { diagnose, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
+import { diagnose, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { FramesTable } from './ui/FramesTable'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
@@ -103,6 +103,22 @@ export default function App() {
     URL.revokeObjectURL(a.href)
   }
 
+  const receipt = loaded?.receipt ?? null
+  const status: { tone: Tone; text: string } = !loaded
+    ? { tone: 'info', text: '' }
+    : receipt
+      ? receipt.status === '0x1'
+        ? { tone: 'pass', text: 'Success' }
+        : { tone: 'fail', text: 'Failed on chain' }
+      : loaded.tx.admission?.outcome === 'rejected'
+        ? { tone: 'fail', text: 'Rejected by the mempool' }
+        : loaded.tx.admission?.outcome === 'accepted'
+          ? { tone: 'warn', text: 'Admitted, pending' }
+          : { tone: dx?.mempool.tone ?? 'info', text: dx?.mempool.headline ?? 'Unknown' }
+  const payer = receipt?.payer ?? loaded?.tx.entry?.payer
+  const sender = loaded?.tx.entry?.sender ?? loaded?.tx.admission?.sender
+  const fee = receipt ? (n(receipt.gasUsed) * n(receipt.effectiveGasPrice)) / 1e18 : 0
+
   const shown = rows?.filter((r) => !onlyRejected || r.outcome === 'rejected').slice(0, 12) ?? []
 
   return (
@@ -160,7 +176,7 @@ export default function App() {
       {loaded && dx && (
         <main className="result" aria-live="polite">
           <div className="result-head">
-            <code className="hash">{loaded.hash}</code>
+            <h2>Transaction details</h2>
             <div className="actions">
               {loaded.source === 'sample' && <span className="note">Saved sample, not fetched live</span>}
               <a href={EXPLORER(loaded.hash, loaded.node)} target="_blank" rel="noreferrer">
@@ -170,14 +186,41 @@ export default function App() {
             </div>
           </div>
 
-          <section className="verdicts" aria-label="Three verdicts">
-            <VerdictBox label={`Live mempool (${NODES[loaded.node].label.toLowerCase()})`} v={dx.mempool} />
-            <VerdictBox label="On chain (ethrex)" v={dx.chain} />
-            <VerdictBox label="ERC-8421 spec" v={dx.spec} />
-          </section>
+          <dl className="overview">
+            <dt>Transaction hash</dt>
+            <dd>
+              <code className="hash">{loaded.hash}</code>
+            </dd>
+            <dt>Status</dt>
+            <dd>
+              <span className={`badge ${status.tone}`}>
+                <Dot tone={status.tone} />
+                {status.text}
+              </span>
+            </dd>
+            <dt>Block</dt>
+            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
+            <dt>Sender</dt>
+            <dd>{sender ? <code>{sender}</code> : <span className="muted">Unknown</span>}</dd>
+            <dt>Payer</dt>
+            <dd>{payer ? <code>{payer}</code> : <span className="muted">Unknown</span>}</dd>
+            <dt>Fee</dt>
+            <dd>
+              {loaded.receipt ? (
+                <>
+                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
+                </>
+              ) : (
+                <span className="muted">Nothing charged</span>
+              )}
+            </dd>
+            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} v={dx.mempool} />
+            <VerdictRow label="On chain (ethrex)" v={dx.chain} />
+            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
+          </dl>
 
-          <section aria-label="Diagnosis">
-            <h2>What happened</h2>
+          <section className="change" aria-label="What to change">
+            <h2>{dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
             <ol className="findings">
               {dx.findings.map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
@@ -185,15 +228,11 @@ export default function App() {
                     <Dot tone={f.tone} />
                     {f.title}
                   </div>
-                  <p>{f.why}</p>
+                  {f.fix && <p className="fix">{f.fix}</p>}
+                  <p className="why">{f.why}</p>
                   {f.selector && (
                     <p className="decoded">
                       {f.tone === 'fail' && f.title.includes('validation') ? 'Error' : 'Call'}: <code>{names.get(f.selector) ?? f.selector}</code>
-                    </p>
-                  )}
-                  {f.fix && (
-                    <p className="fix">
-                      <strong>Fix:</strong> {f.fix}
                     </p>
                   )}
                 </li>
@@ -206,22 +245,31 @@ export default function App() {
             <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
           </section>
 
-          {loaded.tx.admission && (
-            <details className="checks">
-              <summary>Every admission rule the sidecar ran ({loaded.tx.admission.checks.length})</summary>
-              <ul>
-                {loaded.tx.admission.checks.map((c, i) => (
-                  <li key={i} className={c.verdict}>
-                    <Dot tone={c.verdict === 'pass' ? 'pass' : c.verdict === 'fail' ? 'fail' : 'info'} />
-                    <code>{c.rule}</code>
-                    {c.frameIndex !== undefined && <span className="muted">frame {c.frameIndex}, {c.entity}</span>}
-                    <span className="muted">{c.verdict}</span>
-                    {c.detail && <span className="detail">{c.detail}</span>}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
+          <details className="checks">
+            <summary>Technical details</summary>
+            {loaded.tx.admission ? (
+              <>
+                <h3>Every admission rule the sidecar ran ({loaded.tx.admission.checks.length})</h3>
+                <ul>
+                  {loaded.tx.admission.checks.map((c, i) => (
+                    <li key={i} className={c.verdict}>
+                      <Dot tone={c.verdict === 'pass' ? 'pass' : c.verdict === 'fail' ? 'fail' : 'info'} />
+                      <code>{c.rule}</code>
+                      {c.frameIndex !== undefined && (
+                        <span className="muted">
+                          frame {c.frameIndex}, {c.entity}
+                        </span>
+                      )}
+                      <span className="muted">{c.verdict}</span>
+                      {c.detail && <span className="detail">{c.detail}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="muted">This node kept no admission report for this transaction.</p>
+            )}
+          </details>
         </main>
       )}
 
@@ -276,17 +324,16 @@ function Dot({ tone }: { tone: Tone }) {
   return <span className={`dot ${tone}`} aria-hidden="true" />
 }
 
-function VerdictBox({ label, v }: { label: string; v: Verdict }) {
-  const word = { pass: 'Pass', fail: 'Fail', warn: 'Conditional', info: 'n/a' }[v.tone]
+function VerdictRow({ label, v }: { label: string; v: Verdict }) {
   return (
-    <div className={`verdict ${v.tone}`}>
-      <div className="v-label">{label}</div>
-      <div className="v-head">
+    <>
+      <dt>{label}</dt>
+      <dd className="v-row">
         <Dot tone={v.tone} />
-        <span className="sr">{word}: </span>
-        {v.headline}
-      </div>
-      <div className="v-sub">{v.sub}</div>
-    </div>
+        <span>
+          <strong>{v.headline}</strong> <span className="muted">· {v.sub}</span>
+        </span>
+      </dd>
+    </>
   )
 }
