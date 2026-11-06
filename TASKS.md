@@ -411,7 +411,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T26 · Mobile and accessibility pass, plus README screenshots (P1)
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:35 IST
 - priority: P1
@@ -419,7 +419,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/app/globals.css, docs/img/
 - do: Check that 375 px works, focus is visible, contrast is OK and there are no trackers in the network tab. Save 3 screenshots for the README.
 - done when: the screenshots are in `docs/img/`.
-- log:
+- log: 375/390 px: no horizontal overflow, the frames table stacks, and on phones "What to change" now comes right after the title. Focus outline is visible on every control (:focus-visible). Contrast: an automated WCAG AA check found no text below 4.5:1 (3:1 for large text). Every input and button has a label. Network: only localhost, the devnet RPCs and api.4byte.sourcify.dev, so no trackers. Screenshots from the production build in docs/img/ (diagnosis.png, logic-revert.png, mobile.png). Also edited README.md (a short "Screenshots" section above "Run"). A send/Fix & send screenshot can be added after manjeet's live run.
 
 ---
 
