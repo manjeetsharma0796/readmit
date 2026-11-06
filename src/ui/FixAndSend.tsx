@@ -9,6 +9,12 @@ export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHas
     <div className="fixsend">
       <p className="f-title">{p.finding.title}</p>
       {p.finding.fix && <p className="fix">{p.finding.fix}</p>}
+      {p.finding.patch?.kind === 'gas' && (
+        <p className="how">
+          New limit {p.finding.patch.gas.toLocaleString('en-US')}: the gas this frame used in the dry run or on chain, plus 25% headroom, rounded up to the
+          next 1,000. Fix & send checks it with a fresh dry run before sending.
+        </p>
+      )}
       {!p.newHash && (
         <button type="button" className="primary" onClick={p.onFix} disabled={p.busy}>
           {p.busy ? 'Fixing' : 'Fix & send'}
