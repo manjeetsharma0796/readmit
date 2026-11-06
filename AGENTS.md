@@ -101,14 +101,25 @@ Agree on these shapes so that UI, engine and contracts can be built in parallel.
 { "chainId": 1337, "tUSD": "0x…", "paymaster": "0x…", "poolId": "0x…", "swapper": "0x…",
   "demoWallet": "0x…", "deployBlock": 0, "paymasterStaked": true }
 ```
+`demoWallet` is a **plain key address (EOA)**, not a contract. On this devnet a VERIFY frame that targets the sender runs built-in default code, which checks the secp256k1 signature. A read-only simulation confirmed `prefixShape: "SelfVerify"` on Fri 21:40. So no wallet contract is needed. Just send tUSD to the key's address. ETH stays 0.
 
-**`src/engine/frames.ts`** is owned by manjeet:
+**`src/engine/frames.ts`** is owned by manjeet. It's built (T12) and covered by `npm run check`.
 ```ts
-export type Draft = { sender: `0x${string}`; nonce: bigint; frames: FrameSpec[]; maxFeePerGas: bigint; maxPriorityFeePerGas: bigint }
-export type FrameSpec = { mode: 1 | 2; target: `0x${string}` | null; gas: bigint; stateGas: bigint; value: bigint; data: `0x${string}`; flags?: number }
-export function buildSendTx(p: { wallet: `0x${string}`; to: `0x${string}`; amount: bigint }): Promise<Draft>
-export function signDraft(d: Draft, key: `0x${string}`): `0x${string}`   // raw tx
+export type FrameSpec = { mode: 1 | 2; target: Address | null; gas: bigint; stateGas: bigint; value: bigint; data: Hex; flags?: number } // flags low bits = approve scope: 1 PAYMENT, 2 EXECUTION, 3 both
+export type Draft = { sender: Address; nonce: bigint; frames: FrameSpec[]; maxFeePerGas: bigint; maxPriorityFeePerGas: bigint }
+export type Addrs = { tUSD: Address; paymaster: Address }                        // from contracts/deployments/1337.json
+export function buildSendTx(p: { wallet: Address; to: Address; amount: bigint } & Addrs): Promise<Draft>  // reads nonce, fees, paymaster quote
+export function signDraft(d: Draft, key: Hex): Promise<Hex>                      // raw tx bytes; async
+export function decodeDraft(raw: Hex): Draft
+export function maxCostBound(d: Draft): bigint                                    // what the payer may be charged, upper bound
 ```
+The Flow B frames are:
+0. VERIFY on the sender (approve execution).
+1. VERIFY on the paymaster (approve payment).
+2. SENDER `tUSD.transfer(paymaster, fee)`. This one must directly follow frame 1.
+3. SENDER `tUSD.transfer(to, amount)`.
+
+**Fix & send** edits a frame's `gas` in the Draft and calls `signDraft` again. Never rebuild with `buildSendTx` for a fix, because that changes the nonce and the fee.
 
 **`src/rpc.ts`** additions are owned by manjeet:
 ```ts

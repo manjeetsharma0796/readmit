@@ -6,7 +6,7 @@ export const NODES = {
   miner: { label: 'Miner', url: 'https://altmempool.forshtat.com/rpc' },
 } as const
 export type NodeId = keyof typeof NODES
-const ETHREX = 'https://altmempool.forshtat.com'
+export const ETHREX = 'https://altmempool.forshtat.com'
 export const EXPLORER = (hash: string, node: NodeId) => `https://explorer.altmempool.wtf/tx/${hash}?node=${encodeURIComponent(NODES[node].url)}`
 
 async function rpc<T>(url: string, method: string, params: unknown[] = []): Promise<T> {

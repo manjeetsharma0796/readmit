@@ -208,7 +208,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T12 · Frame tx builder and signer (`src/engine/frames.ts`)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:26 IST
 - priority: P0
@@ -222,7 +222,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
   Read `quote` from the paymaster with `eth_call`. Get the sig hash and encoding from hegota-support; the profile is `ethrex-eip8141-tracer`.
 - done when: `frames.check.ts` builds a draft, signs it, and decodes it back to 4 frames with the same fields. After T04, a dry run of it via T13 succeeds.
-- log:
+- log: `src/engine/frames.ts` is built on @forshtat/hegota-support@0.0.1 and viem@2.57.0, with no new code beyond what the interface needs. `npm run check` prints "frames: build/sign/decode OK": 4 frames round-trip with the same fields, and Fix & send re-sign changes only the edited frame. Live read-only simulate of a builder draft returned prefixShape SelfVerify and halted only on insufficient_funds (the key was unfunded), so the devnet accepts the encoding. Overhead above the limits measured 16,826 gas; the bound uses 50k. The AGENTS.md §6 interface is updated: signDraft is async and buildSendTx takes {tUSD, paymaster}. needs: prith. **T07 doesn't need a wallet contract.** The demo wallet is a plain key address (default VERIFY code checks the signature), so just send it 100 tUSD.
 
 ### T13 · Dry run (simulate) adapter
 - owner: manjeet
