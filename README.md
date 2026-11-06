@@ -65,6 +65,20 @@ forge test --fork-url https://altmempool.forshtat.com
 
 Deploy with `--skip-simulation -g 101`. Forge underestimates this devnet's state gas, so the gas limits come from the node's own estimate, and the largest v4 test router sits near the 16.7M per-transaction cap.
 
+## Proof (live on chain 1337)
+
+Every row is a real transaction on the EF alt-mempool devnet. Each was checked against the ethrex receipt; the payer is our paymaster, and the sender holds 0 ETH. Links open the devnet explorer; paste any hash into Readmit for the diagnosis.
+
+| What it shows | Tx | Result |
+|---|---|---|
+| Golden tx: paid in tUSD through the staked v4-priced paymaster | [`0x3fd93ca4…4b9c`](https://explorer.altmempool.wtf/tx/0x3fd93ca4a082d636d08fc27a8afd65b6449dda7aff6609736e8f080064724b9c?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc) | Admitted, 24 of 24 checks; block 6,065 |
+| Send screen, end to end (dev build) | [`0x5eca1cab…a1ff`](https://explorer.altmempool.wtf/tx/0x5eca1caba53c6229bd56ec4a8e1953a08b6550474e0856eac21b604a22e2a1ff?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc) | Block 7,236; fee 2.969998 tUSD |
+| **Fix & send:** the dry run caught "frame 3 would run out of gas, 16,000 of 16,000"; the fix used 20,000 | [`0xf09e55cf…0d4e`](https://explorer.altmempool.wtf/tx/0xf09e55cfe3a53b2bf7161aba59bc912b347954e557519dd980e349ad44830d4e?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc) | Block 7,261; frame 3 used 18,461 of 20,000 |
+| Send screen from the **static build** (`out/`) in a clean browser | [`0xdad06ce5…77ed`](https://explorer.altmempool.wtf/tx/0xdad06ce56c987774f8ba648f573c01e3c9b452e2c772e65b709ad9717acc77ed?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc) | Block 8,269; fee 5.939998 tUSD. The network gas price had risen, so the quote rose with it |
+| Fix & send from the static build: admitted, then **dropped by the devnet's miner** ("relayed 4 times without being included in a block") | [`0x6fa1abb2…984f`](https://explorer.altmempool.wtf/tx/0x6fa1abb2ebae7afc0999052b54218b950a934c8b8919bba2c97923da68d2984f?node=https%3A%2F%2Faltmempool.forshtat.com%2Frpc) | Not included. Readmit showed "The mempool dropped it before inclusion, press Send again". This is devnet relay behaviour, not a validation failure: 0 checks failed |
+
+Diagnosis examples (saved copies, these open in the app): `0x6137f039…a93c75` (logic revert, block 2,993) and `0xe97e271c…fba4` (out of gas, from an earlier devnet run that has since been reset).
+
 ## Uniswap integration
 
 **Gas is paid in tUSD, priced by a Uniswap v4 pool, while the frame transaction is being validated.** Our paymaster reads the ETH/tUSD pool's `slot0` inside its VERIFY frame. It charges that price plus 10% in tUSD, and only then approves paying the ETH gas. The public mempool forbids this kind of read during validation ("StorageReadNonSender"). The ERC-8421 alternative mempool admits it because the paymaster is staked.

@@ -427,7 +427,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T40 · Full live demo run (01:00–03:00)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 01:43 IST
 - priority: P0
@@ -435,7 +435,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: README.md (the "Proof" section)
 - do: Run the 90-second script on the live devnet from a clean browser. Record every hash (golden, send, fix and resend) with explorer links in a README "Proof" section. Record a backup screen capture.
 - done when: the README has ≥3 admitted hashes of ours.
-- log:
+- log: Run at 01:44–01:50 IST on the **static build** (`npm run build`, then `out/` served by `python3 -m http.server 5174`) from a clean browser (storage cleared, key imported fresh). Network hosts were only localhost and altmempool.forshtat.com (no trackers or Google). Console clean. Samples "Logic revert" and "Ran out of gas" render. A live lookup of the golden tx on the miner showed Success with payer = paymaster. Send: 0xdad06ce5… included in block 8,269, ETH 0; the fee was 5.94 tUSD because the network gas price rose to about 1 gwei. Low gas: caught by the dry run, then Fix & send gave 0x6fa1abb2…, which was admitted and then dropped by the miner ("relayed 4 times without being included", 0 failed checks); the UI said "dropped, press Send again". Not retried, because that would exceed the 2 approved sends. Fix & send itself is proven by 0xf09e55cf… (T23). README "Proof" section has all hashes.
 
 ### T41 · Record the demo video (03:00–04:00)
 - owner: anyone
