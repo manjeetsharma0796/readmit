@@ -576,7 +576,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T51 · README claims match the product
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:58 IST
 - priority: P0
@@ -587,7 +587,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
   - The intro says the app "uses no keys" (false since the wallet panel) and describes only diagnosis. Add send, dry run, Fix & send, the case gallery and live stats.
   - CROPS: "works with any RPC you point it at" is false until T50; "dry-run before you sign" should be "before anything is broadcast"; keys are imported, not made.
 - done when: no README line contradicts the app.
-- log: needs: manjeet (FYI, README intro is shared).
+- log: Removed "dry run" and "Fix and resend" from "Not built yet" (both built); added editable endpoints and non-gas Fix & send there instead. Intro now covers send with dry run, Fix & send, the 12 saved cases and live stats, and no longer says "no keys". CROPS: endpoints fixed to the devnet (editable is next), dry run "before anything is broadcast", demo key imported and test-only. needs: manjeet (FYI, README intro is shared).
 
 ### T52 · Explain where the fix number comes from
 - owner: esh
