@@ -166,7 +166,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: contracts/script/, src/samples/ (one new JSON, with manjeet's ok)
 - do: Sign a tx at the current quote, run `MovePrice` once (that's 1 of the 3 allowed), then send it. VERIFY should fail as underpaid. Save the hash and the gateway report as a sample.
 - done when: the rejected hash is in the log and its report JSON is in `src/samples/price-moved.json`.
-- log:
+- log: Script `contracts/script/priceMoved.mts` written. Read-only plan run works against the live devnet: demo nonce 1, signed fee 2.969998 tUSD, a 2% quote rise needs ~5.49 tUSD swapped into the pool. Nothing sent yet. **Waiting on:** `DEMO_KEY` and `DEPLOYER_KEY` in `contracts/.env` (manjeet's machine only; not in git), then manjeet's ok for the one MovePrice and send. needs: manjeet. Run: `node contracts/script/priceMoved.mts --go`.
 
 ---
 
