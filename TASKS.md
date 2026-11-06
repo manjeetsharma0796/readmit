@@ -612,3 +612,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: The hardest judge questions (from the red-team) with short, true answers and evidence links (tx hashes, code lines, live numbers). Includes known limits said plainly.
 - done when: docs/DEFENSE.md is on main and every link or number in it is checked.
 - log: docs/DEFENSE.md: 13 hard questions with two-sentence answers and evidence, plus plain limits. Checked live at 23:58 IST: 0x3fd93ca4 included block 6,065, 4/4 frames ok, VERIFY 52,848 gas, 24/24 checks; stake tx 0x84c42869 block 6,010; paymaster code deployed; 0x6137 block 2,993, frame 2 failed at 8,158; miner stats 52 of 200 rejected, 14 senders, ~2.1 h. Found: **0xe97e… is from a devnet run that was reset** (block 405,125; chain now ~7,185), so its explorer link is dead. README caption now says so. Found: `replay()` is not wired into the UI, so the sheet says engine-only. needs: manjeet: (1) the demo script pastes 0xe97e; it loads the saved copy, but do not call it live; (2) merge DEFENSE.md into the PITCH.md Q&A if useful.
+
+### T54 · Show the revert reason for fresh failed transactions
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 00:00 IST
+- priority: P1
+- depends: T16
+- touches: src/App.tsx, src/app/globals.css
+- do: For a live transaction that failed on chain, call `replay(hash)` (T16) and show the revert reason under the failed frame's finding: a decoded Error(string) message, or the error's name from the selector lookup. Say plainly when the node no longer has the state (~128 blocks).
+- done when: a live failed tx shows its revert reason, or the "too old" note, and `npm run build` passes.
+- log:
