@@ -885,3 +885,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: The 16 features from the SDK checklist: `createReadmit({ ethrex, gateway, miner, chainId })` config instead of localStorage globals; simulate/send/getTx/getReceipt/`explain(hash)`; `watch` + `waitForInclusion`; `recent` + `rejectionStats`; a generic `buildFrameTx`, a pluggable signer (key, viem account or custom), and the chain id as a parameter; diagnosis, `applyPatch` with a pluggable quote, `replay`, the decoders and the selector lookup; viem `client.extend(frameActions(...))`; typed errors; the ERC-20 paymaster recipe as an example.
 - done when: `node sdk/check.ts` passes offline cases plus a live read-only run, `npm run check` and `npm run build` still pass, and nothing is sent.
 - log: Done 05:15. New `sdk/` (app `src/` unchanged; it reuses `src/diagnose.ts` by import): `createReadmit(config)` (URL or custom transports, chain id, profile), explain/getTx/getReceipt/simulate/send, watch + waitForInclusion, recent + stats/rejectionStats, generic buildFrameTx + verifyFrame/senderFrame, signer = key | viem LocalAccount | { signHash }, dryRun, sendDraft (dry run → patch → dry run → send, throws DryRunFailed), replay, lookupSelectors, viem `frameActions`, typed errors (RpcError, DryRunFailed, TxNotIncluded, WaitTimeout), `recipes/erc20Paymaster`, and sdk/README.md. Evidence: `node sdk/check.ts` → 'sdk: 21 offline cases OK' (including byte-identical signing vs the app engine, and the sendDraft fix loop 16,000 → 20,000 against a scripted node). `--live` (read-only): explain 0x3fd93ca4 → 'Admitted and included | Executed | Nothing to fix'; stats '17 of the last 200 rejected, 9 senders, top simulation×15, storage×2'; recipe build nonce 6 with a live quote; dryRun with a wrong key refused ('frame signature list does not authenticate the sender'); viem extend explain → 'Executed'. `tsc -p sdk` emits dist (32 exports, imports fine); `npm run check`, `npm run build` and oxlint pass. Nothing sent.
+
+### T73 · Approachable first screen and plain wording
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 05:20 IST
+- priority: P2
+- depends: T71
+- touches: src/App.tsx, src/app/globals.css
+- do: esh asked to make it more approachable and simple to get. Plain labels and headings, a three-step "how it works" before the first result, the plain-language answer first in the result, a short note on what a frame is.
+- done when: build passes; all saved cases render at 1280 and 375 px with no overflow or console errors.
+- log:
