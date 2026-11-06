@@ -973,11 +973,11 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T80 · Demo account dropdown clipped on desktop
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 05:35 IST
 - priority: P0 (demo)
 - touches: src/app/globals.css (one rule inside the T75 `.acct-pop` block, not at the end of the file)
 - do: At ≥901 px the wallet panel inside the dropdown keeps the page's 200px label column, so the address, the key input and Import spill past the 420px dropdown and get clipped. Use a narrow label column inside `.acct-pop`, as `.flow-grid .wallet .overview` did before T75.
 - done when: at 1280 px nothing in the open dropdown extends past its right edge; 375 px unchanged; build passes; console clean.
-- log:
+- log: Two rules in the T75 `.acct-pop` block: `.acct-pop .overview` gets a 96px label column, and the address font is 0.82rem. Checked on the static build at 1280 px: no element in the open dropdown extends past its right edge (scrollWidth 418 = clientWidth). The value column is 264px, wider than the 256px key-import row, so the import field fits too. 375 px uses the single-column rule, unchanged. Braces balanced, build passes, console clean. The fix landed in the claim commit ed0ca68. Prod still needs a redeploy.
