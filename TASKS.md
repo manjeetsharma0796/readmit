@@ -591,9 +591,9 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T52 · Explain where the fix number comes from
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 00:03 IST
 - priority: P0
 - depends: none
 - touches: src/App.tsx, src/ui/FixAndSend.tsx, src/app/globals.css
