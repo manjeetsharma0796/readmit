@@ -55,6 +55,14 @@ button:hover { border-color: var(--ink-2); }
 .samples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; color: var(--ink-2); font-size: 0.92rem; }
 .chip { border-radius: 999px; padding: 4px 12px; font-size: 0.9rem; }
 
+.wallet { margin-top: 20px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 4px 18px 16px; }
+.wallet-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.wallet-head h2 { margin: 14px 0 0; }
+.wallet .overview { margin-top: 10px; }
+.wallet-key { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.wallet .row input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 0.9rem; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; background: #fbfcfd; }
+.wallet-refresh { margin-top: 12px; }
+
 .result { margin-top: 24px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; }
 .result-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
 .hash { overflow-wrap: anywhere; color: var(--ink-2); }
