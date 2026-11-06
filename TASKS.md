@@ -502,3 +502,71 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Fee line names where the price comes from: the paymaster's quote from the Uniswap v4 ETH/tUSD pool.
 - done when: pasting 0xe97e… shows the saved case, the dry-run verdicts render, and `npm run build` passes.
 - log: Pasting 0x6137… (and any saved case) when the node no longer has it now loads the saved real case labelled "Saved sample, not fetched live" (checked live: gateway returned "not found"); "not found" no longer reads as "couldn't reach the devnet". Send's dry run calls `simulate(raw, true)` with `{ sender }`, so T17's pool-price warning shows, and a "Dry run" box shows the mempool and execution verdicts plus any warnings while it sends. Fee line: "… ETH used: 0 · priced live by our paymaster from the Uniswap v4 ETH/tUSD pool". Build and `npm run check` pass. The dry-run box is first seen live in manjeet's T22/T23 sends.
+
+## From the judge red-team and novelty check (23:40 IST)
+Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-priced paymaster on this devnet already exists at this event (FrameGas), so lead with EF Alt Mempool and keep Uniswap as the supporting story. Biggest judge risk: "a nicer explorer, not a product".
+
+### T46 · Rejection-case gallery
+- owner: esh
+- status: todo
+- agent:
+- started:
+- priority: P0
+- depends: none
+- touches: src/App.tsx, src/app/globals.css
+- do: Show every saved real case (12) as buttons, grouped "Rejected by the mempool", "Failed on chain" and "Worked", so an EF judge sees the coverage in 20 seconds.
+- done when: all 12 cases load from the page, and `npm run build` passes.
+- log:
+
+### T47 · Live rejection stats from the devnet
+- owner: esh
+- status: todo
+- agent:
+- started:
+- priority: P1
+- depends: none
+- touches: src/App.tsx, src/app/globals.css
+- do: Count the node's recent rejected transactions by rule (from `skandha_explorer_listAdmissions`, which the page already reads). Show "N of the last M transactions on this node were rejected", with the top rules. This is demand evidence: other teams hit these errors this weekend.
+- done when: the stats show live numbers, and `npm run build` passes.
+- log:
+
+### T48 · CROPS footer
+- owner: esh
+- status: todo
+- agent:
+- started:
+- priority: P1
+- depends: none
+- touches: src/App.tsx
+- do: Footer states MIT licence, static app with no backend, no trackers, keys stay in the browser, and links the repo.
+- done when: the footer is on main.
+- log:
+
+### T49 · Pitch fixes from the red-team
+- owner: manjeet
+- status: todo
+- agent:
+- started:
+- priority: P0
+- depends: T30
+- touches: docs/PITCH.md, docs/SUBMISSION.md
+- do:
+  - Say "the number to change", not "the exact number": the gas suggestion is used × 1.25, rounded up.
+  - Re-signing works on your own transactions; diagnosis works on anyone's. The one-line pitch must not imply otherwise.
+  - Name the `slot0` spot-price limitation before a Uniswap judge does (TWAP or oracle hook is next; already in FEEDBACK.md).
+  - Open with the gap: rejected frame transactions never reach a block explorer, so Readmit is the only place you see why.
+  - Lead with EF Alt Mempool; FrameGas (same event) already does a Uniswap-priced paymaster.
+- done when: PITCH.md and SUBMISSION.md reflect these.
+- log: needs: manjeet (raised by esh).
+
+### T50 · Editable RPC endpoints (P1, CROPS)
+- owner: manjeet
+- status: todo
+- agent:
+- started:
+- priority: P1
+- depends: none
+- touches: src/rpc.ts, src/ui/ (settings field, with esh)
+- do: Let the user point Readmit at their own ethrex RPC and sidecar, so it doesn't depend on our endpoints. Only if time allows after the freeze rules; otherwise list it under "Not built yet".
+- done when: a changed endpoint is used for reads and sends.
+- log: needs: manjeet (rpc.ts is manjeet's).
