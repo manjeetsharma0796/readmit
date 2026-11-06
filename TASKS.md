@@ -167,9 +167,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T10 · Classify failed frames correctly
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:17 IST
 - priority: P0
 - depends: none
 - touches: src/diagnose.ts, src/diagnose.check.ts, src/samples/
