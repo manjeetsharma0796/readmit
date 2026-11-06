@@ -294,7 +294,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T30 · Pitch, video script and submission text
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:35 IST
 - priority: P0
@@ -307,7 +307,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
   Also write the ETHGlobal submission text (description, how it's made, tracks), plus answers for "why the alt mempool" and "why Uniswap".
 - done when: both docs are on `main` and the script reads out in under 3 minutes.
-- log: First drafts are on main: `docs/PITCH.md` (a 90 s script built on the real 0xe97e and 0x6137 cases, plus judge Q&A) and `docs/SUBMISSION.md` (form text and prize checklist). They read under 3 minutes. Every hash, address and number that doesn't exist yet is marked `[TODO]` and gets filled after T05, T22 and T40. Status stays `doing` until those are filled after 01:00.
+- log: First drafts are on main: `docs/PITCH.md` (a 90 s script built on the real 0xe97e and 0x6137 cases, plus judge Q&A) and `docs/SUBMISSION.md` (form text and prize checklist). They read under 3 minutes. Every hash, address and number that doesn't exist yet is marked `[TODO]` and gets filled after T05, T22 and T40. Status stays `doing` until those are filled after 01:00. Final at 01:50 IST (see T49). Only the video link is left, and it goes in at T42.
 
 ---
 
@@ -544,7 +544,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T49 · Pitch fixes from the red-team
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 01:43 IST
 - priority: P0
@@ -557,7 +557,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
   - Open with the gap: rejected frame transactions never reach a block explorer, so Readmit is the only place you see why.
   - Lead with EF Alt Mempool; FrameGas (same event) already does a Uniswap-priced paymaster.
 - done when: PITCH.md and SUBMISSION.md reflect these.
-- log: needs: manjeet (raised by esh).
+- log: needs: manjeet (raised by esh). Done at 01:50 IST. PITCH.md and SUBMISSION.md are rewritten: the prize order is EF Alt Mempool (area b, developer tooling), then CROPS, then Uniswap; the opener is the gap (rejected txs never reach a block explorer); the wording is "the number to change" (used × 1.25); diagnosis covers anyone's tx while Fix & send covers your own; `slot0` is named as a limit (7% headroom, re-quote, TWAP next); there's a FrameGas Q&A answer (they lead on the paymaster, our product is the debugger); and real hashes replace every TODO except the video link.
 
 ### T50 · Editable RPC endpoints (P1, CROPS)
 - owner: manjeet
