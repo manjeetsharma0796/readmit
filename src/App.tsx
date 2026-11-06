@@ -6,14 +6,16 @@ import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type Admis
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
 import sig from './samples/bad-signature.json'
-import fee from './samples/replacement-fee-too-low.json'
+import feeLow from './samples/replacement-fee-too-low.json'
+import logic from './samples/logic-revert.json'
 
 type Loaded = { hash: string; node: NodeId; tx: TxResult; receipt: Receipt | null; source: 'live' | 'sample' }
 const SAMPLES = [
   { label: 'Ran out of gas', data: oog },
   { label: 'Validation gas over cap', data: cap },
   { label: 'Bad signature', data: sig },
-  { label: 'Replacement fee too low', data: fee },
+  { label: 'Logic revert', data: logic },
+  { label: 'Replacement fee too low', data: feeLow },
 ] as const
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : 'none')
