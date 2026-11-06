@@ -603,9 +603,9 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T53 · Judge defense sheet
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 23:58 IST
 - priority: P0
 - depends: none
 - touches: docs/DEFENSE.md (new)
