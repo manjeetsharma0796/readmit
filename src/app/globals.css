@@ -78,6 +78,13 @@ button:hover { border-color: var(--ink-2); }
 .timeline li.fail .t-dot { background: var(--fail); border-color: var(--fail); }
 .send-hash { margin: 12px 0 0; overflow-wrap: anywhere; }
 .send-fee { margin: 8px 0 0; font-weight: 600; color: var(--pass); }
+.send-low { margin-top: 10px; color: var(--ink-2); }
+.fixsend { margin-top: 14px; border: 1px solid var(--rule); border-left: 4px solid var(--cobalt); padding: 10px 14px; display: grid; gap: 8px; justify-items: start; }
+.fixsend p { margin: 0; }
+.fixsend .fix { color: var(--cobalt); font-weight: 600; }
+.compare { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.compare li { display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+.send-problem button { margin-top: 8px; }
 .send-problem { margin-top: 14px; border-left: 4px solid var(--fail); background: var(--fail-bg); padding: 10px 14px; }
 .send-problem > p { margin: 2px 0; }
 .send-problem .findings { margin-top: 10px; }
