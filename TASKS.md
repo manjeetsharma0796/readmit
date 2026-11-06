@@ -32,8 +32,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ## prith: contracts and devnet infra
 
 ### T01 · Contracts toolchain builds and fork test passes
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
@@ -44,8 +45,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log:
 
 ### T02 · Paymaster gets `owner` and `withdraw()`
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
@@ -56,8 +58,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log:
 
 ### T03 · Shrink setup costs and wire the deployer key
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
@@ -68,8 +71,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log:
 
 ### T04 · Deploy tUSD, the ETH/tUSD v4 pool and the paymaster, then stake it
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
@@ -83,8 +87,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log:
 
 ### T05 · GATE 22:30: golden Mode A tx admitted on the gateway
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
@@ -120,8 +125,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - log:
 
 ### T07 · Demo wallet: 100 tUSD, 0 ETH
-- owner: prith
+- owner: manjeet
 - status: todo
+- note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent:
 - started:
 - priority: P0
