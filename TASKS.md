@@ -256,9 +256,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T15 · Uniswap re-quote fix (P1)
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 22:10 IST
 - priority: P1
 - depends: T14
 - touches: src/engine/, src/diagnose.ts
