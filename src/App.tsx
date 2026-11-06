@@ -282,6 +282,12 @@ export default function App() {
                     {f.title}
                   </div>
                   {f.fix && <p className="fix">{f.fix}</p>}
+                  {f.patch?.kind === 'gas' && f.frame !== undefined && loaded.receipt?.frameReceipts[f.frame] && (
+                    <p className="how">
+                      How we got {fmt(f.patch.gas)}: frame {f.frame} used {fmt(n(loaded.receipt.frameReceipts[f.frame].gasUsed))} gas, plus 25% headroom, rounded up to
+                      the next 1,000. It's an estimate with a margin, not an exact minimum.
+                    </p>
+                  )}
                   <p className="why">{f.why}</p>
                   {f.selector && (
                     <p className="decoded">
