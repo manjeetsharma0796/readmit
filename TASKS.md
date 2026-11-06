@@ -520,9 +520,9 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T47 · Live rejection stats from the devnet
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 23:55 IST
 - priority: P1
 - depends: none
 - touches: src/App.tsx, src/app/globals.css
