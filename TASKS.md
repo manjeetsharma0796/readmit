@@ -490,7 +490,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T45 · Demo-path polish: saved-case fallback, dry-run verdicts, sponsor lines
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:35 IST
 - priority: P0
@@ -501,4 +501,4 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - The send dry run requests the trace and passes the sender, so T17's pool-price warning shows (needs: esh from T17). Show the dry run's two verdicts (public mempool vs alt mempool, would-succeed) even when it goes on to send.
   - Fee line names where the price comes from: the paymaster's quote from the Uniswap v4 ETH/tUSD pool.
 - done when: pasting 0xe97e… shows the saved case, the dry-run verdicts render, and `npm run build` passes.
-- log:
+- log: Pasting 0x6137… (and any saved case) when the node no longer has it now loads the saved real case labelled "Saved sample, not fetched live" (checked live: gateway returned "not found"); "not found" no longer reads as "couldn't reach the devnet". Send's dry run calls `simulate(raw, true)` with `{ sender }`, so T17's pool-price warning shows, and a "Dry run" box shows the mempool and execution verdicts plus any warnings while it sends. Fee line: "… ETH used: 0 · priced live by our paymaster from the Uniswap v4 ETH/tUSD pool". Build and `npm run check` pass. The dry-run box is first seen live in manjeet's T22/T23 sends.
