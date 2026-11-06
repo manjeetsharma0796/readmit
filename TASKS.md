@@ -672,3 +672,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Restyle to esh's references: near-black background with a faint grid, chamfered panels, hatch-stripe accents, condensed letter-spaced display type, cyan accent. Theme only, no layout or logic changes. New favicon to match.
 - done when: build passes, text contrast stays WCAG AA, all flows work at 1280 and 375 px with a clean console.
 - log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme. Renumbered from T57, which another agent claimed first for the wagmi connect wallet (commits 128004f "T57: add and claim" is this ticket). Done 02:50: dark HUD theme (grid, chamfered panels, hatch-stripe brand bar, Barlow Condensed display type self-hosted, cyan accent), HUD favicon, and with the dataviz skill: live stats as stat tiles (ink numbers, status by dot + label, top rules as thin bars) and thin gas meters with rounded ends and exact used/limit on hover. Palette validator on the dark panel: contrast PASS (all >= 3:1), CVD PASS (worst ΔE 9.0), normal-vision PASS; its lightness-band check is for categorical series and does not apply to these status colours, which always carry a text label. Checked at 1280 and 375 px: all 12 cases load, no overflow, tiles live ("4% · 8 of the last 200 · 7 senders · 49 minutes"). Build and checks pass. Note: the devnet explorer API is slow right now (4-14 s), so let the live list load before recording.
+
+### T59 · Glass theme, 3D frame stack, plain-language summary, frame gas map
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 02:46 IST
+- priority: P1
+- depends: T58
+- touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx
+- do: esh's feedback: the status words contradicted each other ("Success" next to "Rejected"), and the look felt generic. One plain summary sentence that reconciles node and chain; glass panels on a distinctive aubergine/coral palette; a 3D stack of glass frames in the header; a proportional frame gas map above the table.
+- done when: build passes, all 12 cases read correctly, 1280 and 375 px look right.
+- log: esh asked for this in chat after the feature freeze (override as T56).
