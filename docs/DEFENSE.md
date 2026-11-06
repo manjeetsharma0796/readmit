@@ -23,6 +23,9 @@ Yes. A wallet holding 0 ETH sent 1 tUSD and paid 2.969998 tUSD of gas to our pay
 That transaction is from an earlier run of the devnet (block 405,125); the devnet has since been reset and is now around block 7,200. Readmit shows it from a saved copy and labels it "Saved sample, not fetched live".
 - Evidence: `src/samples/reverted-out-of-gas.json`. The logic-revert example `0x6137…` is still on the current chain (block 2,993, frame 2 failed at 8,158 gas).
 
+**"One of your Fix & send transactions was dropped. Is your fix broken?"**
+No. `0x6fa1abb2…` was admitted with every check passing, then the miner reported "relayed 4 times without being included". Its exact bytes still dry-run successfully at the latest state (all 4 frames, frame 3 uses 18,461 of 20,000), and its 2 gwei max fee is far above the ~7 wei base fee, so it was valid and priced right; the same flow was included in block 7,261 (`0xf09e55cf…`).
+
 ## Is the advice right?
 
 **"Is 38,000 the exact gas you need?"**
