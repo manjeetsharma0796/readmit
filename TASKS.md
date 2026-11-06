@@ -158,9 +158,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T09 · Price-moved fixture (P1)
 - owner: prith
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on prith
+- started: 22:15 IST
 - priority: P1
 - depends: T05
 - touches: contracts/script/, src/samples/ (one new JSON, with manjeet's ok)
