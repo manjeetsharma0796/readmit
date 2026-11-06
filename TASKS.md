@@ -426,10 +426,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ## Everyone
 
 ### T40 · Full live demo run (01:00–03:00)
-- owner: anyone
-- status: todo
-- agent:
-- started:
+- owner: manjeet
+- status: doing
+- agent: Claude Code on manjeet
+- started: 01:43 IST
 - priority: P0
 - depends: T23, T05 or T06
 - touches: README.md (the "Proof" section)
@@ -544,9 +544,9 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T49 · Pitch fixes from the red-team
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 01:43 IST
 - priority: P0
 - depends: T30
 - touches: docs/PITCH.md, docs/SUBMISSION.md
