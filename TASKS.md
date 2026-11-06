@@ -508,9 +508,9 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T46 · Rejection-case gallery
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 23:43 IST
 - priority: P0
 - depends: none
 - touches: src/App.tsx, src/app/globals.css
