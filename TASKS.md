@@ -327,9 +327,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T21 · Wallet panel
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 22:20 IST
 - priority: P0
 - depends: none (stub until T07; `// stub:`)
 - touches: src/ui/Wallet.tsx, src/App.tsx (mount only)
