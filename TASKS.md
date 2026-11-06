@@ -373,9 +373,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T24 · CROPS section in README
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 15:55 IST
 - priority: P0
 - depends: none
 - touches: README.md (the "CROPS" section only)
