@@ -335,7 +335,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T21 · Wallet panel
 - owner: esh
-- status: blocked
+- status: done
 - agent: Claude Code on esh
 - started: 21:37 IST
 - priority: P0
@@ -346,7 +346,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Show the wallet address (from `contracts/deployments/1337.json` `demoWallet`), the tUSD balance (`balanceOf` via `eth_call`) and the ETH balance, which should be 0.
   - Add a short "test key, devnet only" note.
 - done when: after T07, the real wallet shows 100 tUSD and 0 ETH.
-- log: UI done in `src/ui/Wallet.tsx`, mounted in App.tsx: "Import demo key" (password field, 0x+64 hex check, localStorage `readmit.demoKey` only, Forget key), signer address, wallet address, tUSD (`balanceOf` via `eth_call`) and ETH balance, "test key, devnet only" note. Addresses are a `// stub:` until T07 writes `contracts/deployments/1337.json`, so it shows "Not deployed yet". Checked at 1280 and 375 px, console clean, `npm run build` passes. Also edited src/app/globals.css (wallet styles). **Blocked:** the done-check needs the real demo wallet. needs: prith (T07), then swap the stub for the deployments import.
+- log: UI done in `src/ui/Wallet.tsx`, mounted in App.tsx: "Import demo key" (password field, 0x+64 hex check, localStorage `readmit.demoKey` only, Forget key), signer address, wallet address, tUSD (`balanceOf` via `eth_call`) and ETH balance, "test key, devnet only" note. Addresses are a `// stub:` until T07 writes `contracts/deployments/1337.json`, so it shows "Not deployed yet". Checked at 1280 and 375 px, console clean, `npm run build` passes. Also edited src/app/globals.css (wallet styles). **Blocked:** the done-check needs the real demo wallet. needs: prith (T07), then swap the stub for the deployments import. 22:55 unblocked: the stub is replaced by `contracts/deployments/1337.json` (src/ui/deploy.ts). Live: wallet 0x1328…5742 shows 96.030002 tUSD and 0 ETH (100 minus the golden/demo sends; tUSD has 6 decimals). Console clean, build passes.
 
 ### T22 · Send screen (Flow B)
 - owner: esh
@@ -362,7 +362,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Show the fee: "Gas paid: X tUSD, ETH used: 0".
   - Errors in plain words, with next steps: dry-run failure, which shows the diagnosis; rejected; timeout.
 - done when: a real send from the demo wallet reaches Included in the UI. Put the hash in the log.
-- log: UI done in `src/ui/Send.tsx`, mounted in App.tsx. Recipient + amount + one Send button. Flow: `buildSendTx` → sign → `simulate` → `diagnoseDraft` (stops and shows the findings if anything fails or warns) → sign → `sendFrameTx` → `watchTx`. Timeline: Checking (dry run) → Signing → Sent → Admitted → Included, explorer link, "Gas paid: X tUSD, ETH used: 0" (fee read from the fee frame). Plain-word errors with next steps: no key, not deployed, bad address/amount, dry-run failure, rejected, failed on chain, dropped, 2-minute timeout, devnet unreachable. Moved the deployments stub to `src/ui/deploy.ts` (shared with Wallet.tsx); also edited src/app/globals.css. Checked at 1280 and 375 px, console clean, `npm run build` passes. Timeline not yet seen live. **Blocked:** a real send needs tUSD + paymaster deployed and a funded key. needs: prith (T04, T07), then esh approves one send.
+- log: UI done in `src/ui/Send.tsx`, mounted in App.tsx. Recipient + amount + one Send button. Flow: `buildSendTx` → sign → `simulate` → `diagnoseDraft` (stops and shows the findings if anything fails or warns) → sign → `sendFrameTx` → `watchTx`. Timeline: Checking (dry run) → Signing → Sent → Admitted → Included, explorer link, "Gas paid: X tUSD, ETH used: 0" (fee read from the fee frame). Plain-word errors with next steps: no key, not deployed, bad address/amount, dry-run failure, rejected, failed on chain, dropped, 2-minute timeout, devnet unreachable. Moved the deployments stub to `src/ui/deploy.ts` (shared with Wallet.tsx); also edited src/app/globals.css. Checked at 1280 and 375 px, console clean, `npm run build` passes. Timeline not yet seen live. **Blocked:** a real send needs tUSD + paymaster deployed and a funded key. needs: prith (T04, T07), then esh approves one send. 22:55 deployments wired (real tUSD/paymaster, 6 decimals). Still blocked only on the real send: esh needs the demo key (DEMO_KEY, from manjeet privately) and must approve the send.
 
 ### T23 · Fix & send
 - owner: esh
