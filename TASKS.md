@@ -754,7 +754,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T62 · Review fixes and a pitch-black theme
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 03:12 IST
 - priority: P0
@@ -762,4 +762,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/ui/Wallet.tsx, src/ui/Send.tsx, src/ui/FixAndSend.tsx, src/App.tsx, src/app/globals.css, src/ui/Endpoints.tsx (one line)
 - do: Fix the bugs from esh's UI review: an invalid key (e.g. all zeros) passes validation, is saved and crashes every reload; balances shown for a different account than the signer; Send not locked while the draft builds; Fix & send rebuilds from edited form values; every send error reads "couldn't reach the devnet"; a failed receipt lookup is shown as "never reached the chain / nothing charged"; samples don't update the URL or scroll into view; older responses can overwrite newer ones; no main landmark; endpoint panel omits Sourcify. Then one clean pitch-black theme with colour accents (esh's choice), fewer effects, display type only on short headings.
 - done when: each bug above is checked in the browser, build and checks pass, 1280 and 375 px look right.
-- log: **esh asked for this in chat after the 03:00 code freeze (explicit go-ahead).** Note for manjeet: ee0cabe (T61) removed 254 lines of globals.css (the T58/T59 theme, stat tiles, frame map, summary styles), probably in a merge; this ticket restyles them.
+- log: **esh asked for this in chat after the 03:00 code freeze (explicit go-ahead).** Verified in the browser: a stored all-zero key no longer crashes the page and an all-f key is refused ("outside the allowed range", aria-invalid); a non-demo key shows "Sends from" its own address and balances with a warning; Send disables within 50 ms and ignores repeat clicks (dry run refused an empty account, nothing broadcast); clicking a case sets ?tx=…&node=…, switches the node selector and jumps to the result with focus; 3 examples up front, 9 under "More examples"; one <main>. Build, tsc and checks pass. Also edited src/ui/Providers.tsx (Connect button accent made neutral; removed an unused import). Not done from the review: a full confirm step before send (#7, fee is now shown during the flow), RPC timeouts (#19, rpc.ts is manjeet's), copy buttons for addresses (#20), capture times on saved cases (#21), a skip link (#24) and field-level errors on the send form (#25). Note for manjeet: ee0cabe (T61) removed 254 lines of globals.css (the T58/T59 theme, stat tiles, frame map, summary styles), probably in a merge; this ticket restyles them.
