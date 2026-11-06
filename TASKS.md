@@ -663,7 +663,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T58 · Sleek dark HUD theme and favicon
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 02:36 IST
 - priority: P1
@@ -671,4 +671,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/app/globals.css, src/app/layout.tsx (display font), public/favicon.svg
 - do: Restyle to esh's references: near-black background with a faint grid, chamfered panels, hatch-stripe accents, condensed letter-spaced display type, cyan accent. Theme only, no layout or logic changes. New favicon to match.
 - done when: build passes, text contrast stays WCAG AA, all flows work at 1280 and 375 px with a clean console.
-- log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme. Renumbered from T57, which another agent claimed first for the wagmi connect wallet (commits 128004f "T57: add and claim" is this ticket).
+- log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme. Renumbered from T57, which another agent claimed first for the wagmi connect wallet (commits 128004f "T57: add and claim" is this ticket). Done 02:50: dark HUD theme (grid, chamfered panels, hatch-stripe brand bar, Barlow Condensed display type self-hosted, cyan accent), HUD favicon, and with the dataviz skill: live stats as stat tiles (ink numbers, status by dot + label, top rules as thin bars) and thin gas meters with rounded ends and exact used/limit on hover. Palette validator on the dark panel: contrast PASS (all >= 3:1), CVD PASS (worst ΔE 9.0), normal-vision PASS; its lightness-band check is for categorical series and does not apply to these status colours, which always carry a text label. Checked at 1280 and 375 px: all 12 cases load, no overflow, tiles live ("4% · 8 of the last 200 · 7 senders · 49 minutes"). Build and checks pass. Note: the devnet explorer API is slow right now (4-14 s), so let the live list load before recording.
