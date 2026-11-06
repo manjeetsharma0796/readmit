@@ -589,3 +589,18 @@ button:active, .chip:active, .faucet-btn:active { box-shadow: var(--key-pressed)
 @media (prefers-reduced-motion: reduce) {
   button, .chip, .faucet-btn { transition: none; }
 }
+
+/* manjeet (append-only, after T62): keep the wallet buttons top right. On desktop the header stays on one row and
+   the brand tagline wraps instead of pushing the buttons to a second line. */
+@media (min-width: 901px) {
+  .top { flex-wrap: nowrap; }
+  .top .brand { flex: 1 1 auto; min-width: 0; }
+  .top .stack3d, .top .seg, .top .hdr-actions { flex: 0 0 auto; }
+  .top .hdr-actions { flex-wrap: nowrap; }
+}
+/* Stat tiles: equal height, so the four read as one strip instead of floating at different offsets. */
+.stats { align-items: stretch; }
+/* Phones: in two columns the "Window" tile left an empty cell beside it; let it span the row. */
+@media (max-width: 720px) {
+  .stats > .tile:nth-child(3):not(.tile-rules) { grid-column: 1 / -1; }
+}
