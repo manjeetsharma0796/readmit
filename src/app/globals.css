@@ -76,6 +76,10 @@ button:hover { border-color: var(--ink-2); }
 .timeline li.fail .t-dot { background: var(--fail); border-color: var(--fail); }
 .send-hash { margin: 12px 0 0; overflow-wrap: anywhere; }
 .send-fee { margin: 8px 0 0; font-weight: 600; color: var(--pass); }
+.drycheck { margin-top: 14px; border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px; display: grid; gap: 4px; background: #fafbfc; }
+.drycheck p { margin: 0; }
+.dry-note { font-size: 0.92rem; padding-left: 18px; }
+.dry-note.warn strong { color: var(--warn); }
 .send-low { margin-top: 10px; color: var(--ink-2); }
 .fixsend { margin-top: 14px; border: 1px solid var(--rule); border-left: 4px solid var(--cobalt); padding: 10px 14px; display: grid; gap: 8px; justify-items: start; }
 .fixsend p { margin: 0; }

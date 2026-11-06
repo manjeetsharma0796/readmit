@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatUnits, isAddress, parseUnits, type Address, type Hex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { diagnose, diagnoseDraft, type Finding, type Patch } from '../diagnose'
+import { diagnose, diagnoseDraft, type Diagnosis, type Finding, type Patch, type Verdict } from '../diagnose'
 import { applyPatch, buildSendTx, draftFrames, requote, signDraft, type Draft } from '../engine/frames'
 import { EXPLORER, getReceipt, getTx, sendFrameTx, simulate, watchTx, type Stage } from '../rpc'
 import { DEPLOY } from './deploy'
@@ -30,6 +30,7 @@ export function Send() {
   const [fee, setFee] = useState<bigint | null>(null)
   const [problem, setProblem] = useState<Problem | null>(null)
   const [fix, setFix] = useState<Fix | null>(null)
+  const [check, setCheck] = useState<Diagnosis | null>(null) // the latest dry run, shown even when it lets the send go ahead
   const [caught, setCaught] = useState<Draft | null>(null) // a low-gas draft the dry run stopped, for "Send anyway"
   const stop = useRef<() => void>(() => {})
   useEffect(() => () => stop.current(), [])
@@ -41,6 +42,7 @@ export function Send() {
     setProblem(null)
     setHash(null)
     setFee(null)
+    setCheck(null)
     setCaught(null)
   }
 
@@ -71,8 +73,10 @@ export function Send() {
     setStep(0)
     setFee(feeOf(draft))
     if (!opts.skipCheck) {
-      // The simulator needs signed bytes; this signature is only used for the dry run.
-      const dx = diagnoseDraft(draftFrames(draft), await simulate(await signDraft(draft, key)), { sender: draft.sender })
+      // The simulator needs signed bytes; this signature is only used for the dry run. The trace lets the diagnosis flag
+      // validation that reads shared storage (our paymaster reads the Uniswap v4 pool), which a swap can invalidate.
+      const dx = diagnoseDraft(draftFrames(draft), await simulate(await signDraft(draft, key), true), { sender: draft.sender })
+      setCheck(dx)
       if (dx.findings.some((f) => f.tone === 'fail')) {
         const f = fixable(dx.findings)
         if (f && !opts.fixing) setFix({ finding: f, oldHash: null, newHash: null })
@@ -217,7 +221,23 @@ export function Send() {
       {fee !== null && step === 5 && (
         <p className="send-fee">
           Gas paid: {formatUnits(fee, DEPLOY.tUSDDecimals)} tUSD, ETH used: 0
+          <span className="muted"> · priced live by our paymaster from the Uniswap v4 ETH/tUSD pool</span>
         </p>
+      )}
+
+      {check && !problem && (
+        <div className="drycheck" aria-label="Dry run result">
+          <p className="f-title">Dry run</p>
+          <VerdictLine label="Mempools" v={check.mempool} />
+          <VerdictLine label="Execution" v={check.chain} />
+          {check.findings
+            .filter((f) => f.tone === 'warn' || f.tone === 'info')
+            .map((f, i) => (
+              <p key={i} className={`dry-note ${f.tone}`}>
+                <strong>{f.title}.</strong> {f.why}
+              </p>
+            ))}
+        </div>
       )}
 
       {fix && <FixAndSend finding={fix.finding} oldHash={fix.oldHash} newHash={fix.newHash} busy={busy} onFix={fixAndSend} />}
@@ -245,5 +265,17 @@ export function Send() {
         </div>
       )}
     </section>
+  )
+}
+
+function VerdictLine({ label, v }: { label: string; v: Verdict }) {
+  return (
+    <p className="v-row">
+      <span className={`dot ${v.tone}`} aria-hidden="true" />
+      <span>
+        <span className="muted">{label}: </span>
+        <strong>{v.headline}</strong> <span className="muted">· {v.sub}</span>
+      </span>
+    </p>
   )
 }
