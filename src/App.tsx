@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { diagnose, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
+import { diagnose, errorString, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { FramesTable } from './ui/FramesTable'
 import { Send } from './ui/Send'
 import { Wallet } from './ui/Wallet'
 import { Endpoints } from './ui/Endpoints'
+import { replay } from './engine/frames'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
@@ -61,6 +62,33 @@ export default function App() {
   const [names, setNames] = useState<Map<string, string | null>>(new Map())
 
   const dx: Diagnosis | null = useMemo(() => (loaded ? diagnose(loaded.tx, loaded.receipt) : null), [loaded])
+
+  // "Why did it revert?": for a live tx that failed on chain, re-simulate it on the block before it (T16) to get the
+  // revert data. ethrex keeps state for ~128 blocks, so this only works for a few minutes after inclusion.
+  type Why = { hash: string; state: 'loading' | 'found' | 'none' | 'gone' | 'error'; frame?: number; text?: string }
+  const [why, setWhy] = useState<Why | null>(null)
+  useEffect(() => {
+    setWhy(null)
+    if (!loaded || loaded.source !== 'live' || loaded.receipt?.status !== '0x0') return
+    const hash = loaded.hash
+    setWhy({ hash, state: 'loading' })
+    replay(hash as `0x${string}`)
+      .then(async (sim) => {
+        if (!sim) return setWhy({ hash, state: 'gone' })
+        const data = sim.revertData
+        const failed = sim.frames?.findIndex((f) => !f.succeeded) ?? -1
+        const frame = sim.failedFrameIndex ?? (failed >= 0 ? failed : undefined)
+        const text = errorString(data)
+        if (text) return setWhy({ hash, state: 'found', frame, text: `"${text}"` })
+        if (data && data.length >= 10) {
+          const sel = data.slice(0, 10)
+          const name = (await lookupSelectors([sel])).get(sel)
+          return setWhy({ hash, state: 'found', frame, text: name ? `${name} (custom error)` : `custom error ${sel}` })
+        }
+        setWhy({ hash, state: 'none', frame })
+      })
+      .catch(() => setWhy({ hash, state: 'error' }))
+  }, [loaded])
 
   useEffect(() => {
     if (!dx) return
@@ -297,6 +325,24 @@ export default function App() {
                 </li>
               ))}
             </ol>
+            {why && why.hash === loaded.hash && (
+              <p className={`replay ${why.state}`} aria-live="polite">
+                <strong>Why it reverted: </strong>
+                {why.state === 'loading' && 'replaying it on the block before it…'}
+                {why.state === 'found' && (
+                  <>
+                    {why.frame !== undefined ? `frame ${why.frame} reverted with ` : 'reverted with '}
+                    <code>{why.text}</code>, from a replay on the block before it.
+                  </>
+                )}
+                {why.state === 'none' &&
+                  (why.frame !== undefined
+                    ? `a replay on the block before it fails at frame ${why.frame} again, so the failure is reproducible, but the node returns no revert message for it.`
+                    : 'a replay on the block before it returned no revert message.')}
+                {why.state === 'gone' && 'too old to replay: the node keeps state for about 128 blocks (roughly 13 minutes).'}
+                {why.state === 'error' && "couldn't replay it right now."}
+              </p>
+            )}
           </section>
 
           <section aria-label="Frames">
