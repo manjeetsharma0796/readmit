@@ -561,7 +561,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T50 · Editable RPC endpoints (P1, CROPS)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on prith
 - started: 23:50 IST
 - priority: P1
@@ -569,4 +569,4 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 - touches: src/rpc.ts, src/ui/ (settings field, with esh)
 - do: Let the user point Readmit at their own ethrex RPC and sidecar, so it doesn't depend on our endpoints. Only if time allows after the freeze rules; otherwise list it under "Not built yet".
 - done when: a changed endpoint is used for reads and sends.
-- log: needs: manjeet (rpc.ts is manjeet's). Taken by prith on prith's instruction at 23:50; the rpc.ts change is kept to the endpoint constants. manjeet, shout if you object.
+- log: needs: manjeet (rpc.ts is manjeet's). Taken by prith on prith's instruction at 23:50; the rpc.ts change is kept to the endpoint constants. manjeet, shout if you object. **Done 00:20.** `src/rpc.ts`: `ENDPOINTS` = defaults + localStorage `readmit.endpoints` overrides (http(s) only), feeding `ETHREX` and `NODES`, so every caller (frames.ts, Wallet, App) uses them unchanged. New `src/ui/Endpoints.tsx` is a collapsible 'Endpoints: use your own node' panel in the footer with Save and reload / Reset to defaults. Outside touches (minimal): 2 lines in `src/App.tsx` (import + `<Endpoints />` in the footer), 5 lines in `src/app/globals.css`. Evidence: a stubbed run with overrides sent `skandha_explorer_getTransaction` and `eth_sendFrameTransaction` to the custom miner, and `eth_getTransactionReceipt`, `eth_getTransactionByHash` and `ethrex_simulateFrameTransaction` to the custom ethrex. A `javascript:` URL was ignored. In the browser, a saved miner URL `http://127.0.0.1:9/rpc` was fetched by the Miner tab, and the summary showed '(custom)' with no hydration error; Reset cleared it. `npm run check`, tsc, oxlint (new files) and `npm run build` pass.
