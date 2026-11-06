@@ -660,3 +660,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: manjeet asked for it in chat at 02:30, overriding the freeze. **Connect:** wagmi with the injected connector (MetaMask, Rabby, Brave and other extensions) connects the user's real wallet. Frame txs are still signed by the shared demo account, because no browser wallet can sign EIP-8141 frame txs yet. The UI says so plainly. **Faucet:** "Get 100 tUSD" is a real frame tx from the demo account: VERIFY self, VERIFY paymaster, fee transfer, then `tUSD.mint(self, 100e6)`. Gas is paid in tUSD and it is dry-run first. Not a mock.
 - done when: Connect works with an injected wallet; the faucet dry-run passes and one approved faucet send is included; build passes; Vercel redeployed and checked.
 - log: Built and committed. `src/ui/Connect.tsx`: wagmi 3.7.11 with the injected connector and EIP-6963 wallet discovery. `src/ui/Faucet.tsx`, plus `buildFaucetTx` and `mintData` in frames.ts. Mount lines in App.tsx and a balance-refresh listener in Wallet.tsx. Checked on the static build at 1280 px: with no wallet installed, Connect shows "No browser wallet found… use the demo account"; with an EIP-1193 test provider it showed "Connected 0x0000…dEaD · Injected" and Disconnect worked. At 375 px both cards are 343 px wide with no overflow. Console clean, build and `npm run check` pass. Faucet dry run on chain 1337 passed: 4 frames OK, fee 2.97 tUSD, mint frame succeeded. Pending: one approved real faucet send, a real MetaMask/Rabby connect (manjeet's own browser), and a Vercel redeploy.
+
+### T57 · Sleek dark HUD theme and favicon
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 02:36 IST
+- priority: P1
+- depends: T56
+- touches: src/app/globals.css, src/app/layout.tsx (display font), public/favicon.svg
+- do: Restyle to esh's references: near-black background with a faint grid, chamfered panels, hatch-stripe accents, condensed letter-spaced display type, cyan accent. Theme only, no layout or logic changes. New favicon to match.
+- done when: build passes, text contrast stays WCAG AA, all flows work at 1280 and 375 px with a clean console.
+- log: esh asked for this after overriding the feature freeze (T56). Revert this ticket's commits to go back to the light theme.
