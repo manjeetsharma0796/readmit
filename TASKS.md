@@ -639,7 +639,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T56 · UI redesign for the video
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 02:19 IST
 - priority: P1
@@ -647,4 +647,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css, src/ui/
 - do: Restyle from reference designs (explorer/debugger dashboards): result as a two-column page (fix and frames on the left, transaction details on the right), a stronger "What to change" hero, wallet and send side by side, stats as a headline number. No logic changes. Must be pushed and every flow re-checked before the 03:00 code freeze.
 - done when: build passes, all saved cases, send errors and the live list work at 1280 and 375 px with a clean console.
-- log: **esh overrode the 01:00 feature freeze for this ticket (in chat, 02:20).** If anything breaks, revert this ticket's commits.
+- log: **esh overrode the 01:00 feature freeze for this ticket (in chat, 02:20).** If anything breaks, revert this ticket's commits. Done 02:28: checked on the production build (out/) at 1280 px (main column 744 px + 340 px sticky transaction card, no overflow) and 375 px (single column, fix first, all 12 saved cases load, send error shows, no overflow); console clean; build passes. Reference sites (Dribbble, Pinterest) did not load or needed a login, so the design follows the Etherscan/Tenderly/Linear patterns from the PRD. README screenshots still show the previous design.
