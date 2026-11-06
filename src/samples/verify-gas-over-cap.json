@@ -1,0 +1,139 @@
+{
+ "name": "verify-gas-over-cap",
+ "hash": "0x0fcf8e0e5c6b60f9a1050aceb05f216b487d40165d6c774bb1df93043eda2ddc",
+ "node": "gateway",
+ "tx": {
+  "hash": "0x0fcf8e0e5c6b60f9a1050aceb05f216b487d40165d6c774bb1df93043eda2ddc",
+  "entry": null,
+  "admission": {
+   "id": 619,
+   "txHash": "0x0fcf8e0e5c6b60f9a1050aceb05f216b487d40165d6c774bb1df93043eda2ddc",
+   "sender": "0x628eaf2546c999e734c9774428a62b2dc441d1d3",
+   "nonce": "0x0",
+   "nonceKeys": [
+    "0x0"
+   ],
+   "at": 1793910997393,
+   "source": "rpc",
+   "outcome": "rejected",
+   "errorCode": -32602,
+   "checks": [
+    {
+     "rule": "gas-limit",
+     "verdict": "pass"
+    },
+    {
+     "rule": "recent-root",
+     "verdict": "pass"
+    },
+    {
+     "rule": "prefix",
+     "verdict": "pass"
+    },
+    {
+     "rule": "structure",
+     "verdict": "fail",
+     "detail": "validation prefix execution gas sum 300000 + signature-verification cost 100 = 300100 exceeds MAX_VERIFY_GAS 100000"
+    },
+    {
+     "rule": "signature",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "simulation",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "trace-alignment",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "OP-061",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "execution",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "mempool",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "out-of-gas",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "OP-011",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "create",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "storage",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "COD-010",
+     "verdict": "skipped"
+    },
+    {
+     "rule": "entrypoint-access",
+     "verdict": "skipped"
+    }
+   ],
+   "frames": [
+    {
+     "mode": 1,
+     "flags": 3,
+     "target": null,
+     "limits": {
+      "execution": "0x493e0",
+      "state": "0x0"
+     },
+     "value": "0x0",
+     "data": "0x"
+    },
+    {
+     "mode": 2,
+     "flags": 0,
+     "target": null,
+     "limits": {
+      "execution": "0xc350",
+      "state": "0x186a0"
+     },
+     "value": "0x0",
+     "data": "0x92f59d730000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+     "mode": 2,
+     "flags": 0,
+     "target": "0x8943545177806ed17b9f23f0a21ee5948ecaa776",
+     "limits": {
+      "execution": "0xc350",
+      "state": "0x30d40"
+     },
+     "value": "0x1",
+     "data": "0x"
+    }
+   ],
+   "frameStatuses": [
+    "not-run",
+    "not-run",
+    "not-run"
+   ]
+  },
+  "events": [
+   {
+    "seq": 1089,
+    "txHash": "0x0fcf8e0e5c6b60f9a1050aceb05f216b487d40165d6c774bb1df93043eda2ddc",
+    "at": 1793910997401,
+    "kind": "rejected",
+    "reason": "validation prefix execution gas sum 300000 + signature-verification cost 100 = 300100 exceeds MAX_VERIFY_GAS 100000"
+   }
+  ]
+ },
+ "receipt": null
+}

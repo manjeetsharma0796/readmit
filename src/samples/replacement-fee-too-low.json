@@ -1,0 +1,193 @@
+{
+ "name": "replacement-fee-too-low",
+ "hash": "0x5397c479b3d5be497281aa656678e5dddf7d55c9dfb9788f166dc7c6895727f5",
+ "node": "gateway",
+ "tx": {
+  "hash": "0x5397c479b3d5be497281aa656678e5dddf7d55c9dfb9788f166dc7c6895727f5",
+  "entry": null,
+  "admission": {
+   "id": 657,
+   "txHash": "0x5397c479b3d5be497281aa656678e5dddf7d55c9dfb9788f166dc7c6895727f5",
+   "sender": "0xAeD8621f6Dd36539D004E545e8E7Dda7d06aabCe",
+   "nonce": "0x1a",
+   "nonceKeys": [
+    "0x0"
+   ],
+   "at": 1793912746270,
+   "source": "rpc",
+   "outcome": "rejected",
+   "errorCode": -32602,
+   "checks": [
+    {
+     "rule": "gas-limit",
+     "verdict": "pass"
+    },
+    {
+     "rule": "recent-root",
+     "verdict": "pass"
+    },
+    {
+     "rule": "prefix",
+     "verdict": "pass"
+    },
+    {
+     "rule": "structure",
+     "verdict": "pass"
+    },
+    {
+     "rule": "signature",
+     "verdict": "pass"
+    },
+    {
+     "rule": "simulation",
+     "verdict": "pass"
+    },
+    {
+     "rule": "trace-alignment",
+     "verdict": "pass"
+    },
+    {
+     "rule": "OP-061",
+     "verdict": "pass"
+    },
+    {
+     "rule": "execution",
+     "verdict": "pass"
+    },
+    {
+     "rule": "trace-alignment",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "out-of-gas",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "OP-011",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "create",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "storage",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "COD-010",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "entrypoint-access",
+     "frameIndex": 0,
+     "entity": "payer",
+     "verdict": "pass"
+    },
+    {
+     "rule": "mempool",
+     "verdict": "fail",
+     "detail": "Frame transaction cannot be replaced: fee too low"
+    }
+   ],
+   "frames": [
+    {
+     "mode": 1,
+     "flags": 3,
+     "target": null,
+     "limits": {
+      "execution": "0x182b8",
+      "state": "0x0"
+     },
+     "value": "0x0",
+     "data": "0xfc735e99"
+    },
+    {
+     "mode": 2,
+     "flags": 4,
+     "target": "0xd131ae02a41fbc1a77bbd99251c02fb06a250dc4",
+     "limits": {
+      "execution": "0x186a0",
+      "state": "0x30d40"
+     },
+     "value": "0x0",
+     "data": "0x095ea7b3000000000000000000000000b68de8e6984c97835bb2b2b65e821292518257f800000000000000000000000000000000000000000000000000000000007a1200"
+    },
+    {
+     "mode": 2,
+     "flags": 4,
+     "target": "0xb68de8e6984c97835bb2b2b65e821292518257f8",
+     "limits": {
+      "execution": "0x249f0",
+      "state": "0x493e0"
+     },
+     "value": "0x0",
+     "data": "0xb214faa543840a0abc86c8700a7168947d762b1254751323e3bc577650e2ca10e0b566b5"
+    },
+    {
+     "mode": 2,
+     "flags": 4,
+     "target": "0xb68de8e6984c97835bb2b2b65e821292518257f8",
+     "limits": {
+      "execution": "0x249f0",
+      "state": "0x493e0"
+     },
+     "value": "0x0",
+     "data": "0xb214faa5b64dd79b762f394ee352c0a612de779559058ae4402b74a8da7e150e523800da"
+    },
+    {
+     "mode": 2,
+     "flags": 4,
+     "target": "0xb68de8e6984c97835bb2b2b65e821292518257f8",
+     "limits": {
+      "execution": "0x249f0",
+      "state": "0x493e0"
+     },
+     "value": "0x0",
+     "data": "0xb214faa52006ad2ea71a6d110d139dbb79eb32d2060421a9362204884dce0de8f4d0ffeb"
+    },
+    {
+     "mode": 2,
+     "flags": 0,
+     "target": "0xb68de8e6984c97835bb2b2b65e821292518257f8",
+     "limits": {
+      "execution": "0x249f0",
+      "state": "0x493e0"
+     },
+     "value": "0x0",
+     "data": "0xb214faa569dcb4e9b4c8f339ece08b6815f3caaf1e5b196b8bda37fcd8422c51f160b173"
+    }
+   ],
+   "frameStatuses": [
+    "success",
+    "success",
+    "success",
+    "success",
+    "success",
+    "success"
+   ]
+  },
+  "events": [
+   {
+    "seq": 1162,
+    "txHash": "0x5397c479b3d5be497281aa656678e5dddf7d55c9dfb9788f166dc7c6895727f5",
+    "at": 1793912746326,
+    "kind": "rejected",
+    "reason": "Frame transaction cannot be replaced: fee too low"
+   }
+  ]
+ },
+ "receipt": null
+}
