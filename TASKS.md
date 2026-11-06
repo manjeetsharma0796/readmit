@@ -226,9 +226,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T13 · Dry run (simulate) adapter
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:29 IST
 - priority: P0
 - depends: T12
 - touches: src/rpc.ts, src/diagnose.ts
