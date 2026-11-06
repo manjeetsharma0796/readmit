@@ -636,3 +636,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Commit a cited research report (EIP-8141 frames, ERC-8421 rules, the devnet sidecar, debugging prior art, slot0 pricing) with a "claims we must get right" table, and add its findings to the defense sheet.
 - done when: docs/RESEARCH.md is on main and DEFENSE.md cites it.
 - log: docs/RESEARCH.md: cited report from 4 research tracks (EIP-8141 spec, ERC-8421 draft + devnet sidecar source, debugging prior art, v4 slot0 pricing) with a claims table and glossary. 12 key source links checked (all 200). Checked directly: sidecar `MAX_VERIFY_GAS = BigInt(100_000)` (validationPrefix.ts line 10) and PR #3 (per-entity budgets) open, not merged; FrameGas repo exists (created 5 Nov). Findings: Readmit's flag masks, modes, statuses and 100k advice match; the sidecar's COD-010 is a mislabel (means "address has no code"); rolled-back frames in an atomic batch show "Succeeded" (documented as a limit). needs: manjeet: (1) diagnose.ts compares the prefix total with ERC-8421's 1M, which is per entity (spec verdict wording); (2) devnet allows one tx in flight per sender, so run the T22/T23 demo sends one at a time; (3) pitch should say staking makes the pool read admissible, not safe.
+
+### T56 · UI redesign for the video
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 02:19 IST
+- priority: P1
+- depends: none
+- touches: src/App.tsx, src/app/globals.css, src/ui/
+- do: Restyle from reference designs (explorer/debugger dashboards): result as a two-column page (fix and frames on the left, transaction details on the right), a stronger "What to change" hero, wallet and send side by side, stats as a headline number. No logic changes. Must be pushed and every flow re-checked before the 03:00 code freeze.
+- done when: build passes, all saved cases, send errors and the live list work at 1280 and 375 px with a clean console.
+- log: **esh overrode the 01:00 feature freeze for this ticket (in chat, 02:20).** If anything breaks, revert this ticket's commits.
