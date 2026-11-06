@@ -684,3 +684,33 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh's feedback: the status words contradicted each other ("Success" next to "Rejected"), and the look felt generic. One plain summary sentence that reconciles node and chain; glass panels on a distinctive aubergine/coral palette; a 3D stack of glass frames in the header; a proportional frame gas map above the table.
 - done when: build passes, all 12 cases read correctly, 1280 and 375 px look right.
 - log: esh asked for this in chat after the feature freeze (override as T56). Done 02:50. Summary checked on all 12 saved cases and on live 0xfd7a32da… (gateway rejected a copy with `simulation`, tx landed): "The transaction landed on chain and every frame worked. The gateway node rejected one copy of it (rule simulation), but another copy got in … Nothing to fix", with the fix panel retitled "Why that one copy was rejected (no action needed)". Frame map: out-of-gas case shows frame 4 red at 100%; logic revert shows frame 2 red at 16%. 1280 and 375 px, no overflow; build and checks pass. Also found the 21:34 dev server stuck (half-closed socket serving stale output) and restarted it.
+
+### T58 · Frame boxes strip (design from the explorer reference)
+- owner: esh
+- note: added by manjeet at 02:53 IST as "right now" priority. If esh is busy, manjeet's agent takes it; check the board first.
+- status: todo
+- agent:
+- started:
+- priority: P0 (video polish)
+- depends: none
+- touches: src/ui/FramesTable.tsx (or a new src/ui/FrameBoxes.tsx), src/app/globals.css
+- reference: `docs/img/ref/explorer-frame-boxes.png` (explorer.altmempool.wtf tx page). This is the design we want.
+- do: Above the frames table on the result page (and in the Send dry-run panel if it fits), show **one box per frame in a row**, like the reference:
+  - **Title:** "Frame N", large and bold.
+  - **Line 1, role in plain words:** self-verification, payment approval, user operation, deploy or post-operation (DEFAULT mode). Reuse `role()` and the mode mapping.
+  - **Line 2, when it applies:** "atomic with the next frame" when the atomic-batch flag is set.
+  - **Line 3, status:** Succeeded / Failed / Ran out of gas / Reverted / Skipped / Not simulated (rejected before execution) / Would run out of gas (dry run). Use the same classifier as the findings.
+  - **Box styles:**
+    - VERIFY boxes have a filled muted background (like Frame 0 in the reference);
+    - SENDER/DEFAULT boxes are outlined;
+    - the failing frame has a red outline and red title;
+    - skipped frames are dimmed.
+  - **Extra stage box at the end:** when the tx was rejected before any frame ran (admission or simulation failure with no frame index), add a red-outlined **"Before the frames"** box. Its subtitle is the stage name (e.g. "Simulation"), as in the reference.
+  - A caption under the strip, e.g. "These frames are from the admission report kept for this tx" when no receipt exists.
+  - Clicking a box scrolls to and highlights that row in the frames table.
+  - **Responsive:** boxes wrap at 375 px (2 per row), with no horizontal page scroll.
+- done when:
+  - all 12 saved cases plus a live hash render the strip correctly: 0xe97e frame 4 red as "Ran out of gas"; 0x6137 frame 2 red as "Reverted"; a rejected case shows "Before the frames"; the golden tx shows all green;
+  - screenshots at 1280 and 375 px look like the reference;
+  - console clean, `npm run build` passes.
+- log:
