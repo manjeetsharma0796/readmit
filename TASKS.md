@@ -615,7 +615,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T54 · Show the revert reason for fresh failed transactions
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 00:00 IST
 - priority: P1
@@ -623,4 +623,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: For a live transaction that failed on chain, call `replay(hash)` (T16) and show the revert reason under the failed frame's finding: a decoded Error(string) message, or the error's name from the selector lookup. Say plainly when the node no longer has the state (~128 blocks).
 - done when: a live failed tx shows its revert reason, or the "too old" note, and `npm run build` passes.
-- log:
+- log: Live failed txs now show "Why it reverted" from `replay()`. Checked live on the miner: 0x5f29af86… (15 blocks old) → "a replay on the block before it fails at frame 3 again, so the failure is reproducible, but the node returns no revert message for it" (the raw replay has executionStatus reverted, frame 3 succeeded:false and no revertData field); 0xf52f56f8… (352 blocks old) → "too old to replay … about 128 blocks". Saved samples skip it. A decoded Error(string)/custom-error message is not seen live (no recent tx carries revert data); it uses the shared `errorString` decoder. Console clean, build passes.
