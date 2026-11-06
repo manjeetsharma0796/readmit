@@ -129,7 +129,7 @@ export function Send() {
       {hash && (
         <p className="send-hash">
           <code>{hash}</code>{' '}
-          <a href={EXPLORER(hash, 'gateway')} target="_blank" rel="noreferrer">
+          <a href={EXPLORER(hash, 'miner')} target="_blank" rel="noreferrer">
             Open in explorer
           </a>
         </p>
