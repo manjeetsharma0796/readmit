@@ -508,7 +508,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T46 · Rejection-case gallery
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:43 IST
 - priority: P0
@@ -516,7 +516,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 - touches: src/App.tsx, src/app/globals.css
 - do: Show every saved real case (12) as buttons, grouped "Rejected by the mempool", "Failed on chain" and "Worked", so an EF judge sees the coverage in 20 seconds.
 - done when: all 12 cases load from the page, and `npm run build` passes.
-- log:
+- log: 12 saved real cases as buttons in 3 groups: Rejected by the mempool (9: cap, cap newer wording, validation out of gas, bad signature, payer can't cover, unstaked storage + opcode, banned opcode, wrong nonce, replacement fee), Failed on chain (2), Worked (1: paid in tUSD). Clicked all 12: each loads with its recorded node (5 are miner) and a matching top finding. Build passes.
 
 ### T47 · Live rejection stats from the devnet
 - owner: esh
