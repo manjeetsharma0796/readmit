@@ -790,7 +790,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T65 · Matte electronics finish
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 03:30 IST
 - priority: P1
@@ -798,4 +798,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/app/globals.css
 - do: esh's reference (a matte charcoal device knob): charcoal grain background, raised matte surfaces with soft top-left light and bottom-right shadow, inset wells for inputs and meters, rim-lit buttons that press in, LED-style status lights. CSS only; colour still only where it means something.
 - done when: build passes, text contrast stays WCAG AA, all flows look right at 1280 and 375 px.
-- log: esh asked for this in chat after the code freeze (explicit go-ahead).
+- log: esh asked for this in chat after the code freeze (explicit go-ahead). Done: charcoal grain body, raised matte housings and stat tiles, recessed trays/inputs/meters, rimmed keys that press in, LED lights on status dots and the summary. Contrast checked: lowest text is 5.3:1 (secondary text on a raised panel); palette validator PASS for contrast and normal vision, amber/green at the 7.3 CVD floor, always paired with text labels. All 12 cases at 1280 and 375 px, no overflow. **Note:** T63 and T64 (Codex, "local only") are uncommitted in esh's working copy; their ticket entries were pushed by accident with T65's claim, so GitHub shows them done while their code is not on main yet. The matte layer also styles T64's fragment classes, so it fits when they land.
