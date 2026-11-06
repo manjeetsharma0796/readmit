@@ -946,3 +946,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh found the findings bland. Each finding becomes a numbered card with a small status tag and a highlighted fix box; "Why it reverted" becomes a panel; the frame status in the inspector becomes a pill with a dot. Still flat, one accent.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
 - log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow. Findings are numbered cards with a Problem / Heads-up / All good / Note tag and a tinted Fix box; the first card has a faint violet edge; the inspector status is a pill with a dot.
+
+### T78 · 90% scale, squarer corners, side-line fix, plainer frame tiles
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 05:55 IST
+- priority: P2
+- depends: T77
+- touches: src/ui/FramesTable.tsx, src/app/globals.css
+- do: esh: scale everything to 90%; bigger text in the status pills; less circular corners on the input, buttons and pills; the Fix box inside a card becomes a side line; frame tiles lose the gas bar and the big "00" numbers.
+- done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
+- log:
