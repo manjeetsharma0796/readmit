@@ -91,24 +91,20 @@ h2 { font-size: 1.1rem; margin: 26px 0 10px; }
 .decoded code { background: var(--info-bg); padding: 1px 6px; border-radius: 4px; }
 .fix strong { color: var(--cobalt); }
 
-.strip { display: flex; gap: 0; overflow-x: auto; padding-bottom: 4px; }
-.frame { flex: 1 0 190px; position: relative; padding: 14px 16px 14px; border: 1px solid var(--rule); border-left-width: 0; background: var(--panel); }
-.frame:first-child { border-left-width: 1px; border-radius: 10px 0 0 10px; }
-.frame:last-child { border-radius: 0 10px 10px 0; }
-.frame.verify { background: #f3f5fb; }
-.frame.failed { background: var(--fail-bg); box-shadow: inset 0 0 0 2px var(--fail); }
-.f-num { font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; color: var(--ink); }
-.frame.failed .f-num { color: var(--fail); }
-.f-role { font-weight: 600; margin-top: 6px; min-height: 2.6em; }
-.frame dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 8px 0; font-size: 0.88rem; }
-.frame dt { color: var(--ink-2); }
-.frame dd { margin: 0; overflow-wrap: anywhere; }
-.gas-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--ink-2); }
+.table-wrap { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.frames { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.frames th { text-align: left; font-weight: 600; color: var(--ink-2); background: #f4f6f9; padding: 9px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.frames td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.frames tr:last-child td { border-bottom: 0; }
+.frames code { overflow-wrap: anywhere; }
+.t-num { font-weight: 700; width: 2.5em; }
+.t-gas { min-width: 170px; white-space: nowrap; }
+.t-gas .bar { display: block; }
+.frames tr.failed td { background: var(--fail-bg); }
+.frames tr.failed .t-num, .frames tr.failed .t-status { color: var(--fail); font-weight: 700; }
 .bar { height: 8px; background: var(--info-bg); border-radius: 4px; overflow: hidden; margin-top: 4px; }
 .bar span { display: block; height: 100%; background: var(--ink); border-radius: 4px; }
-.frame.failed .bar span { background: var(--fail); }
-.f-status { margin-top: 8px; font-size: 0.85rem; color: var(--ink-2); }
-.frame.failed .f-status { color: var(--fail); font-weight: 600; }
+.frames tr.failed .bar span { background: var(--fail); }
 
 .checks { margin-top: 22px; }
 .checks summary { cursor: pointer; font-weight: 600; }
@@ -138,11 +134,13 @@ footer { margin-top: 32px; font-size: 0.85rem; color: var(--ink-2); max-width: 8
   .verdicts { grid-template-columns: 1fr; }
   .verdict { border-left: 0; border-top: 1px solid var(--rule); }
   .verdict:first-child { border-top: 0; }
-  .strip { flex-direction: column; }
-  .frame { flex: none; border-left-width: 1px; border-top-width: 0; }
-  .frame:first-child { border-top-width: 1px; border-radius: 10px 10px 0 0; }
-  .frame:last-child { border-radius: 0 0 10px 10px; }
-  .f-role { min-height: 0; }
+  .frames thead { display: none; }
+  .frames, .frames tbody, .frames tr, .frames td { display: block; width: 100%; }
+  .frames tr { border-bottom: 1px solid var(--rule); padding: 8px 0; }
+  .frames tr:last-child { border-bottom: 0; }
+  .frames td { border: 0; padding: 3px 12px; display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+  .frames td::before { content: attr(data-label); color: var(--ink-2); font-size: 0.85rem; }
+  .t-gas { min-width: 0; white-space: normal; }
   .rowbtn { grid-template-columns: 12px 1fr auto; }
   .r-why { grid-column: 2 / -1; }
   .r-out { display: none; }

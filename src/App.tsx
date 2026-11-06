@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { diagnose, fmt, n, role, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
+import { diagnose, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
+import { FramesTable } from './ui/FramesTable'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
@@ -202,48 +203,7 @@ export default function App() {
 
           <section aria-label="Frames">
             <h2>Frames, in execution order</h2>
-            <div className="strip">
-              {dx.frames.map((f, i) => {
-                const rc = loaded.receipt?.frameReceipts[i]
-                const limit = n(f.limits.execution)
-                const used = rc ? n(rc.gasUsed) : null
-                const pct = used !== null && limit ? Math.min(100, (used / limit) * 100) : 0
-                const failed = rc?.status === '0x0' || dx.findings.some((x) => x.frame === i && x.tone === 'fail')
-                const sel = f.data.length >= 10 ? f.data.slice(0, 10) : null
-                return (
-                  <article key={i} className={`frame ${f.mode === 1 ? 'verify' : 'op'} ${failed ? 'failed' : ''}`}>
-                    <div className="f-num">{i}</div>
-                    <div className="f-role">{role(f)}</div>
-                    <dl>
-                      <dt>Target</dt>
-                      <dd>
-                        <code>{f.target ? short(f.target) : 'sender'}</code>
-                      </dd>
-                      <dt>Calls</dt>
-                      <dd>
-                        <code>{sel ? (names.get(sel) ?? sel) : 'no data'}</code>
-                      </dd>
-                      {n(f.value) > 0 && (
-                        <>
-                          <dt>Value</dt>
-                          <dd>{fmt(n(f.value))} wei</dd>
-                        </>
-                      )}
-                    </dl>
-                    <div className="gas">
-                      <div className="gas-label">
-                        <span>Gas</span>
-                        <span>{used !== null ? `${fmt(used)} / ${fmt(limit)}` : `limit ${fmt(limit)}`}</span>
-                      </div>
-                      <div className="bar" role="img" aria-label={used !== null ? `${pct.toFixed(0)} percent of gas limit used` : 'Not executed'}>
-                        <span style={{ width: `${used !== null ? Math.max(pct, 1.5) : 0}%` }} />
-                      </div>
-                    </div>
-                    <div className="f-status">{rc ? (rc.status === '0x1' ? 'Succeeded' : 'Failed') : (loaded.tx.admission?.frameStatuses?.[i] ?? '').replace('not-run', 'Not run') || 'Not run'}</div>
-                  </article>
-                )
-              })}
-            </div>
+            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
           </section>
 
           {loaded.tx.admission && (
