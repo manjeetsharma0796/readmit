@@ -898,3 +898,40 @@ button, .chip, .faucet-btn, .top .seg button.on { background-image: none; }
   .shell .finding .f-head .f-title { flex-basis: calc(100% - 40px); }
   .f-tag { margin-left: 40px; }
 }
+
+/* ---- T78 (esh): everything at 90%, squarer corners, the fix as a side line, plain frame tiles. ---- */
+/* 90%: every size here is in rem, so scaling the root scales the whole page. */
+html { font-size: 90%; }
+body { font-size: 1rem; }
+
+/* Less round: small radii instead of pills on fields, buttons and tags. */
+.row input, .send-form input, .wallet .row input { border-radius: 8px; }
+.primary, .row .primary, .send-form .primary, .search .row .primary, .fixsend .primary, button, .chip, .faucet-btn, .top .seg, .top .seg button { border-radius: 8px; }
+.top .seg button { border-radius: 6px; }
+.copy, .copy:hover, .copy:active { border-radius: 6px; }
+.badge, .saved-badge { border-radius: 6px; }
+.shell .change .finding, .shell .change .finding.fail, .shell .change .finding.warn, .shell .change .finding.pass { border-radius: 10px; }
+.f-num { border-radius: 6px; }
+
+/* Status and tag pills: bigger text, gentle corners. */
+.f-tag, .frame-state { border-radius: 6px; font-size: 0.9rem; padding: 3px 10px; }
+
+/* Fix: a violet side line inside the card, not a box inside a box. */
+.fix-box { background: transparent; border: 0; border-left: 2px solid #b9a2e6; border-radius: 0; padding: 2px 0 2px 14px; }
+.fix-box .fix-label { font-size: 0.74rem; }
+
+/* Frame tiles: name, role and status in plain text. No gas bar, no oversized numbers. */
+.fragment-meter { display: none; }
+.fragment-piece, .fragment:first-child .fragment-piece, .fragment:last-child .fragment-piece { min-height: 0; gap: 6px; padding: 12px 14px; border-radius: 8px; }
+.fragment-phase { font-size: 0.8rem; color: var(--ink-2); }
+.fragment-name { font-size: 0.95rem; gap: 6px; color: var(--ink-2); }
+.fragment-name b { font-size: 1rem; font-weight: 600; letter-spacing: 0; color: var(--ink); }
+.fragment-status { font-size: 0.86rem; color: var(--ink-2); }
+.fragment-status.ok { color: #6fd3a5; }
+.fragment-status.failed, .fragment.broken .fragment-status { color: #f08b97; }
+.frame-inspector, .frame-inspector.is-failed { border-radius: 8px; }
+@media (max-width: 900px) {
+  .fragment-name b { font-size: 1rem; }
+}
+.frame-inspector-head .frame-state { font-size: 0.9rem; }
+.kv .badge { font-size: 0.95rem; }

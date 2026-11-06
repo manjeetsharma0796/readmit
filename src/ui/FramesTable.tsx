@@ -38,15 +38,12 @@ function FrameSequence({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult
         {dx.frames.map((f, i) => {
           const status = frameStatus(i, dx, tx, receipt)
           const r = receipt?.frameReceipts[i]
-          const cap = n(f.limits.execution)
-          const pct = r && cap ? Math.min(100, n(r.gasUsed) / cap * 100) : 0
           return (
             <li key={i} className={`fragment ${status.failed ? 'broken' : ''} ${r?.status === '0x2' ? 'skipped' : ''} ${f.mode === 1 ? 'validation' : 'execution'}`}>
               <button type="button" className="fragment-piece" aria-pressed={index === i} onClick={() => setSelected(i)}>
                 <span className="fragment-phase">{f.mode === 1 ? 'Validation' : 'Execution'}</span>
-                <span className="fragment-name"><b><span className="sr">Frame </span>{String(i).padStart(2, '0')}</b>{tag(f.mode, f.flags)}</span>
-                <span className="fragment-status">{status.failed ? '× ' : r?.status === '0x1' ? '✓ ' : ''}{status.text}</span>
-                <span className="fragment-meter" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>
+                <span className="fragment-name"><b>Frame {i}</b> {tag(f.mode, f.flags)}</span>
+                <span className={`fragment-status ${status.failed ? 'failed' : r?.status === '0x1' ? 'ok' : ''}`}>{status.text}</span>
               </button>
             </li>
           )

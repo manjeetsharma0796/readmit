@@ -949,7 +949,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T78 · 90% scale, squarer corners, side-line fix, plainer frame tiles
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 05:55 IST
 - priority: P2
@@ -957,4 +957,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/ui/FramesTable.tsx, src/app/globals.css
 - do: esh: scale everything to 90%; bigger text in the status pills; less circular corners on the input, buttons and pills; the Fix box inside a card becomes a side line; frame tiles lose the gas bar and the big "00" numbers.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow. Root font at 90% (body 14.4px); fields, buttons and tags at 6-8px corners; status and tag pills at 0.9rem; the fix is a violet side line inside its card; frame tiles show phase, "Frame N" + role and a coloured status word, with no gas bar.
