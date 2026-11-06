@@ -231,6 +231,13 @@ export default function App() {
             <p className="tagline">Find out which frame failed, why, and exactly what to change.</p>
           </div>
         </div>
+        {/* Decorative: a transaction as a stack of glass frames, one failed. */}
+        <div className="stack3d" aria-hidden="true">
+          <i />
+          <i />
+          <i className="bad" />
+          <i />
+        </div>
         <div className="seg" role="group" aria-label="Mempool node">
           {(Object.keys(NODES) as NodeId[]).map((id) => (
             <button key={id} className={id === node ? 'on' : ''} aria-pressed={id === node} onClick={() => setNode(id)}>
@@ -292,7 +299,7 @@ export default function App() {
           <div className="result-body">
             <div className="main-col">
           <section className="change" aria-label="What to change">
-            <h2>{dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
+            <h2>{receipt?.status === '0x1' && loaded.tx.admission?.outcome === 'rejected' ? 'Why that one copy was rejected (no action needed)' : dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
             <ol className="findings">
               {dx.findings.map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
