@@ -262,7 +262,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T16 · "Why did it revert" spike (P1, 20 minute cap)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:33 IST
 - priority: P1
@@ -270,7 +270,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/rpc.ts, src/diagnose.ts
 - do: Try `ethrex_simulateFrameTransaction` with the parent block number instead of "latest" for an included tx, to get `revertData`, then decode it. If it doesn't work within 20 minutes, set `done` with "not supported" in the log.
 - done when: 0x6137 shows a revert reason, or the log says it isn't supported.
-- log:
+- log: It works, but only for recent txs. `replay(hash)` is in `src/engine/frames.ts`. It rebuilds the exact tx bytes from `eth_getTransactionByHash` (`eth_getRawTransactionByHash` doesn't exist; the rebuilt hash matched 0x6137 exactly) and simulates at the parent block, which gives `failedFrameIndex` and `revertData`. ethrex keeps state for only 128 blocks, measured at 6.0 s/block, so about 13 minutes. head−127 works and head−129 returns "state root missing". For 0x6137 the state is pruned, so `replay` returns null; the unknown-hash case also returns null. The success path wasn't seen live, because no reverted tx fell inside the window. needs: esh. In T22 or T23, call `replay(hash)` as soon as `watchTx` reports `failed`, and show the decoded `revertData` (`lookupSelectors`) on the failed frame's card. **It must happen within ~13 minutes.**
 
 ### T17 · Fragility flag (P1)
 - owner: manjeet

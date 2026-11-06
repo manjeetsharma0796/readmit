@@ -4,7 +4,7 @@ import { profile } from '@forshtat/hegota-support/profiles/ethrex-eip8141-tracer
 import { decodeTx, encodeTx, newTx, secp256k1Placeholder, signTx, type FrameTx } from '@forshtat/hegota-support/tx'
 import { rpc } from '@forshtat/hegota-support/rpc'
 import { decodeFunctionResult, encodeFunctionData, toHex, type Address, type Hex } from 'viem'
-import type { Frame } from '../diagnose.ts'
+import type { Frame, Simulation } from '../diagnose.ts'
 import { ETHREX } from '../rpc.ts'
 
 export type FrameSpec = {
@@ -82,6 +82,31 @@ export function toFrameTx(d: Draft): FrameTx {
 /** Signs with a secp256k1 key (the sender's default VERIFY code checks it) and returns the raw tx bytes. */
 export async function signDraft(d: Draft, key: Hex): Promise<Hex> {
   return encodeTx(profile, await signTx(profile, toFrameTx(d), key))
+}
+
+/**
+ * "Why did it revert?": rebuilds an included tx's exact bytes from ethrex and re-simulates it on the state just before
+ * its block, which returns `failedFrameIndex` and `revertData`. ethrex keeps state for the last 128 blocks only
+ * (~13 min at 6 s blocks), so call it right after `watchTx` reports 'failed'. Returns null once that state is pruned.
+ */
+export async function replay(hash: Hex): Promise<Simulation | null> {
+  const t = await rpc(ETHREX, 'eth_getTransactionByHash', [hash])
+  if (!t?.blockNumber) return null
+  const B = (x: string) => BigInt(x)
+  const tx: FrameTx = {
+    chainId: B(t.chainId), nonceKeys: t.nonceKeys.map(B), nonceSeq: B(t.nonceSeq), sender: t.sender,
+    frames: t.frames.map((f: any) => ({ mode: Number(f.mode), flags: Number(f.flags), target: f.to, limits: { execution: B(f.gasLimit), state: B(f.stateLimit) }, value: B(f.value), data: f.data })),
+    signatures: t.signatures.map((s: any) => ({ scheme: Number(s.scheme), signer: s.signer ?? '0x', msg: s.msg, signature: s.signature })),
+    fees: { maxPriorityFeePerGas: B(t.maxPriorityFeePerGas), maxFeePerGas: B(t.maxFeePerGas), maxFeePerBlobGas: B(t.maxFeePerBlobGas ?? '0x0') },
+    blobVersionedHashes: t.blobVersionedHashes ?? [], recentRootReferences: t.recentRootReferences ?? [],
+  }
+  const parent = toHex(Number(t.blockNumber) - 1)
+  try {
+    return await rpc(ETHREX, 'ethrex_simulateFrameTransaction', [encodeTx(profile, tx), parent, { trace: false }])
+  } catch (e) {
+    if (/state root missing/.test(String(e))) return null // older than ~128 blocks
+    throw e
+  }
 }
 
 /** A Draft's frames in the shape `diagnose` and `diagnoseDraft` read (hex quantities, like the explorer API). */
