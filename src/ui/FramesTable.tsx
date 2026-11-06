@@ -53,7 +53,7 @@ export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxR
                 </td>
                 <td data-label="Gas used / limit" className="t-gas">
                   <span>{used !== null ? `${fmt(used)} / ${fmt(limit)}` : `– / ${fmt(limit)}`}</span>
-                  <span className="bar" role="img" aria-label={used !== null ? `${pct.toFixed(0)} percent of gas limit used` : 'Not executed'}>
+                  <span className="bar" role="img" title={used !== null ? `${fmt(used)} of ${fmt(limit)} gas (${pct.toFixed(1)}%)` : `Not executed, limit ${fmt(limit)}`} aria-label={used !== null ? `${pct.toFixed(0)} percent of gas limit used` : 'Not executed'}>
                     <span style={{ width: `${used !== null ? Math.max(pct, 1.5) : 0}%` }} />
                   </span>
                 </td>
