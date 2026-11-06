@@ -53,7 +53,9 @@ Share a result with `?tx=<hash>&node=gateway|miner`.
 
 ## Use the engine as a library
 
-The app is a thin UI over three TypeScript modules you can call from your own code. They are plain functions on viem, with no framework or backend. They aren't published to npm yet, so copy `src/diagnose.ts`, `src/rpc.ts` and `src/engine/frames.ts`, or import them from a clone. Node 23.6+ runs them directly.
+**Packaged as [`@readmit/sdk`](sdk/README.md) (`sdk/`).** It has a configurable client (`createReadmit({ ethrex, gateway, miner, chainId })`), a generic frame builder, pluggable signers (key, viem account or custom scheme), `explain(hash)`, a dry-run → fix → send loop, `waitForInclusion`, monitoring stats, viem `client.extend(frameActions(...))` and typed errors. `node sdk/check.ts --live` runs 21 offline cases plus read-only calls to the devnet.
+
+The app itself calls the three modules below directly. They are plain functions on viem, with no framework or backend.
 
 **Explain any transaction by hash.** This works on anyone's tx, including ones the mempool rejected, which never reach a block explorer.
 
@@ -100,11 +102,9 @@ const stop = watchTx(sent, (stage) => console.log(stage))   // pending → admit
 - `errorString(data)`, `role(frame)`, `decodeDraft(raw)`, `maxCostBound(draft)`, `quote(paymaster, wei)`.
 
 **Limits today.**
-- Chain 1337 only.
-- The signer is a plain secp256k1 key.
-- `buildSendTx` is our ERC-20 paymaster recipe, not a generic frame builder.
-- Endpoints come from `src/rpc.ts`, or from the in-app panel when you're in a browser.
-- Next steps: a generic `buildFrameTx`, a pluggable chain and signer, an npm package and viem `client.extend()` actions.
+- The app's modules are chain 1337 only, use a plain secp256k1 key, and `buildSendTx` is our ERC-20 paymaster recipe.
+- The SDK removes those limits: any chain id, any signer, any frames.
+- Not on npm yet; no ethers adapter.
 
 ## Contracts (`contracts/`)
 
