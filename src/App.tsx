@@ -70,7 +70,7 @@ export default function App() {
   const loadRecent = async (which: NodeId) => {
     setRowsError('')
     try {
-      setRows((await recent(which)).sort((a, b) => (b.at ?? 0) - (a.at ?? 0)))
+      setRows((await recent(which, 200)).sort((a, b) => (b.at ?? 0) - (a.at ?? 0)))
     } catch (e) {
       setRows([])
       setRowsError(`Couldn't reach the ${NODES[which].label.toLowerCase()} node: ${(e as Error).message}. The real cases above work offline.`)
@@ -148,6 +148,23 @@ export default function App() {
   const payer = receipt?.payer ?? loaded?.tx.entry?.payer
   const sender = loaded?.tx.entry?.sender ?? loaded?.tx.admission?.sender
   const fee = receipt ? (n(receipt.gasUsed) * n(receipt.effectiveGasPrice)) / 1e18 : 0
+
+  // Live demand evidence: how often this node rejects transactions, from how many senders, and why (sidecar rule names).
+  const stats = useMemo(() => {
+    if (!rows?.length) return null
+    const rejected = rows.filter((r) => r.outcome === 'rejected')
+    const rules = new Map<string, number>()
+    for (const r of rejected) for (const c of r.checks) if (c.verdict === 'fail') rules.set(c.rule, (rules.get(c.rule) ?? 0) + 1)
+    const ats = rows.map((r) => r.at ?? 0).filter(Boolean)
+    const hours = ats.length > 1 ? (Math.max(...ats) - Math.min(...ats)) / 3_600_000 : 0
+    return {
+      total: rows.length,
+      rejected: rejected.length,
+      senders: new Set(rejected.map((r) => r.sender).filter(Boolean)).size,
+      span: hours >= 1 ? `${hours.toFixed(1)} hours` : `${Math.max(1, Math.round(hours * 60))} minutes`,
+      top: [...rules].sort((a, b) => b[1] - a[1]).slice(0, 4),
+    }
+  }, [rows])
 
   const shown = rows?.filter((r) => !onlyRejected || r.outcome === 'rejected').slice(0, 12) ?? []
 
@@ -319,6 +336,33 @@ export default function App() {
           </label>
           <button onClick={() => loadRecent(node)}>Refresh</button>
         </div>
+        {stats && (
+          <p className="stats">
+            <strong>
+              {stats.rejected} of the last {stats.total}
+            </strong>{' '}
+            transactions this node saw were rejected
+            {stats.senders > 0 && (
+              <>
+                , from <strong>{stats.senders}</strong> different {stats.senders === 1 ? 'sender' : 'senders'}
+              </>
+            )}
+            , over {stats.span}.
+            {stats.top.length > 0 && (
+              <>
+                {' '}
+                Top rules:{' '}
+                {stats.top.map(([rule, count], i) => (
+                  <span key={rule}>
+                    {i > 0 && ', '}
+                    <code>{rule}</code> ×{count}
+                  </span>
+                ))}
+                .
+              </>
+            )}
+          </p>
+        )}
         {rowsError && <p className="error">{rowsError}</p>}
         {rows === null ? (
           <p className="muted">Loading recent transactions…</p>
