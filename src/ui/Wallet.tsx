@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { formatEther, formatUnits, type Address, type Hex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { ETHREX } from '../rpc'
+import { DEPLOY } from './deploy'
 
-// stub: replace with `import deploy from '../../contracts/deployments/1337.json'` once T07 writes demoWallet.
-const DEPLOY: { tUSD: Address | null; demoWallet: Address | null } = { tUSD: null, demoWallet: null }
 
 const KEY = 'readmit.demoKey'
 const isKey = (k: string): k is Hex => /^0x[0-9a-fA-F]{64}$/.test(k)
