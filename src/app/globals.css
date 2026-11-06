@@ -842,3 +842,20 @@ button, .chip, .faucet-btn, .top .seg button.on { background-image: none; }
 
 /* The answer leads the result: larger type, a calm tone edge, then the evidence below it. */
 .shell .summary.lead { margin: 10px 0 14px; font-size: 1.12rem; line-height: 1.5; color: var(--ink); max-width: 70ch; }
+
+/* manjeet (append-only, T75): "Demo account" dropdown in the header holds the wallet panel and the faucet;
+   the page keeps one full-width "Send & fix" card. */
+.acct { position: relative; }
+.acct-btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 9px 14px; font-weight: 600; white-space: nowrap; }
+.acct-bal { color: var(--ink-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.acct-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: min(420px, calc(100vw - 32px)); max-height: calc(100vh - 140px); overflow: auto; text-align: left; }
+.acct-pop .wallet { margin-top: 0; }
+.acct-pop .faucet { margin-top: 10px; }
+.acct-pop .faucet-btn { width: 100%; }
+.acct-pop .faucet-pop { position: static; width: auto; margin-top: 8px; box-shadow: none; }
+.flow-single { margin-top: 14px; }
+.flow-single .send { margin-top: 0; }
+@media (max-width: 720px) {
+  .acct-pop { right: auto; left: 0; }
+}
+.acct-pop { background: var(--lightbox); border: 1px solid var(--rule); border-radius: 16px; padding: 10px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55); }

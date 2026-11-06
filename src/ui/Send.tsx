@@ -55,7 +55,7 @@ export function Send() {
   function inputs(): { key: Hex; to: Address; value: bigint } | null {
     const key = loadKey()
     if (!key) {
-      setProblem({ title: 'No key imported', next: 'Import the demo key in the wallet panel first.' })
+      setProblem({ title: 'No key imported', next: 'Open Demo account (top right) and import the demo key first.' })
       return null
     }
     if (!isAddress(to.trim())) {
@@ -176,7 +176,7 @@ export function Send() {
   async function fixAndSend() {
     if (inFlight.current || !fix) return
     const key = loadKey()
-    if (!key) return setProblem({ title: 'No key imported', next: 'Import the demo key in the wallet panel first.' })
+    if (!key) return setProblem({ title: 'No key imported', next: 'Open Demo account (top right) and import the demo key first.' })
     // Repair exactly the transaction the fix belongs to, even if the form was edited since.
     const current = fix
     const p = { key, to: current.intent.to, value: current.intent.value }

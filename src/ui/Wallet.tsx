@@ -36,7 +36,7 @@ async function call<T>(method: string, params: unknown[]): Promise<T> {
 }
 
 type Balances = { eth: bigint; tusd: bigint | null }
-async function balances(wallet: Address, token: Address | null): Promise<Balances> {
+export async function balances(wallet: Address, token: Address | null): Promise<Balances> {
   // balanceOf(address) is 0x70a08231 followed by the address padded to 32 bytes.
   const data = `0x70a08231${wallet.slice(2).toLowerCase().padStart(64, '0')}`
   const [eth, tusd] = await Promise.all([

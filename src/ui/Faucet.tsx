@@ -94,11 +94,7 @@ export function Faucet() {
           )}
           {error === 'nokey' ? (
             <p className="error" role="alert">
-              Import the demo key in the{' '}
-              <a href="#demo-key" onClick={() => setOpen(false)}>
-                wallet panel
-              </a>{' '}
-              first.
+              Import the demo key above first.
             </p>
           ) : error ? (
             <p className="error" role="alert">

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { diagnose, errorString, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { FramesTable } from './ui/FramesTable'
 import { Send } from './ui/Send'
-import { Wallet } from './ui/Wallet'
 import { HeaderWallet } from './ui/Connect'
 import { Endpoints } from './ui/Endpoints'
 import { replay } from './engine/frames'
@@ -501,11 +500,10 @@ export default function App() {
 
       <section id="send" className="flow" aria-label="Send your own transaction">
         <div className="flow-head">
-          <h2>Send your own</h2>
-          <p className="muted">A test wallet that holds tUSD and no ETH. Each send is dry-run first; if a frame would run out of gas, Fix &amp; send raises its limit and sends.</p>
+          <h2>Send &amp; fix</h2>
+          <p className="muted">Each send is dry-run first; if a frame would run out of gas, Fix &amp; send raises its limit and sends. It uses the Demo account (top right), which pays gas in tUSD and holds no ETH.</p>
         </div>
-        <div className="flow-grid">
-          <Wallet />
+        <div className="flow-single">
           <Send />
         </div>
       </section>
