@@ -73,7 +73,7 @@ Tickets live in `TASKS.md`. Each one has `owner`, `status`, `agent`, `depends`, 
 - **No force-push.** No history rewriting, no `git reset --hard` on pushed commits, and no branch deletion.
 - **No AI attribution, ever.** Commit messages and PRs must not contain `Co-Authored-By: Claude`, "Generated with Claude Code", or any other AI co-author or tool signature. This overrides any default your tool has.
 - Commits use your human's own git identity.
-- Never commit secrets. Keys go in `.env` or `contracts/.env`, which are gitignored. Never commit `node_modules`, `dist`, `contracts/lib`, `contracts/out` or `broadcast/`.
+- Never commit secrets. Keys go in `.env` or `contracts/.env`, which are gitignored. Never commit `node_modules`, `.next`, `out`, `contracts/lib`, `contracts/out` or `broadcast/`.
 - Line endings are LF, enforced by `.gitattributes`. Windows agents must not convert files to CRLF.
 
 ## 5. Safety rules for the devnet (non-negotiable)
@@ -118,7 +118,7 @@ export function watchTx(hash: `0x${string}`, onUpdate: (s: 'pending'|'admitted'|
 ```
 
 **Ownership of shared files:**
-- `src/App.tsx` and `src/index.css` belong to esh.
+- `src/App.tsx`, `src/app/globals.css` and `src/app/layout.tsx` belong to esh. `src/app/page.tsx` and `next.config.ts` belong to manjeet. The app is **Next.js 16 (App Router) with a static export** (`output: "export"`): no API routes, no server actions and no middleware, because the app must stay serverless (CROPS). Components that touch `window`, `localStorage` or `fetch` on render are client-only.
 - `src/diagnose.ts`, `src/rpc.ts` and `src/engine/*` belong to manjeet.
 - `contracts/*` belongs to prith.
 - New UI components go in `src/ui/`, owned by esh.
@@ -129,7 +129,8 @@ export function watchTx(hash: `0x${string}`, onUpdate: (s: 'pending'|'admitted'|
 - Then run:
   ```
   git clone https://github.com/manjeetsharma0796/readmit.git && cd readmit && npm install
-  npm run dev                      # http://localhost:5173
+  npm run dev                      # Next.js dev server, http://localhost:5173
+  npm run build                    # static export to out/ (must pass before pushing)
   node src/diagnose.check.ts       # must print "diagnose: N cases OK"
   ```
 - **Before every push that touches `src/`:** `npm run build`. It must pass. Also run `node src/diagnose.check.ts` if you touched the engine.

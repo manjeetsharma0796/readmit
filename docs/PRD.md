@@ -140,7 +140,7 @@ Tx `0x6137f039…a93c75` was included in block 2,993 and **reverted**.
 
 ## 9. Architecture
 ```
-Browser (Vite + React + TS, static, no backend)
+Browser (Next.js 16 static export + React + TS, no backend)
  ├─ engine/diagnose.ts     pure: report + receipt (+ simulation) → findings, verdicts
  ├─ engine/frames.ts       build + sign frame tx  (@forshtat/hegota-support)
  ├─ rpc.ts                 ethrex RPC · gateway sidecar · 4byte · (Nox Anon-RPC toggle)

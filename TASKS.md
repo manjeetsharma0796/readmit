@@ -167,7 +167,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T00 · Migrate the app from Vite to Next.js (static export)
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:19 IST
 - priority: P0
@@ -175,7 +175,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: package.json, package-lock.json, next.config.ts, tsconfig*.json, src/app/, src/main.tsx (deleted), index.html (deleted), vite.config.ts (deleted), src/index.css (moved to src/app/globals.css), .gitignore
 - do: Switch to the Next.js App Router with `output: "export"`, so the app stays static with no server and the CROPS promise holds. The page is client-only. The UI stays unchanged.
 - done when: `npm run build` produces `out/`, `npm run dev` serves http://localhost:5173 with the same UI, and `npm run check` passes.
-- log:
+- log: next@16.4.5. `npm run build` exports to out/ (static, 2 routes); `npm run check` passes 4 cases; dev server on :5173 renders the same UI at 1280 and 375 px with no new console errors; fonts are self-hosted via next/font (no Google requests). Run `npm install` after pulling.
 
 ### T10 · Classify failed frames correctly
 - owner: manjeet
@@ -408,7 +408,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - started:
 - priority: P1
 - depends: T23
-- touches: src/index.css, docs/img/
+- touches: src/app/globals.css, docs/img/
 - do: Check that 375 px works, focus is visible, contrast is OK and there are no trackers in the network tab. Save 3 screenshots for the README.
 - done when: the screenshots are in `docs/img/`.
 - log:

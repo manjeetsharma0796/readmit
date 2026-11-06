@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# next.js
+.next/
+out/
+next-env.d.ts

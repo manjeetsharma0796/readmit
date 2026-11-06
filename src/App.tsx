@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useMemo, useState } from 'react'
 import { diagnose, fmt, n, role, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
