@@ -922,3 +922,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Move the demo wallet setup (address, balances, key import, faucet, the "why a demo account" note) into a **"Demo account ▾ <balance>" dropdown** next to Connect in the header. The page keeps one full-width **"Send & fix"** card. The faucet moves inside the dropdown.
 - done when: at 1280 and 375 px in dark mode the dropdown opens and closes (outside click, Escape); key import works inside it; the balance shows on the button; a low-gas dry run is caught on the page with nothing broadcast; console clean; build passes; Vercel redeployed and checked.
 - log: New `src/ui/DemoAccount.tsx`: a header dropdown "Demo account <balance> ▾" that reuses the Wallet panel and the Faucet unchanged. The page has one full-width "Send & fix" card. Wallet.tsx exports `balances` (one word). Send and faucet "no key" messages point to the Demo account. CSS is append-only, braces balanced. Checked on the static build in dark mode: at 1280 px the header reads Gateway|Miner, Demo account 174.47 tUSD ▾, Connect wallet; the dropdown opens (wallet panel plus Get 100 test tUSD) and closes on Escape and outside click; a low-gas dry run on the page was caught with nothing broadcast. At 375 px the dropdown is full width with no overflow. Console clean, build and check pass.
+
+### T76 · Fix the "Cannot update a component while rendering" warning
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 05:35 IST
+- priority: P1
+- depends: none
+- touches: src/ui/Providers.tsx
+- do: The Next dev overlay showed "1 Issue": wagmi's Hydrate reconnects during render when ssr is off, which updates RainbowKit's ConnectModal mid-render. Set ssr: true on both wagmi configs so the reconnect runs after the first render.
+- done when: build passes; no warning in the console or the dev overlay after reload and opening Connect.
+- log:
