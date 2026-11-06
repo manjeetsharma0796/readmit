@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { diagnose, errorString, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { FramesTable } from './ui/FramesTable'
 import { Send } from './ui/Send'
@@ -22,7 +22,8 @@ import opcode from './samples/banned-opcode.json'
 import nonce from './samples/nonce-mismatch.json'
 import paid from './samples/paid-in-tusd.json'
 
-type Loaded = { hash: string; node: NodeId; tx: TxResult; receipt: Receipt | null; source: 'live' | 'sample' }
+// chainUnknown: the receipt lookup failed, so we can't say whether it landed (never claim 'not on chain' then).
+type Loaded = { hash: string; node: NodeId; tx: TxResult; receipt: Receipt | null; source: 'live' | 'sample'; chainUnknown?: boolean }
 type SampleData = { hash: string; node?: string; tx: unknown; receipt?: unknown }
 type Sample = { label: string; group: 'Rejected by the mempool' | 'Failed on chain' | 'Worked'; data: SampleData }
 // Every saved real case from the devnet, grouped so the coverage is visible at a glance.
@@ -41,6 +42,8 @@ const SAMPLES: Sample[] = [
   { label: 'Paid in tUSD, 0 ETH', group: 'Worked', data: paid },
 ]
 const GROUPS = ['Rejected by the mempool', 'Failed on chain', 'Worked'] as const
+// One of each kind up front; the rest sit under "More examples".
+const FEATURED = ['Ran out of gas', 'Validation gas over cap', 'Logic revert']
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : 'none')
 const ago = (ms?: number) => {
@@ -114,8 +117,12 @@ export default function App() {
     // run once for a shared ?tx= link
   }, [])
 
+  // Each inspection or sample load gets a number; a slower, older response never replaces a newer choice.
+  const latest = useRef(0)
+
   async function inspect(raw: string, which: NodeId) {
     const hash = raw.trim().toLowerCase()
+    const me = ++latest.current
     setError('')
     if (!/^0x[0-9a-f]{64}$/.test(hash)) {
       setError('Enter a transaction hash: 0x followed by 64 hex characters.')
@@ -125,33 +132,51 @@ export default function App() {
     // A real case we saved earlier: if the node has forgotten it (it keeps history in memory) or is unreachable, show the saved copy, labelled as saved.
     const saved = SAMPLES.find((s) => s.data.hash.toLowerCase() === hash)?.data
     try {
-      const [tx, receipt] = await Promise.all([
+      const [tx, rc] = await Promise.all([
         getTx(which, hash).catch((e: Error) => {
           if (/not found/i.test(e.message)) return null
           throw e
         }),
-        getReceipt(hash).catch(() => null),
+        getReceipt(hash).then(
+          (r) => ({ r, unknown: false }),
+          () => ({ r: null, unknown: true }),
+        ),
       ])
+      if (me !== latest.current) return
       if (!tx || (!tx.admission && !tx.entry)) {
         if (saved) return loadSample(saved)
         setError(`The ${NODES[which].label.toLowerCase()} node has no record of this transaction. Try the other node. The node keeps history in memory, so older transactions are gone after a restart.`)
         return
       }
-      setLoaded({ hash, node: which, tx, receipt, source: 'live' })
+      setLoaded({ hash, node: which, tx, receipt: rc.r, source: 'live', chainUnknown: rc.unknown })
       history.replaceState(null, '', `?tx=${hash}&node=${which}`)
     } catch (e) {
+      if (me !== latest.current) return
       if (saved) return loadSample(saved)
       setError(`Couldn't reach the devnet: ${(e as Error).message}. Try a real case below, which works offline.`)
     } finally {
-      setBusy(false)
+      if (me === latest.current) setBusy(false)
     }
   }
 
   function loadSample(s: SampleData) {
+    ++latest.current
+    setBusy(false)
     setError('')
     setInput(s.hash)
-    setLoaded({ hash: s.hash, node: s.node === 'miner' ? 'miner' : 'gateway', tx: s.tx as unknown as TxResult, receipt: (s.receipt ?? null) as Receipt | null, source: 'sample' })
+    const which: NodeId = s.node === 'miner' ? 'miner' : 'gateway'
+    setNode(which)
+    setLoaded({ hash: s.hash, node: which, tx: s.tx as unknown as TxResult, receipt: (s.receipt ?? null) as Receipt | null, source: 'sample' })
+    history.replaceState(null, '', `?tx=${s.hash}&node=${which}`)
   }
+
+  // Bring a new result into view and move focus to it, so a click visibly does something (especially on phones).
+  const resultRef = useRef<HTMLHeadingElement>(null)
+  useEffect(() => {
+    if (!loaded) return
+    resultRef.current?.scrollIntoView({ block: 'start' })
+    resultRef.current?.focus({ preventScroll: true })
+  }, [loaded])
 
   function download() {
     if (!loaded || !dx) return
@@ -166,7 +191,9 @@ export default function App() {
   const receipt = loaded?.receipt ?? null
   const status: { tone: Tone; text: string } = !loaded
     ? { tone: 'info', text: '' }
-    : receipt
+    : loaded.chainUnknown
+      ? { tone: 'warn', text: "Couldn't check the chain" }
+      : receipt
       ? receipt.status === '0x1'
         ? { tone: 'pass', text: 'Landed, all frames worked' }
         : { tone: 'fail', text: 'Landed, but a frame failed' }
@@ -182,6 +209,8 @@ export default function App() {
     const adm = loaded.tx.admission?.outcome
     const node = NODES[loaded.node].label.toLowerCase()
     const rules = (loaded.tx.admission?.checks ?? []).filter((c) => c.verdict === 'fail').map((c) => c.rule).join(', ')
+    if (loaded.chainUnknown)
+      return `The ${node} node's verdict is below, but the chain couldn't be checked right now, so whether it landed (and whether anyone paid) is unknown. Try Inspect again.`
     const failed = receipt?.frameReceipts.map((f, i) => (f.status === '0x0' ? i : -1)).filter((i) => i >= 0) ?? []
     if (receipt?.status === '0x1')
       return adm === 'rejected'
@@ -217,7 +246,7 @@ export default function App() {
   const shown = rows?.filter((r) => !onlyRejected || r.outcome === 'rejected').slice(0, 12) ?? []
 
   return (
-    <div className="page">
+    <main className="page" id="main">
       <header className="top">
         <div className="brand">
           <svg className="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
@@ -267,26 +296,36 @@ export default function App() {
           </p>
         )}
         <div className="samples" aria-label="Real cases from the devnet">
-          <span className="samples-title">Real cases from the devnet ({SAMPLES.length}):</span>
-          {GROUPS.map((g) => (
-            <div key={g} className="sample-group">
-              <span className="sample-label">{g}</span>
-              {SAMPLES.filter((s) => s.group === g).map((s) => (
-                <button type="button" key={s.label} className="chip" onClick={() => loadSample(s.data)}>
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          ))}
+          <span className="samples-title">Try a real case:</span>
+          <div className="sample-group">
+            {SAMPLES.filter((x) => FEATURED.includes(x.label)).map((x) => (
+              <button type="button" key={x.label} className="chip" onClick={() => loadSample(x.data)}>
+                {x.label}
+              </button>
+            ))}
+          </div>
+          <details className="more-samples">
+            <summary>More examples ({SAMPLES.length - FEATURED.length})</summary>
+            {GROUPS.map((g) => (
+              <div key={g} className="sample-group">
+                <span className="sample-label">{g}</span>
+                {SAMPLES.filter((x) => x.group === g && !FEATURED.includes(x.label)).map((x) => (
+                  <button type="button" key={x.label} className="chip" onClick={() => loadSample(x.data)}>
+                    {x.label}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </details>
         </div>
       </form>
 
       {loaded && dx && (
-        <main className="result" aria-live="polite">
+        <section className="result" aria-label="Result">
           <div className="result-head">
-            <h2>What happened</h2>
+            <h2 ref={resultRef} tabIndex={-1}>What happened</h2>
             <div className="actions">
-              {loaded.source === 'sample' && <span className="note">Saved sample, not fetched live</span>}
+              {loaded.source === 'sample' && <span className="saved-badge">Saved copy · recorded earlier on the devnet, not a live check</span>}
               <a href={EXPLORER(loaded.hash, loaded.node)} target="_blank" rel="noreferrer">
                 Open in explorer
               </a>
@@ -401,22 +440,22 @@ export default function App() {
                   {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
                 </>
               ) : (
-                <span className="muted">Nothing charged</span>
+                <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
               )}
             </dd>
             <VerdictRow label={`Admission check (${NODES[loaded.node].label.toLowerCase()} node)`} v={dx.mempool} />
-            <VerdictRow label="On chain" v={dx.chain} />
+            <VerdictRow label="On chain" v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
             <VerdictRow label="ERC-8421 spec check" v={dx.spec} />
           </dl>
             </aside>
           </div>
-        </main>
+        </section>
       )}
 
       <section className="flow" aria-label="Send your own transaction">
         <div className="flow-head">
           <h2>Send your own</h2>
-          <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first; if it would fail, Fix &amp; send repairs it.</p>
+          <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first. If a frame would run out of gas, Fix &amp; send raises its limit and sends; other problems are explained so you can fix them.</p>
         </div>
         <div className="flow-grid">
           <Wallet />
@@ -515,7 +554,7 @@ export default function App() {
         <p>The ERC-8421 column is a partial check that covers the validation budget and validation reverts only.</p>
         <Endpoints />
       </footer>
-    </div>
+    </main>
   )
 }
 
