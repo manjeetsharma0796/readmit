@@ -100,7 +100,7 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 
 ## CROPS
 
-- **C, censorship resistance (lead).** If one mempool refuses your transaction, Readmit shows the exact rule that rejected it and what to change, so you can get it admitted through another node (gateway or miner). Readmit is a static site with no server of ours in the path. Its endpoints are fixed to the EF devnet today; making them editable is next.
+- **C, censorship resistance (lead).** If one mempool refuses your transaction, Readmit shows the exact rule that rejected it and what to change, so you can get it admitted through another node (gateway or miner). Readmit is a static site with no server of ours in the path, and you can point it at your own ethrex RPC and sidecars ("Endpoints" in the footer).
 - **O, open source.** MIT licensed. Everything in the demo builds from this repo.
 - **P, privacy.** No trackers, analytics or cookies, and fonts are self-hosted. The only third-party call is the Sourcify signature lookup that decodes 4-byte selectors.
 - **S, security.** The demo key is imported into the browser, stays there, and is test-only. Every send is dry-run with `ethrex_simulateFrameTransaction` before anything is broadcast, so you don't pay for a transaction that is going to fail.
@@ -113,7 +113,6 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 
 ## Not built yet
 
-- Editable RPC endpoints: today the app is fixed to the EF devnet's ethrex RPC and its two sidecars.
 - Fix & send for anything other than a gas limit (the engine also produces a re-quote patch; the UI applies gas fixes only).
 - Stake helper.
 - The full ERC-8421 rule set.
