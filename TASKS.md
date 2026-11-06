@@ -307,10 +307,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T20 · Rename to Readmit and use the familiar tx-page layout
 - owner: esh
-- status: todo
+- status: doing
 - note: wait for T00 (Next.js migration) to be done, then pull before starting
-- agent:
-- started:
+- agent: Claude Code on esh
+- started: 21:30 IST
 - priority: P0
 - depends: none
 - touches: src/App.tsx, src/app/globals.css, src/app/layout.tsx (title), src/ui/
