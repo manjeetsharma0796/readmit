@@ -282,9 +282,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ### T17 · Fragility flag (P1)
 - owner: prith
 - note: reassigned from manjeet to prith at 22:31 IST (manjeet approved). prith may edit src/diagnose.ts and src/diagnose.check.ts for this ticket only. No keys are needed: use the fixture below.
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on prith
+- started: 22:45 IST
 - priority: P1
 - depends: T13
 - touches: src/diagnose.ts, src/diagnose.check.ts, src/samples/sim-trace-paymaster.json (read only)
