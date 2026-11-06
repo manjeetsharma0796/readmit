@@ -366,9 +366,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T23 · Fix & send
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 22:49 IST
 - priority: P0
 - depends: T22
 - touches: src/ui/Send.tsx, src/ui/FixAndSend.tsx
