@@ -403,3 +403,22 @@ button:hover { border-color: var(--cobalt); }
   clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
 }
 .connect-head h3 { font-family: var(--display); letter-spacing: 0.06em; text-transform: uppercase; }
+/* dataviz: stat tiles (hero numbers in ink, status by dot + label) and thin gas meters with rounded data-ends */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.6fr); gap: 1px; padding: 0; background: var(--edge); }
+.tile { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: linear-gradient(180deg, rgba(20, 30, 38, 0.97), rgba(10, 15, 20, 0.97)); min-width: 0; }
+.tile-label { display: flex; align-items: center; gap: 6px; font-family: var(--display); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.tile-value { font-family: var(--display); font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--ink); }
+.tile-value-sm { font-size: 1.6rem; }
+.tile-sub { font-size: 0.82rem; color: var(--ink-2); }
+.tile-rules ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.tile-rules li { display: grid; grid-template-columns: minmax(0, 7em) 1fr auto; align-items: center; gap: 8px; font-size: 0.85rem; }
+.tile-rules code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rule-bar { height: 6px; background: rgba(255, 255, 255, 0.07); border-radius: 4px; overflow: hidden; }
+.rule-bar span { display: block; height: 100%; background: var(--fail); border-radius: 4px; }
+.rule-n { font-variant-numeric: tabular-nums; color: var(--ink); }
+.bar { height: 6px; border-radius: 4px; }
+.bar span { border-radius: 4px; box-shadow: none; }
+.frames tr.failed .bar span { box-shadow: none; }
+.t-gas > span:first-child { font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tile-rules { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .stats { grid-template-columns: 1fr 1fr; } .tile-value { font-size: 2rem; } }
