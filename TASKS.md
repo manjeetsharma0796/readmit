@@ -462,3 +462,15 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - At 07:00, check the devnet still has our txs. If it was reset, re-run the T04/T05 scripts and update the hashes.
 - done when: the dashboard shows the submission as submitted.
 - log:
+
+### T43 · Block AI attribution in commit messages
+- owner: manjeet
+- status: done
+- agent: Claude Code on manjeet
+- started: 22:20 IST
+- priority: P0
+- depends: none
+- touches: .githooks/commit-msg, package.json (prepare), AGENTS.md §4
+- do: Commit c20f83e ("T09: claim") reached main with `Co-Authored-By: Claude Sonnet 5.5`. Add a commit-msg hook that rejects AI co-author and "Generated with" lines, and install it on every machine through `npm install`.
+- done when: the hook rejects that exact line and accepts normal and human co-author messages.
+- log: 9 of 9 cases correct: Claude, lowercase, "Generated with Claude Code", Copilot and Cursor are blocked; normal messages, a Uniswap mention, a human co-author and the word "claim" are allowed. A real `git commit` with prith's line was rejected. The old commit c20f83e stays, because history is never rewritten (§4). needs: esh, prith. Run `npm install` after pulling to switch the hook on.

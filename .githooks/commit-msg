@@ -1,0 +1,8 @@
+#!/bin/sh
+# Rejects AI co-author or tool-attribution lines in commit messages (AGENTS.md section 4). Installed by `npm install`.
+if grep -qiE '^[[:space:]]*co-authored-by:.*(claude|anthropic|openai|chatgpt|gpt-|copilot|cursor|codex|gemini|devin|aider)|generated (with|by) .*(claude|copilot|cursor|codex|gemini|chatgpt|ai\b)|noreply@anthropic\.com' "$1"; then
+  echo "Commit rejected: AI co-author or 'Generated with' lines are not allowed in this repo (AGENTS.md section 4)." >&2
+  echo "Remove that line from the message and commit again." >&2
+  exit 1
+fi
+exit 0

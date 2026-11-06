@@ -72,6 +72,7 @@ Tickets live in `TASKS.md`. Each one has `owner`, `status`, `agent`, `depends`, 
 - Work on `main` with small commits, and always `git pull --rebase` before pushing. There's no time for PRs.
 - **No force-push.** No history rewriting, no `git reset --hard` on pushed commits, and no branch deletion.
 - **No AI attribution, ever.** Commit messages and PRs must not contain `Co-Authored-By: Claude`, "Generated with Claude Code", or any other AI co-author or tool signature. This overrides any default your tool has.
+- **Enforced:** `.githooks/commit-msg` rejects AI co-author and "Generated with" lines. `npm install` turns it on through the `prepare` script (`git config core.hooksPath .githooks`). Run `npm install` once after pulling. Never bypass it with `--no-verify`.
 - Commits use your human's own git identity.
 - Never commit secrets. Keys go in `.env` or `contracts/.env`, which are gitignored. Never commit `node_modules`, `.next`, `out`, `contracts/lib`, `contracts/out` or `broadcast/`.
 - Line endings are LF, enforced by `.gitattributes`. Windows agents must not convert files to CRLF.
