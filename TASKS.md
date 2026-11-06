@@ -33,10 +33,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T01 · Contracts toolchain builds and fork test passes
 - owner: manjeet
-- status: todo
+- status: doing
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
-- agent:
-- started:
+- agent: Claude Code on manjeet
+- started: 21:55 IST
 - priority: P0
 - depends: none
 - touches: contracts/ (lib is gitignored)
@@ -46,10 +46,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T02 · Paymaster gets `owner` and `withdraw()`
 - owner: manjeet
-- status: todo
+- status: doing
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
-- agent:
-- started:
+- agent: Claude Code on manjeet
+- started: 21:55 IST
 - priority: P0
 - depends: T01
 - touches: contracts/src/V4PricedPaymaster.sol, contracts/test/
@@ -59,10 +59,10 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T03 · Shrink setup costs and wire the deployer key
 - owner: manjeet
-- status: todo
+- status: doing
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
-- agent:
-- started:
+- agent: Claude Code on manjeet
+- started: 21:55 IST
 - priority: P0
 - depends: T01
 - touches: contracts/script/SetupPool.s.sol, contracts/.env.example
