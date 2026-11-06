@@ -4,10 +4,11 @@ import { EXPLORER } from '../rpc'
 const short = (h: string) => `${h.slice(0, 10)}…${h.slice(-6)}`
 
 /** The fix for an out-of-gas frame, one Fix & send button, and the old ❌ / new ✅ comparison once it has run. */
-export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHash: string | null; busy: boolean; onFix: () => void }) {
+export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHash: string | null; busy: boolean; onFix: () => void; what?: string }) {
   return (
     <div className="fixsend">
       <p className="f-title">{p.finding.title}</p>
+      {p.what && <p className="muted">Repairs the send of {p.what}, as first entered.</p>}
       {p.finding.fix && <p className="fix">{p.finding.fix}</p>}
       {p.finding.patch?.kind === 'gas' && (
         <p className="how">

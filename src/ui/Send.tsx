@@ -11,7 +11,8 @@ import { loadKey } from './Wallet'
 const STEPS = ['Checking (dry run)', 'Signing', 'Sent', 'Admitted', 'Included'] as const
 type Step = 0 | 1 | 2 | 3 | 4 | 5 // index of the step in progress; 5 = all done
 type Problem = { title: string; next: string; findings?: Finding[] }
-type Fix = { finding: Finding & { patch: Patch }; oldHash: string | null; newHash: string | null }
+type Intent = { to: Address; value: bigint }
+type Fix = { finding: Finding & { patch: Patch }; oldHash: string | null; newHash: string | null; intent: Intent }
 
 // Demo only: a last-frame limit below what a tUSD transfer needs, so the dry run (or the chain) reports out of gas.
 // A transfer to an existing holder uses 18,461 gas, so 20,000 was not low. 16,000 fails, and Readmit's own patch (×1.25 = 20,000)
@@ -35,6 +36,8 @@ export function Send() {
   const [check, setCheck] = useState<Diagnosis | null>(null) // the latest dry run, shown even when it lets the send go ahead
   const [caught, setCaught] = useState<Draft | null>(null) // a low-gas draft the dry run stopped, for "Send anyway"
   const stop = useRef<() => void>(() => {})
+  const inFlight = useRef(false) // locks Send from the first click, before the draft is built
+  const intent = useRef<Intent | null>(null) // what the current attempt sends, so a fix repairs exactly that
   useEffect(() => () => stop.current(), [])
 
   const busy = step !== null && step < 5 && !problem
@@ -81,7 +84,7 @@ export function Send() {
       setCheck(dx)
       if (dx.findings.some((f) => f.tone === 'fail')) {
         const f = fixable(dx.findings)
-        if (f && !opts.fixing) setFix({ finding: f, oldHash: null, newHash: null })
+        if (f && !opts.fixing && intent.current) setFix({ finding: f, oldHash: null, newHash: null, intent: intent.current })
         if (lowGas && !opts.fixing) setCaught(draft)
         setProblem({ title: 'The dry run found a problem, so nothing was sent', next: f && !opts.fixing ? 'Press Fix & send to apply the change and send.' : 'Apply the change below, then press Send again.', findings: dx.findings })
         return
@@ -118,44 +121,69 @@ export function Send() {
     const [tx, receipt] = await Promise.all([getTx('miner', h).catch(() => null), getReceipt(h).catch(() => null)])
     const findings = tx && receipt ? diagnose(tx, receipt).findings : []
     const f = fixable(findings)
-    if (f) setFix({ finding: f, oldHash: h, newHash: null })
+    if (f && intent.current) setFix({ finding: f, oldHash: h, newHash: null, intent: intent.current })
     setProblem({ title: 'It was included, but a frame failed', next: f ? 'Press Fix & send to apply the change and send again.' : 'Paste the hash into the search box above to see which frame failed and why.', findings })
   }
 
-  const fail = (e: unknown) => setProblem({ title: "Couldn't reach the devnet", next: `${(e as Error).message}. Check your connection and try again.` })
+  // Only a network failure is "couldn't reach"; signing, encoding and RPC rejections say what they are.
+  const fail = (e: unknown) => {
+    const msg = (e as Error)?.message ?? String(e)
+    setProblem(
+      e instanceof TypeError && /fetch|network|load failed/i.test(msg)
+        ? { title: "Couldn't reach the devnet", next: 'Check your connection and try again.' }
+        : { title: 'The send stopped with an error', next: `${msg}. Nothing was broadcast unless a hash is shown above.` },
+    )
+  }
 
   async function send() {
+    if (inFlight.current) return
     reset()
     setFix(null)
     const p = inputs()
     if (!p) return
+    inFlight.current = true
+    intent.current = { to: p.to, value: p.value }
+    setStep(0)
     try {
       const built = await buildSendTx({ wallet: privateKeyToAccount(p.key).address, to: p.to, amount: p.value, ...ADDRS })
       const draft = lowGas ? { ...built, frames: built.frames.map((f, i, all) => (i === all.length - 1 ? { ...f, gas: LOW_GAS } : f)) } : built
       await run(draft, p.key)
     } catch (e) {
       fail(e)
+    } finally {
+      inFlight.current = false
     }
   }
 
   async function sendAnyway() {
     const key = loadKey()
     if (!caught || !key) return
+    if (inFlight.current) return
     const draft = caught
+    inFlight.current = true
     reset()
     setFix(null)
+    setStep(0)
     try {
       await run(draft, key, { skipCheck: true })
     } catch (e) {
       fail(e)
+    } finally {
+      inFlight.current = false
     }
   }
 
   async function fixAndSend() {
-    const p = inputs()
-    if (!p || !fix) return
+    if (inFlight.current || !fix) return
+    const key = loadKey()
+    if (!key) return setProblem({ title: 'No key imported', next: 'Import the demo key in the wallet panel first.' })
+    // Repair exactly the transaction the fix belongs to, even if the form was edited since.
     const current = fix
+    const p = { key, to: current.intent.to, value: current.intent.value }
+    intent.current = current.intent
+    inFlight.current = true
     reset()
+    setStep(0)
     try {
       // Rebuild for a fresh nonce (a failed tx on chain used the old one), apply the gas fix, then re-quote the fee,
       // because a higher gas limit raises the maximum cost the paymaster prices.
@@ -164,6 +192,8 @@ export function Send() {
       await run(fixed, p.key, { fixing: current })
     } catch (e) {
       fail(e)
+    } finally {
+      inFlight.current = false
     }
   }
 
@@ -220,6 +250,11 @@ export function Send() {
           </a>
         </p>
       )}
+      {fee !== null && step !== null && step < 5 && !problem && (
+        <p className="send-fee pending">
+          Fee for this send: {formatUnits(fee, DEPLOY.tUSDDecimals)} tUSD, paid to the paymaster. ETH used: 0.
+        </p>
+      )}
       {fee !== null && step === 5 && (
         <p className="send-fee">
           Gas paid: {formatUnits(fee, DEPLOY.tUSDDecimals)} tUSD, ETH used: 0
@@ -242,7 +277,7 @@ export function Send() {
         </div>
       )}
 
-      {fix && <FixAndSend finding={fix.finding} oldHash={fix.oldHash} newHash={fix.newHash} busy={busy} onFix={fixAndSend} />}
+      {fix && <FixAndSend finding={fix.finding} oldHash={fix.oldHash} newHash={fix.newHash} busy={busy} onFix={fixAndSend} what={`${formatUnits(fix.intent.value, DEPLOY.tUSDDecimals)} tUSD to ${fix.intent.to.slice(0, 6)}…${fix.intent.to.slice(-4)}`} />}
 
       {problem && (
         <div className="send-problem" role="alert">
