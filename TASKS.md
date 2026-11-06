@@ -835,3 +835,16 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Faint static film grain over the page; result tinted by outcome; phase colours for frames; warm Fix & send; no corner colour splashes (esh asked to remove them); logo embossed with an SVG lighting filter; matching favicon.
 - done when: build passes, controls still receive clicks through the grain, logo and favicon render.
 - log: esh asked for this after the code freeze. Checked: every control receives clicks through the grain (elementFromPoint), 12 cases at 1280 and 375 px with no overflow, favicon rendered to PNG and checked. This push also lands T63, T64, T66 and T67 (esh's other agent, previously local only; their code was not on main when their entries were pushed with T65's claim). Devnet note: the gateway is rejecting transactions with "No space left on device" (25 of its last 60 at 04:00 IST); the miner is fine.
+
+### T69 · README: use the engine as a library (docs only)
+- owner: prith
+- note: added by prith at 04:20 IST, after the code freeze. Docs only: no code changes.
+- status: doing
+- agent: Claude Code on prith
+- started: 04:20 IST
+- priority: P1
+- depends: none
+- touches: README.md (new "Use the engine as a library" section; correct the stale "Run" and "Files" sections; add the live URL)
+- do: The EF prize's dev-tooling area asks for an SDK. Document the engine (`src/diagnose.ts`, `src/rpc.ts`, `src/engine/frames.ts`) as a library: explain a hash, dry run, apply the fix, send, and watch. Every snippet must run against the real exports. Fix "self-check on 4 cases" (now `npm run check`, 21 cases) and the 4-file Files table.
+- done when: the read-only part of the snippet runs against the live devnet and the README is on main.
+- log:
