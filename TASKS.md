@@ -648,3 +648,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Restyle from reference designs (explorer/debugger dashboards): result as a two-column page (fix and frames on the left, transaction details on the right), a stronger "What to change" hero, wallet and send side by side, stats as a headline number. No logic changes. Must be pushed and every flow re-checked before the 03:00 code freeze.
 - done when: build passes, all saved cases, send errors and the live list work at 1280 and 375 px with a clean console.
 - log: **esh overrode the 01:00 feature freeze for this ticket (in chat, 02:20).** If anything breaks, revert this ticket's commits. Done 02:28: checked on the production build (out/) at 1280 px (main column 744 px + 340 px sticky transaction card, no overflow) and 375 px (single column, fix first, all 12 saved cases load, send error shows, no overflow); console clean; build passes. Reference sites (Dribbble, Pinterest) did not load or needed a login, so the design follows the Etherscan/Tenderly/Linear patterns from the PRD. README screenshots still show the previous design.
+
+### T57 · Connect wallet (real wagmi adapter, demo account) and a real tUSD faucet button
+- owner: manjeet
+- status: doing
+- agent: Claude Code on manjeet
+- started: 02:27 IST
+- priority: P1
+- depends: none
+- touches: src/ui/Connect.tsx (new), src/ui/Faucet.tsx (new), src/engine/frames.ts, src/engine/frames.check.ts, package.json, plus mount lines only in src/App.tsx / src/ui/Wallet.tsx (esh's, minimal)
+- do: manjeet asked for it in chat at 02:30, overriding the freeze. **Connect:** wagmi with the injected connector (MetaMask, Rabby, Brave and other extensions) connects the user's real wallet. Frame txs are still signed by the shared demo account, because no browser wallet can sign EIP-8141 frame txs yet. The UI says so plainly. **Faucet:** "Get 100 tUSD" is a real frame tx from the demo account: VERIFY self, VERIFY paymaster, fee transfer, then `tUSD.mint(self, 100e6)`. Gas is paid in tUSD and it is dry-run first. Not a mock.
+- done when: Connect works with an injected wallet; the faucet dry-run passes and one approved faucet send is included; build passes; Vercel redeployed and checked.
+- log:
