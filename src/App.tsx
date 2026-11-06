@@ -169,13 +169,31 @@ export default function App() {
     ? { tone: 'info', text: '' }
     : receipt
       ? receipt.status === '0x1'
-        ? { tone: 'pass', text: 'Success' }
-        : { tone: 'fail', text: 'Failed on chain' }
+        ? { tone: 'pass', text: 'Landed, all frames worked' }
+        : { tone: 'fail', text: 'Landed, but a frame failed' }
       : loaded.tx.admission?.outcome === 'rejected'
-        ? { tone: 'fail', text: 'Rejected by the mempool' }
+        ? { tone: 'fail', text: 'Rejected, never reached the chain' }
         : loaded.tx.admission?.outcome === 'accepted'
-          ? { tone: 'warn', text: 'Admitted, pending' }
+          ? { tone: 'warn', text: 'Accepted, waiting for a block' }
           : { tone: dx?.mempool.tone ?? 'info', text: dx?.mempool.headline ?? 'Unknown' }
+  // One plain sentence that reconciles the node's admission check with what happened on chain. They can disagree:
+  // a node can reject one copy (a duplicate, or one sent to the other node) while another copy lands.
+  const summary = ((): string => {
+    if (!loaded || !dx) return ''
+    const adm = loaded.tx.admission?.outcome
+    const node = NODES[loaded.node].label.toLowerCase()
+    const rules = (loaded.tx.admission?.checks ?? []).filter((c) => c.verdict === 'fail').map((c) => c.rule).join(', ')
+    const failed = receipt?.frameReceipts.map((f, i) => (f.status === '0x0' ? i : -1)).filter((i) => i >= 0) ?? []
+    if (receipt?.status === '0x1')
+      return adm === 'rejected'
+        ? `The transaction landed on chain and every frame worked. The ${node} node rejected one copy of it${rules ? ` (rule ${rules})` : ''}, but another copy got in, through the other node or a resend. Nothing to fix.`
+        : 'The transaction was accepted, landed on chain, and every frame worked. Nothing to fix.'
+    if (receipt)
+      return `The transaction landed on chain, but frame ${failed.join(', ')} failed, and the payer was still charged.${adm === 'rejected' ? ` The ${node} node had also rejected one copy of it.` : ''} See what to change below.`
+    if (adm === 'rejected') return `The ${node} node rejected this transaction${rules ? ` (rule ${rules})` : ''}, so it never reached the chain and nobody paid. See what to change below.`
+    if (adm === 'accepted') return `The ${node} node accepted this transaction. It is waiting to be included in a block.`
+    return `The ${node} node has no admission record for this transaction, and it is not on chain.`
+  })()
   const payer = receipt?.payer ?? loaded?.tx.entry?.payer
   const sender = loaded?.tx.entry?.sender ?? loaded?.tx.admission?.sender
   const fee = receipt ? (n(receipt.gasUsed) * n(receipt.effectiveGasPrice)) / 1e18 : 0
@@ -259,7 +277,7 @@ export default function App() {
       {loaded && dx && (
         <main className="result" aria-live="polite">
           <div className="result-head">
-            <h2>Transaction details</h2>
+            <h2>What happened</h2>
             <div className="actions">
               {loaded.source === 'sample' && <span className="note">Saved sample, not fetched live</span>}
               <a href={EXPLORER(loaded.hash, loaded.node)} target="_blank" rel="noreferrer">
@@ -270,6 +288,7 @@ export default function App() {
           </div>
 
 
+          <p className={`summary ${status.tone}`}>{summary}</p>
           <div className="result-body">
             <div className="main-col">
           <section className="change" aria-label="What to change">
@@ -378,9 +397,9 @@ export default function App() {
                 <span className="muted">Nothing charged</span>
               )}
             </dd>
-            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} v={dx.mempool} />
-            <VerdictRow label="On chain (ethrex)" v={dx.chain} />
-            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
+            <VerdictRow label={`Admission check (${NODES[loaded.node].label.toLowerCase()} node)`} v={dx.mempool} />
+            <VerdictRow label="On chain" v={dx.chain} />
+            <VerdictRow label="ERC-8421 spec check" v={dx.spec} />
           </dl>
             </aside>
           </div>
@@ -501,6 +520,15 @@ function Dot({ tone }: { tone: Tone }) {
   return <span className={`dot ${tone}`} aria-hidden="true" />
 }
 
+// The engine's verdict words are terse; show them in plain words.
+const PLAIN: Record<string, string> = {
+  Executed: 'Included in a block, all frames worked',
+  'Executed with a failure': 'Included in a block, but a frame failed',
+  'Not on chain': 'Not in any block',
+  Rejected: 'Rejected this copy',
+  'No conflict found': 'No spec problem found',
+}
+
 function VerdictRow({ label, v }: { label: string; v: Verdict }) {
   return (
     <>
@@ -508,7 +536,7 @@ function VerdictRow({ label, v }: { label: string; v: Verdict }) {
       <dd className="v-row">
         <Dot tone={v.tone} />
         <span>
-          <strong>{v.headline}</strong> <span className="muted">· {v.sub}</span>
+          <strong>{PLAIN[v.headline] ?? v.headline}</strong> <span className="muted">· {v.sub}</span>
         </span>
       </dd>
     </>
