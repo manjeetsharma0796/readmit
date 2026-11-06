@@ -158,7 +158,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T09 · Price-moved fixture (P1)
 - owner: prith
-- status: doing
+- status: blocked
 - agent: Claude Code on prith
 - started: 22:15 IST
 - priority: P1
