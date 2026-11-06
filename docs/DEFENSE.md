@@ -42,8 +42,8 @@ From the sidecar's detail text, parsed at read time, never hardcoded; an unknown
 - Evidence: the "Technical details" section lists every rule the sidecar ran, with its own detail text.
 
 **"Why did it revert?" for an old transaction**
-The engine can replay a failed transaction on the block before it to get the revert reason, but ethrex keeps state for about 128 blocks, so it works for roughly 13 minutes after inclusion. It isn't wired into the page yet.
-- Evidence: `replay()` in `src/engine/frames.ts`.
+For a fresh on-chain failure, Readmit replays it on the block before it: that proves the failure is reproducible and shows the revert message when the node returns one. ethrex keeps state for about 128 blocks, so it works for roughly 13 minutes, and for execution-phase reverts the node currently returns no message.
+- Evidence: `replay()` in `src/engine/frames.ts`; live, `0x5f29af86…` replayed to "fails at frame 3 again" and `0xf52f56f8…` showed "too old to replay".
 
 ## Uniswap
 
@@ -62,9 +62,9 @@ Our paymaster reads the Uniswap pool's storage while validating. The canonical r
 ## Limits we say plainly
 
 - **Devnet only.** Frame transactions are expected with the Hegotá upgrade; nothing runs on mainnet.
-- **Endpoints are fixed** to the EF devnet's ethrex RPC and two sidecars. Making them editable is next (T50).
+- **Endpoints default to the EF devnet** (ethrex RPC and two sidecars); you can point Readmit at your own nodes in the footer.
 - **The ERC-8421 check is partial:** the validation-gas budget and validation reverts only.
-- **Revert-reason replay is engine-only** (not shown in the page yet).
+- **Revert reasons need fresh state:** the replay works for about 13 minutes after inclusion, and the node returns no message for execution-phase reverts.
 - **Fix & send applies gas fixes.** The engine also makes a re-quote patch; the UI doesn't apply it yet.
 - **History is in memory:** the sidecar forgets admissions on restart, so saved cases are labelled as saved.
 - **Privacy trade-off:** the RPCs see your IP, and the selector lookup tells Sourcify which selectors you decoded.
