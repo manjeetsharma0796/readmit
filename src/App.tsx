@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { diagnose, fmt, n, type Diagnosis, type Receipt, type Tone, type TxResult, type Verdict } from './diagnose'
 import { FramesTable } from './ui/FramesTable'
+import { Wallet } from './ui/Wallet'
 import { EXPLORER, NODES, getReceipt, getTx, lookupSelectors, recent, type AdmissionRow, type NodeId } from './rpc'
 import oog from './samples/reverted-out-of-gas.json'
 import cap from './samples/verify-gas-over-cap.json'
@@ -272,6 +273,8 @@ export default function App() {
           </details>
         </main>
       )}
+
+      <Wallet />
 
       <section className="recent" aria-label="Recent admissions">
         <div className="recent-head">
