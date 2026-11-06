@@ -342,7 +342,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T22 · Send screen (Flow B)
 - owner: esh
-- status: doing
+- status: blocked
 - agent: Claude Code on esh
 - started: 21:39 IST
 - priority: P0
@@ -354,7 +354,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Show the fee: "Gas paid: X tUSD, ETH used: 0".
   - Errors in plain words, with next steps: dry-run failure, which shows the diagnosis; rejected; timeout.
 - done when: a real send from the demo wallet reaches Included in the UI. Put the hash in the log.
-- log:
+- log: UI done in `src/ui/Send.tsx`, mounted in App.tsx. Recipient + amount + one Send button. Flow: `buildSendTx` → sign → `simulate` → `diagnoseDraft` (stops and shows the findings if anything fails or warns) → sign → `sendFrameTx` → `watchTx`. Timeline: Checking (dry run) → Signing → Sent → Admitted → Included, explorer link, "Gas paid: X tUSD, ETH used: 0" (fee read from the fee frame). Plain-word errors with next steps: no key, not deployed, bad address/amount, dry-run failure, rejected, failed on chain, dropped, 2-minute timeout, devnet unreachable. Moved the deployments stub to `src/ui/deploy.ts` (shared with Wallet.tsx); also edited src/app/globals.css. Checked at 1280 and 375 px, console clean, `npm run build` passes. Timeline not yet seen live. **Blocked:** a real send needs tUSD + paymaster deployed and a funded key. needs: prith (T04, T07), then esh approves one send.
 
 ### T23 · Fix & send
 - owner: esh
