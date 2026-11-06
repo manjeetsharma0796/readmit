@@ -259,13 +259,6 @@ export default function App() {
             <p className="tagline">Find out which frame failed, why, and exactly what to change.</p>
           </div>
         </div>
-        {/* Decorative: a transaction as a stack of glass frames, one failed. */}
-        <div className="stack3d" aria-hidden="true">
-          <i />
-          <i />
-          <i className="bad" />
-          <i />
-        </div>
         <div className="seg" role="group" aria-label="Mempool node">
           {(Object.keys(NODES) as NodeId[]).map((id) => (
             <button key={id} className={id === node ? 'on' : ''} aria-pressed={id === node} onClick={() => setNode(id)}>
