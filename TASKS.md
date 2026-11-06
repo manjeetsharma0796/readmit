@@ -307,7 +307,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T20 · Rename to Readmit and use the familiar tx-page layout
 - owner: esh
-- status: doing
+- status: done
 - note: wait for T00 (Next.js migration) to be done, then pull before starting
 - agent: Claude Code on esh
 - started: 21:30 IST
@@ -323,7 +323,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
     - admission checks under "Technical details", collapsed.
   - Keep all current data. Plain words only.
 - done when: you've looked at the screenshots at 1280 px and 375 px, the console has no errors, the "Ran out of gas" sample shows frame 4 as a red row, and `npm run build` passes.
-- log:
+- log: Overview rows (hash, status badge, block, sender, payer, fee, 3 verdicts) → "What to change" panel → frames table (#, role, target, call, gas used/limit with bar, status) → "Technical details" collapsed. "Ran out of gas" sample: frame 4 row red, "29,925 / 30,000 · Ran out of gas". Checked at 1280 and 375 px via DOM (no horizontal overflow, table stacks on mobile) plus a 375 px screenshot; full 1280 px screenshots timed out in the pane. Console: no errors. Added the "Logic revert" chip (from T10). `npm run build` passes, `npm run check` passes.
 
 ### T21 · Wallet panel
 - owner: esh
