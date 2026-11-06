@@ -604,3 +604,46 @@ body { background-color: #000; background-image: none; }
 }
 .fixsend .primary:hover { background: #ffc58c; border-color: #ffc58c; }
 .fixsend { border-left: 3px solid var(--act-warm); }
+
+/* ---- T70: rounder fields, a modern primary button, and a clean wallet modal. ---- */
+/* Pill-shaped inputs and buttons, so the search row reads as one soft control. */
+.row input, .send-form input, .wallet .row input { border-radius: 999px; padding-left: 18px; padding-right: 18px; }
+.row .primary, .send-form .primary, .search .row .primary { border-radius: 999px; }
+/* Modern primary: smooth violet gradient, no grain, a soft glow, lifts on hover and settles on press. */
+.primary, .search .row .primary {
+  background: linear-gradient(180deg, #c9b0f2 0%, #a885e0 100%);
+  color: #170a2b;
+  border: 1px solid #ffffff2e;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 1px 0 #ffffff59, 0 6px 18px #9d74e033, 0 1px 2px #000;
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+.primary:hover, .search .row .primary:hover {
+  background: linear-gradient(180deg, #d4bff6 0%, #b393e6 100%);
+  border-color: #ffffff40;
+  color: #170a2b;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 #ffffff66, 0 10px 26px #9d74e04d, 0 1px 2px #000;
+}
+.primary:active, .search .row .primary:active { transform: translateY(0); filter: brightness(0.95); box-shadow: inset 0 1px 0 #ffffff40, 0 3px 10px #9d74e033; }
+.primary:disabled, .primary:disabled:hover { transform: none; filter: saturate(0.6); opacity: 0.6; }
+@media (prefers-reduced-motion: reduce) { .primary, .search .row .primary { transition: none; } }
+
+/* RainbowKit's Connect modal: our global matte "key" style was leaking onto its back, close and help
+   buttons and its wallet rows (inset grain shadows, dark rims). Give them back their own clean look. */
+[role="dialog"] button, [role="dialog"] button:hover, [role="dialog"] button:active { box-shadow: none; background-image: none; }
+/* The theme's accent (#222226) is near-black, so in the modal the back arrow and "Learn More" link vanished.
+   Inside the modal only, use the brand violet with dark text on it. */
+[role="dialog"] { --rk-colors-accentColor: #c9b0f2; --rk-colors-accentColorForeground: #170a2b; }
+[role="dialog"] button[aria-label="Close"], [role="dialog"] button[aria-label="Info"], [role="dialog"] button:not([aria-label]):has(> svg > title) {
+  border: 1px solid #ffffff14;
+  background-color: #ffffff12;
+  color: #d6d3de;
+  border-radius: 999px;
+  transition: background-color 120ms ease;
+}
+[role="dialog"] button:not([aria-label]):has(> svg > title) { padding: 6px 9px 6px 8px; color: #d6d3de; }
+[role="dialog"] button[aria-label="Close"]:hover, [role="dialog"] button[aria-label="Info"]:hover, [role="dialog"] button:not([aria-label]):has(> svg > title):hover { background-color: #ffffff22; border-color: #ffffff22; }
+/* Section labels ("Installed", "Browser wallets") were too dim to read. */
+[data-rk] { --rk-colors-modalTextDim: #8d8a99; --rk-colors-modalTextSecondary: #a7a4b3; }

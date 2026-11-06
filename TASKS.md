@@ -851,7 +851,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T70 · Rounder inputs, modern primary button, clean wallet modal buttons
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 04:31 IST
 - priority: P2
@@ -859,4 +859,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/app/globals.css
 - do: Pill-round the hash input and buttons; a modern flat primary button; stop the global key style leaking into RainbowKit's modal (back, close and help buttons, wallet rows). esh asked in chat after the freeze.
 - done when: build passes, input, Inspect and the Connect modal look right at 1280 and 375 px.
-- log:
+- log: esh asked in chat after the freeze. npm run build and git diff --check pass; no console errors. Checked at 1280 and 375 px: pill input and Inspect, gradient primary with hover lift. Connect modal: the matte key shadows no longer leak onto its buttons; the back arrow and Learn More link were near-invisible (theme accent #222226), now violet inside the modal only; section labels brighter.
