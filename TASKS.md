@@ -191,9 +191,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T11 · Correct advice and parse thresholds
 - owner: manjeet
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:23 IST
 - priority: P0
 - depends: T10
 - touches: src/diagnose.ts, src/diagnose.check.ts
