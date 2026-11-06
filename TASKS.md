@@ -520,7 +520,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 
 ### T47 · Live rejection stats from the devnet
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 23:55 IST
 - priority: P1
@@ -528,7 +528,7 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 - touches: src/App.tsx, src/app/globals.css
 - do: Count the node's recent rejected transactions by rule (from `skandha_explorer_listAdmissions`, which the page already reads). Show "N of the last M transactions on this node were rejected", with the top rules. This is demand evidence: other teams hit these errors this weekend.
 - done when: the stats show live numbers, and `npm run build` passes.
-- log:
+- log: The recent list now reads one page of 200 (was 60) per load, and a stats line above it says how many were rejected, from how many distinct senders, over what time, with the top sidecar rule names verbatim. Live at 23:58 IST: miner "40 of the last 200 … rejected, from 11 different senders, over 2.2 hours. Top rules: simulation ×30, OP-011 ×7, COD-010 ×1, prefix ×1"; gateway "0 of the last 9 … over 6 minutes" (it restarted recently). Console clean in a fresh tab, build passes. Numbers come from the node's in-memory history, so they change after a node restart.
 
 ### T48 · CROPS footer
 - owner: esh
