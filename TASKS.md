@@ -342,9 +342,9 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T22 · Send screen (Flow B)
 - owner: esh
-- status: todo
-- agent:
-- started:
+- status: doing
+- agent: Claude Code on esh
+- started: 16:09 IST
 - priority: P0
 - depends: T21 (UI against stubs first), then T12, T13 and T14 for the real thing
 - touches: src/ui/Send.tsx, src/App.tsx (mount only)
