@@ -435,11 +435,10 @@ export default function App() {
             <ol className="findings">
               {dx.findings.map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
-                  <div className="f-head">
-                    <span className="f-num" aria-hidden="true">{i + 1}</span>
-                    <p className="f-title">{f.title}</p>
-                    <span className={`f-tag ${f.tone}`}>{TAG[f.tone]}</span>
-                  </div>
+                  <span className="f-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  <div className="f-body">
+                  <span className={`f-tag ${f.tone}`}>{TAG[f.tone]}</span>
+                  <p className="f-title">{f.title}</p>
                   {f.fix && (
                     <div className="fix-box">
                       <span className="fix-label">Fix</span>
@@ -458,6 +457,7 @@ export default function App() {
                       {f.tone === 'fail' && f.title.includes('validation') ? 'Error' : 'Call'}: <code>{names.get(f.selector) ?? f.selector}</code>
                     </p>
                   )}
+                  </div>
                 </li>
               ))}
             </ol>
