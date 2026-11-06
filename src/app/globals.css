@@ -175,6 +175,10 @@ footer { margin-top: 32px; font-size: 0.85rem; color: var(--ink-2); max-width: 8
   .page { padding: 18px 16px 40px; }
   .row { flex-direction: column; }
   .send-form { grid-template-columns: 1fr; }
+  /* On phones the fix comes right after the title, before the long hashes. */
+  .result { display: flex; flex-direction: column; }
+  .result-head { order: -2; }
+  .change { order: -1; margin-top: 12px; }
   .overview { grid-template-columns: 1fr; }
   .overview dt { border-bottom: 0; padding-bottom: 0; }
   .overview dd { padding-top: 2px; }
