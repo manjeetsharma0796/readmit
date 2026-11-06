@@ -165,6 +165,18 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ## manjeet: engine, then pitch and submission
 
+### T00 · Migrate the app from Vite to Next.js (static export)
+- owner: manjeet
+- status: doing
+- agent: Claude Code on manjeet
+- started: 21:19 IST
+- priority: P0
+- depends: none
+- touches: package.json, package-lock.json, next.config.ts, tsconfig*.json, src/app/, src/main.tsx (deleted), index.html (deleted), vite.config.ts (deleted), src/index.css (moved to src/app/globals.css), .gitignore
+- do: Switch to the Next.js App Router with `output: "export"`, so the app stays static with no server and the CROPS promise holds. The page is client-only. The UI stays unchanged.
+- done when: `npm run build` produces `out/`, `npm run dev` serves http://localhost:5173 with the same UI, and `npm run check` passes.
+- log:
+
 ### T10 · Classify failed frames correctly
 - owner: manjeet
 - status: doing
@@ -296,11 +308,12 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ### T20 · Rename to Readmit and use the familiar tx-page layout
 - owner: esh
 - status: todo
+- note: wait for T00 (Next.js migration) to be done, then pull before starting
 - agent:
 - started:
 - priority: P0
 - depends: none
-- touches: src/App.tsx, src/index.css, index.html, src/ui/
+- touches: src/App.tsx, src/app/globals.css, src/app/layout.tsx (title), src/ui/
 - do:
   - Replace "FrameLab" everywhere in the UI: the wordmark and the `<title>`.
   - Lay the result out like an Etherscan tx page:
