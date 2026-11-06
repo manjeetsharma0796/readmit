@@ -1,0 +1,1 @@
+Read `AGENTS.md` in this directory before doing anything, and follow it. It is the single source of rules for every agent in this repo, including the ticket claim protocol in `TASKS.md` and the ban on any AI co-author line in commits.
