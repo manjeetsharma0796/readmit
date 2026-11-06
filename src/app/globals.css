@@ -859,3 +859,42 @@ button, .chip, .faucet-btn, .top .seg button.on { background-image: none; }
   .acct-pop { right: auto; left: 0; }
 }
 .acct-pop { background: var(--lightbox); border: 1px solid var(--rule); border-radius: 16px; padding: 10px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55); }
+
+/* ---- T77: "What to change" as numbered cards. The fix is the thing to do, so it gets the one tinted box;
+   the explanation sits under it in quieter text. Flat, one accent, tone only on the small tag. ---- */
+.shell .findings { list-style: none; padding: 0; gap: 12px; }
+.shell .change .finding, .shell .change .finding.fail, .shell .change .finding.warn, .shell .change .finding.pass {
+  background: #1b1b20; border: 1px solid var(--rule); border-radius: 14px; padding: 16px 18px 16px;
+}
+.shell .change .finding:first-child { border-color: #3d3550; }
+.f-head { display: flex; align-items: center; gap: 12px; }
+.f-num { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: #26262d; color: var(--ink); font-weight: 600; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.shell .finding .f-head .f-title { flex: 1 1 auto; min-width: 0; font-size: 1.04rem; }
+.f-tag { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 600; background: #24242a; color: var(--ink-2); }
+.f-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.f-tag.fail { color: #f08b97; background: #f08b9714; }
+.f-tag.warn { color: #e6be74; background: #e6be7412; }
+.f-tag.pass { color: #6fd3a5; background: #6fd3a512; }
+
+.fix-box { margin: 14px 0 0 40px; padding: 12px 14px; border-radius: 10px; background: #b9a2e612; border: 1px solid #b9a2e626; }
+.fix-box .fix-label { display: block; margin: 0 0 4px; padding: 0; border: 0; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #c7b4ec; }
+.shell .finding .fix-box .fix { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--ink); }
+.shell .finding .why, .shell .finding .how, .shell .finding .decoded { margin: 10px 0 0 40px; }
+.shell .finding .decoded code { background: #24242a; border: 1px solid #303037; border-radius: 6px; padding: 2px 8px; }
+
+/* "Why it reverted" as its own small panel. */
+.shell .replay { margin: 12px 0 0; padding: 12px 16px; border-radius: 12px; background: #19191d; border: 1px dashed #34343c; color: var(--ink-2); }
+.shell .replay .replay-label { display: block; margin-bottom: 2px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+
+/* Frame status in the inspector: a pill with a dot, not loose coloured text. */
+.frame-state { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: #24242a; color: var(--ink-2); margin-left: auto; }
+.frame-state::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.frame-state.succeeded { color: #6fd3a5; background: #6fd3a512; }
+.frame-state.failed { color: #f08b97; background: #f08b9714; }
+
+@media (max-width: 600px) {
+  .fix-box, .shell .finding .why, .shell .finding .how, .shell .finding .decoded { margin-left: 0; }
+  .f-head { flex-wrap: wrap; }
+  .shell .finding .f-head .f-title { flex-basis: calc(100% - 40px); }
+  .f-tag { margin-left: 40px; }
+}

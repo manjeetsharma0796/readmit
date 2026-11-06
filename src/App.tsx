@@ -435,11 +435,16 @@ export default function App() {
             <ol className="findings">
               {dx.findings.map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
-                  <p className="f-title">{f.title}</p>
+                  <div className="f-head">
+                    <span className="f-num" aria-hidden="true">{i + 1}</span>
+                    <p className="f-title">{f.title}</p>
+                    <span className={`f-tag ${f.tone}`}>{TAG[f.tone]}</span>
+                  </div>
                   {f.fix && (
-                    <p className="fix">
-                      <span className="fix-label">Fix</span> {f.fix}
-                    </p>
+                    <div className="fix-box">
+                      <span className="fix-label">Fix</span>
+                      <p className="fix">{f.fix}</p>
+                    </div>
                   )}
                   {f.patch?.kind === 'gas' && f.frame !== undefined && loaded.receipt?.frameReceipts[f.frame] && (
                     <p className="how">
@@ -458,7 +463,7 @@ export default function App() {
             </ol>
             {why && why.hash === loaded.hash && (
               <p className={`replay ${why.state}`} aria-live="polite">
-                <span className="replay-label">Why it reverted:</span>{' '}
+                <span className="replay-label">Why it reverted</span>
                 {why.state === 'loading' && 'replaying it on the block before it…'}
                 {why.state === 'found' && (
                   <>
@@ -647,6 +652,9 @@ function Copy({ text, label, children }: { text: string; label: string; children
     </button>
   )
 }
+
+// The short tag on each finding card.
+const TAG: Record<Tone, string> = { fail: 'Problem', warn: 'Heads-up', pass: 'All good', info: 'Note' }
 
 function Dot({ tone }: { tone: Tone }) {
   return <span className={`dot ${tone}`} aria-hidden="true" />

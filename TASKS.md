@@ -937,7 +937,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T77 · Richer "What to change" and frame status
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 05:45 IST
 - priority: P2
@@ -945,4 +945,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: esh found the findings bland. Each finding becomes a numbered card with a small status tag and a highlighted fix box; "Why it reverted" becomes a panel; the frame status in the inspector becomes a pill with a dot. Still flat, one accent.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. All 12 saved cases at 1024 and 375 px: no overflow. Findings are numbered cards with a Problem / Heads-up / All good / Note tag and a tinted Fix box; the first card has a faint violet edge; the inspector status is a pill with a dot.
