@@ -267,39 +267,9 @@ export default function App() {
             </div>
           </div>
 
-          <dl className="overview">
-            <dt>Transaction hash</dt>
-            <dd>
-              <code className="hash">{loaded.hash}</code>
-            </dd>
-            <dt>Status</dt>
-            <dd>
-              <span className={`badge ${status.tone}`}>
-                <Dot tone={status.tone} />
-                {status.text}
-              </span>
-            </dd>
-            <dt>Block</dt>
-            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
-            <dt>Sender</dt>
-            <dd>{sender ? <code>{sender}</code> : <span className="muted">Unknown</span>}</dd>
-            <dt>Payer</dt>
-            <dd>{payer ? <code>{payer}</code> : <span className="muted">Unknown</span>}</dd>
-            <dt>Fee</dt>
-            <dd>
-              {loaded.receipt ? (
-                <>
-                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
-                </>
-              ) : (
-                <span className="muted">Nothing charged</span>
-              )}
-            </dd>
-            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} v={dx.mempool} />
-            <VerdictRow label="On chain (ethrex)" v={dx.chain} />
-            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
-          </dl>
 
+          <div className="result-body">
+            <div className="main-col">
           <section className="change" aria-label="What to change">
             <h2>{dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
             <ol className="findings">
@@ -375,11 +345,56 @@ export default function App() {
               <p className="muted">This node kept no admission report for this transaction.</p>
             )}
           </details>
+            </div>
+            <aside className="side" aria-label="Transaction details">
+              <h3>Transaction</h3>
+          <dl className="overview">
+            <dt>Transaction hash</dt>
+            <dd>
+              <code className="hash">{loaded.hash}</code>
+            </dd>
+            <dt>Status</dt>
+            <dd>
+              <span className={`badge ${status.tone}`}>
+                <Dot tone={status.tone} />
+                {status.text}
+              </span>
+            </dd>
+            <dt>Block</dt>
+            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
+            <dt>Sender</dt>
+            <dd>{sender ? <code>{sender}</code> : <span className="muted">Unknown</span>}</dd>
+            <dt>Payer</dt>
+            <dd>{payer ? <code>{payer}</code> : <span className="muted">Unknown</span>}</dd>
+            <dt>Fee</dt>
+            <dd>
+              {loaded.receipt ? (
+                <>
+                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
+                </>
+              ) : (
+                <span className="muted">Nothing charged</span>
+              )}
+            </dd>
+            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} v={dx.mempool} />
+            <VerdictRow label="On chain (ethrex)" v={dx.chain} />
+            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
+          </dl>
+            </aside>
+          </div>
         </main>
       )}
 
-      <Wallet />
-      <Send />
+      <section className="flow" aria-label="Send your own transaction">
+        <div className="flow-head">
+          <h2>Send your own</h2>
+          <p className="muted">A wallet with tUSD and 0 ETH. Every send is dry-run first; if it would fail, Fix &amp; send repairs it.</p>
+        </div>
+        <div className="flow-grid">
+          <Wallet />
+          <Send />
+        </div>
+      </section>
 
       <section className="recent" aria-label="Recent admissions">
         <div className="recent-head">
@@ -391,6 +406,7 @@ export default function App() {
         </div>
         {stats && (
           <p className="stats">
+            <span className="stat-big">{Math.round((stats.rejected / stats.total) * 100)}%</span>
             <strong>
               {stats.rejected} of the last {stats.total}
             </strong>{' '}
