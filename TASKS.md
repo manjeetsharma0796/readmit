@@ -570,3 +570,45 @@ Novelty: the debugger, ERC-8421 rule names and Fix & send are new. A Uniswap-v4-
 - do: Let the user point Readmit at their own ethrex RPC and sidecar, so it doesn't depend on our endpoints. Only if time allows after the freeze rules; otherwise list it under "Not built yet".
 - done when: a changed endpoint is used for reads and sends.
 - log: needs: manjeet (rpc.ts is manjeet's). Taken by prith on prith's instruction at 23:50; the rpc.ts change is kept to the endpoint constants. manjeet, shout if you object. **Done 00:20.** `src/rpc.ts`: `ENDPOINTS` = defaults + localStorage `readmit.endpoints` overrides (http(s) only), feeding `ETHREX` and `NODES`, so every caller (frames.ts, Wallet, App) uses them unchanged. New `src/ui/Endpoints.tsx` is a collapsible 'Endpoints: use your own node' panel in the footer with Save and reload / Reset to defaults. Outside touches (minimal): 2 lines in `src/App.tsx` (import + `<Endpoints />` in the footer), 5 lines in `src/app/globals.css`. Evidence: a stubbed run with overrides sent `skandha_explorer_getTransaction` and `eth_sendFrameTransaction` to the custom miner, and `eth_getTransactionReceipt`, `eth_getTransactionByHash` and `ethrex_simulateFrameTransaction` to the custom ethrex. A `javascript:` URL was ignored. In the browser, a saved miner URL `http://127.0.0.1:9/rpc` was fetched by the Miner tab, and the summary showed '(custom)' with no hydration error; Reset cleared it. `npm run check`, tsc, oxlint (new files) and `npm run build` pass.
+
+## Defensibility pass (00:00 IST)
+Goal: every claim a judge can check is true, and every hard question has an answer with evidence.
+
+### T51 · README claims match the product
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 23:58 IST
+- priority: P0
+- depends: none
+- touches: README.md (intro, "Not built yet", "CROPS")
+- do:
+  - "Not built yet" still lists the dry run and Fix & resend, which are built and in the demo. Remove them.
+  - The intro says the app "uses no keys" (false since the wallet panel) and describes only diagnosis. Add send, dry run, Fix & send, the case gallery and live stats.
+  - CROPS: "works with any RPC you point it at" is false until T50; "dry-run before you sign" should be "before anything is broadcast"; keys are imported, not made.
+- done when: no README line contradicts the app.
+- log: needs: manjeet (FYI, README intro is shared).
+
+### T52 · Explain where the fix number comes from
+- owner: esh
+- status: todo
+- agent:
+- started:
+- priority: P0
+- depends: none
+- touches: src/App.tsx, src/ui/FixAndSend.tsx, src/app/globals.css
+- do: Next to a gas fix, show how the number was made: gas used × 1.25 headroom, rounded up to the next 1,000. A judge asking "is 38,000 exact?" gets the answer on screen.
+- done when: the out-of-gas case shows the calculation, and `npm run build` passes.
+- log:
+
+### T53 · Judge defense sheet
+- owner: esh
+- status: todo
+- agent:
+- started:
+- priority: P0
+- depends: none
+- touches: docs/DEFENSE.md (new)
+- do: The hardest judge questions (from the red-team) with short, true answers and evidence links (tx hashes, code lines, live numbers). Includes known limits said plainly.
+- done when: docs/DEFENSE.md is on main and every link or number in it is checked.
+- log: needs: manjeet (merge into PITCH.md Q&A if useful).
