@@ -362,7 +362,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - Show the fee: "Gas paid: X tUSD, ETH used: 0".
   - Errors in plain words, with next steps: dry-run failure, which shows the diagnosis; rejected; timeout.
 - done when: a real send from the demo wallet reaches Included in the UI. Put the hash in the log.
-- log: UI done in `src/ui/Send.tsx`, mounted in App.tsx. Recipient + amount + one Send button. Flow: `buildSendTx` → sign → `simulate` → `diagnoseDraft` (stops and shows the findings if anything fails or warns) → sign → `sendFrameTx` → `watchTx`. Timeline: Checking (dry run) → Signing → Sent → Admitted → Included, explorer link, "Gas paid: X tUSD, ETH used: 0" (fee read from the fee frame). Plain-word errors with next steps: no key, not deployed, bad address/amount, dry-run failure, rejected, failed on chain, dropped, 2-minute timeout, devnet unreachable. Moved the deployments stub to `src/ui/deploy.ts` (shared with Wallet.tsx); also edited src/app/globals.css. Checked at 1280 and 375 px, console clean, `npm run build` passes. Timeline not yet seen live. **Blocked:** a real send needs tUSD + paymaster deployed and a funded key. needs: prith (T04, T07), then esh approves one send. 22:55 deployments wired (real tUSD/paymaster, 6 decimals). Still blocked only on the real send: esh needs the demo key (DEMO_KEY, from manjeet privately) and must approve the send.
+- log: UI done in `src/ui/Send.tsx`, mounted in App.tsx. Recipient + amount + one Send button. Flow: `buildSendTx` → sign → `simulate` → `diagnoseDraft` (stops and shows the findings if anything fails or warns) → sign → `sendFrameTx` → `watchTx`. Timeline: Checking (dry run) → Signing → Sent → Admitted → Included, explorer link, "Gas paid: X tUSD, ETH used: 0" (fee read from the fee frame). Plain-word errors with next steps: no key, not deployed, bad address/amount, dry-run failure, rejected, failed on chain, dropped, 2-minute timeout, devnet unreachable. Moved the deployments stub to `src/ui/deploy.ts` (shared with Wallet.tsx); also edited src/app/globals.css. Checked at 1280 and 375 px, console clean, `npm run build` passes. Timeline not yet seen live. **Blocked:** a real send needs tUSD + paymaster deployed and a funded key. needs: prith (T04, T07), then esh approves one send. 22:55 deployments wired (real tUSD/paymaster, 6 decimals). Still blocked only on the real send: esh needs the demo key (DEMO_KEY, from manjeet privately) and must approve the send. Handover (esh): manjeet runs the live sends with DEMO_KEY (esh approves this). needs: manjeet. Steps: `npm run dev`, import the key in the wallet panel, Send 1 tUSD; then tick "Send with low gas (demo)", Send, "Send anyway", then Fix & send. Put the hashes here and set done.
 
 ### T23 · Fix & send
 - owner: esh
@@ -377,7 +377,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - When the dry run or receipt reports out of gas, show the fix and a **Fix & send** button. It applies the new limit, re-runs the dry run and sends.
   - Show the old hash ❌ next to the new hash ✅.
 - done when: one live round trip is recorded in the log, with the failed or caught draft and the admitted hash.
-- log: Code done: `src/ui/FixAndSend.tsx` + `src/ui/Send.tsx`. "Send with low gas (demo)" sets the last frame to 20,000 gas. If the dry run reports out of gas, it shows the fix and **Fix & send**, plus "Send anyway (demo)" to get a real on-chain failure; a failed receipt is diagnosed the same way. Fix & send rebuilds with a fresh nonce, applies the finding's gas patch (`applyPatch`), re-quotes the fee (`requote`, since the higher limit raises max cost), re-runs the dry run and sends. Shows ❌ old hash (or "caught by the dry run") next to ✅ new hash. Build and `npm run check` (21 cases) pass, page loads with a clean console. Started before T22 was done (T22 code is complete; only its live send is missing). **Blocked:** the live round trip needs the demo key in esh's browser and esh's OK to send. needs: manjeet (send DEMO_KEY to esh privately).
+- log: Code done: `src/ui/FixAndSend.tsx` + `src/ui/Send.tsx`. "Send with low gas (demo)" sets the last frame to 20,000 gas. If the dry run reports out of gas, it shows the fix and **Fix & send**, plus "Send anyway (demo)" to get a real on-chain failure; a failed receipt is diagnosed the same way. Fix & send rebuilds with a fresh nonce, applies the finding's gas patch (`applyPatch`), re-quotes the fee (`requote`, since the higher limit raises max cost), re-runs the dry run and sends. Shows ❌ old hash (or "caught by the dry run") next to ✅ new hash. Build and `npm run check` (21 cases) pass, page loads with a clean console. Started before T22 was done (T22 code is complete; only its live send is missing). **Blocked:** the live round trip needs the demo key in esh's browser and esh's OK to send. needs: manjeet (send DEMO_KEY to esh privately). Handover (esh): manjeet runs the live sends with DEMO_KEY (esh approves this). needs: manjeet. Steps: `npm run dev`, import the key in the wallet panel, Send 1 tUSD; then tick "Send with low gas (demo)", Send, "Send anyway", then Fix & send. Put the hashes here and set done.
 
 ### T24 · CROPS section in README
 - owner: esh
@@ -475,3 +475,15 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - do: Commit c20f83e ("T09: claim") reached main with `Co-Authored-By: Claude Sonnet 5.5`. Add a commit-msg hook that rejects AI co-author and "Generated with" lines, and install it on every machine through `npm install`.
 - done when: the hook rejects that exact line and accepts normal and human co-author messages.
 - log: 9 of 9 cases correct: Claude, lowercase, "Generated with Claude Code", Copilot and Cursor are blocked; normal messages, a Uniswap mention, a human co-author and the word "claim" are allowed. A real `git commit` with prith's line was rejected. The old commit c20f83e stays, because history is never rewritten (§4). needs: esh, prith. Run `npm install` after pulling to switch the hook on.
+
+### T44 · Apply the approved Readmit logo
+- owner: esh
+- status: doing
+- agent: esh
+- started: 23:30 IST
+- priority: P1
+- depends: none
+- touches: src/App.tsx, src/app/globals.css, public/logo.svg, public/favicon.svg
+- do: Replace the header mark and favicon with the approved sculpted sweep. Local changes only; no commits or pushes.
+- done when: build passes and the logo renders at 1280 px and 375 px without console errors.
+- log: Requested directly by esh; local-only work overrides remote claim and push steps.
