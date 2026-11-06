@@ -100,10 +100,10 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 
 ## CROPS
 
-- **C, censorship resistance (lead).** If one mempool refuses your transaction, Readmit shows the exact rule that rejected it and what to change, so you can get it admitted through another node (gateway or miner). Readmit is a static site with no server of ours in the path, and it works with any RPC you point it at.
+- **C, censorship resistance (lead).** If one mempool refuses your transaction, Readmit shows the exact rule that rejected it and what to change, so you can get it admitted through another node (gateway or miner). Readmit is a static site with no server of ours in the path. Its endpoints are fixed to the EF devnet today; making them editable is next.
 - **O, open source.** MIT licensed. Everything in the demo builds from this repo.
 - **P, privacy.** No trackers, analytics or cookies, and fonts are self-hosted. The only third-party call is the Sourcify signature lookup that decodes 4-byte selectors.
-- **S, security.** Keys are made and kept in the browser and are test-only. Every send is dry-run with `ethrex_simulateFrameTransaction` before you sign, so you don't pay for a transaction that is going to fail.
+- **S, security.** The demo key is imported into the browser, stays there, and is test-only. Every send is dry-run with `ethrex_simulateFrameTransaction` before anything is broadcast, so you don't pay for a transaction that is going to fail.
 
 **Trade-offs.**
 - Calling RPCs straight from the browser means those RPCs see your IP address.
