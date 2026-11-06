@@ -92,10 +92,10 @@ export default function App() {
 
   function download() {
     if (!loaded || !dx) return
-    const report = { tool: 'FrameLab prototype', chainId: 1337, hash: loaded.hash, node: loaded.node, source: loaded.source, exportedAt: new Date().toISOString(), verdicts: { mempool: dx.mempool, chain: dx.chain, spec: dx.spec }, findings: dx.findings, admission: loaded.tx.admission, receipt: loaded.receipt }
+    const report = { tool: 'Readmit', chainId: 1337, hash: loaded.hash, node: loaded.node, source: loaded.source, exportedAt: new Date().toISOString(), verdicts: { mempool: dx.mempool, chain: dx.chain, spec: dx.spec }, findings: dx.findings, admission: loaded.tx.admission, receipt: loaded.receipt }
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }))
-    a.download = `framelab-${loaded.hash.slice(0, 10)}.json`
+    a.download = `readmit-${loaded.hash.slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(a.href)
   }
@@ -112,8 +112,8 @@ export default function App() {
             <i />
           </span>
           <div>
-            <h1>FrameLab</h1>
-            <p className="tagline">Find out why a frame transaction was rejected, and what to change.</p>
+            <h1>Readmit</h1>
+            <p className="tagline">Find out which frame failed, why, and exactly what to change.</p>
           </div>
         </div>
         <div className="seg" role="group" aria-label="Mempool node">
