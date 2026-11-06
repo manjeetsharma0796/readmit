@@ -675,7 +675,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T59 · Glass theme, 3D frame stack, plain-language summary, frame gas map
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 02:46 IST
 - priority: P1
@@ -683,4 +683,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx
 - do: esh's feedback: the status words contradicted each other ("Success" next to "Rejected"), and the look felt generic. One plain summary sentence that reconciles node and chain; glass panels on a distinctive aubergine/coral palette; a 3D stack of glass frames in the header; a proportional frame gas map above the table.
 - done when: build passes, all 12 cases read correctly, 1280 and 375 px look right.
-- log: esh asked for this in chat after the feature freeze (override as T56).
+- log: esh asked for this in chat after the feature freeze (override as T56). Done 02:50. Summary checked on all 12 saved cases and on live 0xfd7a32da… (gateway rejected a copy with `simulation`, tx landed): "The transaction landed on chain and every frame worked. The gateway node rejected one copy of it (rule simulation), but another copy got in … Nothing to fix", with the fix panel retitled "Why that one copy was rejected (no action needed)". Frame map: out-of-gas case shows frame 4 red at 100%; logic revert shows frame 2 red at 16%. 1280 and 375 px, no overflow; build and checks pass. Also found the 21:34 dev server stuck (half-closed socket serving stale output) and restarted it.
