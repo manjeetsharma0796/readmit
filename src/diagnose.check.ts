@@ -129,4 +129,19 @@ assert.deepEqual(u.findings[0].patch, { kind: 'requote' })
 assert.deepEqual(a.findings[0].patch, { kind: 'gas', frame: 4, gas: 38_000 })
 assert.deepEqual(wouldOog.findings[0].patch, { kind: 'gas', frame: 4, gas: 38_000 })
 
-console.log('diagnose: 20 cases OK')
+// T17: fragility. A real traced dry run of our Mode A draft: paymaster VERIFY (frame 1) reads the v4 PoolManager slot0
+// (shared, mutable) and the sender's tUSD balance (sender-associated, fine).
+const tr = load('sim-trace-paymaster')
+const fr17 = diagnoseDraft(tr.frames, tr.sim, { sender: tr.sender })
+const frag = fr17.findings.filter((f) => f.title === 'This tx depends on the pool price; a swap can invalidate it before inclusion.')
+assert.equal(frag.length, 1)
+assert.equal(frag[0].tone, 'warn')
+assert.equal(frag[0].frame, 1)
+assert.match(frag[0].why, /0x6bf9…9848/)
+assert.doesNotMatch(frag[0].why, /0xfa85/) // the tUSD read is the sender's balance: associated, not flagged
+assert.ok(fr17.findings.some((f) => f.title === 'Ready to send')) // a warning, not a blocker
+// No sender, or no trace: no fragility check (old callers unchanged).
+assert.ok(!diagnoseDraft(tr.frames, tr.sim).findings.some((f) => f.title === frag[0].title))
+assert.ok(!diagnoseDraft(tr.frames, { ...tr.sim, erc7562Trace: null }, { sender: tr.sender }).findings.some((f) => f.title === frag[0].title))
+
+console.log('diagnose: 21 cases OK')

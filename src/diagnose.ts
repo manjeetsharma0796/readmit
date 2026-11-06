@@ -1,5 +1,6 @@
 // Pure diagnosis engine: sidecar admission report + ethrex receipt -> findings and three verdicts.
 // No network here, so it can be checked offline (see diagnose.check.ts).
+import { keccak256, type Hex } from 'viem'
 
 export type Frame = {
   mode: number
@@ -140,10 +141,62 @@ export type Simulation = {
   account?: string
   balance?: string
   required?: string
+  erc7562Trace?: TraceFrame[] | null
 }
 
-/** Dry-run diagnosis: what would happen if this tx were sent now. Nothing is broadcast. */
-export function diagnoseDraft(frames: Frame[], sim: Simulation): Diagnosis {
+/** One frame of `ethrex_simulateFrameTransaction`'s `erc7562Trace` (with `{ trace: true }`): a call tree per frame. */
+export type TraceCall = {
+  type: string
+  from: string
+  to: string
+  accessedSlots?: { reads?: Record<string, string[]>; writes?: Record<string, number> }
+  keccak?: string[]
+  calls?: TraceCall[]
+}
+export type TraceFrame = { frameIndex: number; root: TraceCall }
+
+const SLOT_MASK = (1n << 256n) - 1n
+/** ERC-7562 association: slot = keccak(A || x) + n with n < 128, where A is the sender (left-padded to 32 bytes). */
+function senderSlots(sender: string, preimages: string[]): Set<bigint> {
+  const pad = sender.toLowerCase().replace(/^0x/, '').padStart(64, '0')
+  const bases = preimages.filter((p) => p.toLowerCase().slice(2, 66) === pad).map((p) => BigInt(keccak256(p as Hex)))
+  return new Set(bases.flatMap((b) => Array.from({ length: 128 }, (_, n) => (b + BigInt(n)) & SLOT_MASK)))
+}
+
+/**
+ * Storage a VERIFY frame read that anyone else can change before inclusion: reads of a contract that is not the sender,
+ * not the frame's own target, and not a sender-associated slot (e.g. the sender's token balance). Calls with no reads
+ * (the hegota-support helper contracts) are ignored. Returns one entry per VERIFY frame that has such reads.
+ */
+export function sharedReads(frames: Frame[], trace: TraceFrame[], sender: string): { frame: number; contracts: string[] }[] {
+  const me = sender.toLowerCase()
+  const out: { frame: number; contracts: string[] }[] = []
+  for (const t of trace) {
+    const f = frames[t.frameIndex]
+    if (!f || !isVerify(f)) continue
+    const target = (f.target ?? sender).toLowerCase()
+    const calls: TraceCall[] = []
+    const walk = (c: TraceCall) => { calls.push(c); c.calls?.forEach(walk) }
+    walk(t.root)
+    const mine = senderSlots(sender, calls.flatMap((c) => c.keccak ?? []))
+    const hit = new Set<string>()
+    for (const c of calls) {
+      const to = c.to.toLowerCase()
+      if (to === me || to === target) continue
+      const slots = Object.keys(c.accessedSlots?.reads ?? {})
+      if (slots.some((k) => !mine.has(BigInt(k)))) hit.add(to)
+    }
+    if (hit.size) out.push({ frame: t.frameIndex, contracts: [...hit] })
+  }
+  return out
+}
+
+/**
+ * Dry-run diagnosis: what would happen if this tx were sent now. Nothing is broadcast.
+ * Pass `opts.sender` (and a simulation run with `{ trace: true }`, or `opts.trace`) to also flag VERIFY frames that read
+ * shared, mutable storage such as a Uniswap v4 pool's slot0 (fragility: a swap can invalidate the tx before inclusion).
+ */
+export function diagnoseDraft(frames: Frame[], sim: Simulation, opts?: { sender: string; trace?: TraceFrame[] | null }): Diagnosis {
   const findings: Finding[] = []
   const eth = (hex?: string) => (Number(BigInt(hex ?? '0x0')) / 1e18).toFixed(6)
   const halted = !sim.frames
@@ -182,6 +235,19 @@ export function diagnoseDraft(frames: Frame[], sim: Simulation): Diagnosis {
   }
   if (!findings.some((f) => f.tone === 'fail' || f.tone === 'warn')) {
     findings.push({ tone: 'pass', title: 'Ready to send', why: 'The dry run passed: validation approves it and every frame succeeds.' })
+  }
+  const trace = opts?.trace ?? sim.erc7562Trace
+  if (opts?.sender && trace) {
+    for (const r of sharedReads(frames, trace, opts.sender)) {
+      const who = r.contracts.map((c) => `${c.slice(0, 6)}…${c.slice(-4)}`).join(', ')
+      findings.push({
+        tone: 'warn',
+        frame: r.frame,
+        title: 'This tx depends on the pool price; a swap can invalidate it before inclusion.',
+        why: `VERIFY frame ${r.frame} reads storage of ${who}, which other transactions can change. If it moves before inclusion, validation can fail.`,
+        fix: 'Send it soon after the dry run. If it is rejected as underpaid, re-quote and send again.',
+      })
+    }
   }
   const failed = sim.frames?.map((f, i) => (f.succeeded ? -1 : i)).filter((i) => i >= 0) ?? []
   const mempool: Verdict = sim.canonicalMempoolValid
