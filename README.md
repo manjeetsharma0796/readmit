@@ -15,6 +15,14 @@ Paste a transaction hash from the alt-mempool devnet (chain 1337). Readmit shows
 
 It runs entirely in the browser. It talks directly to the sidecar and ethrex RPCs, which allow CORS from any origin, and to the sourcify signature database for decoding 4-byte selectors. There is no backend, and it uses no keys and no analytics.
 
+## Screenshots
+
+| Out of gas: the exact fix | Logic revert: raising gas won't help | On a phone |
+|---|---|---|
+| ![Readmit on tx 0xe97e…: frame 4 ran out of gas, raise it to about 38,000](docs/img/diagnosis.png) | ![Readmit on tx 0x6137…: frame 2 reverted at 8,158 of 50,000 gas](docs/img/logic-revert.png) | ![Readmit at 390 px wide, with the fix first](docs/img/mobile.png) |
+
+Both are real devnet transactions, shown from saved copies because the node keeps history in memory.
+
 ## Run
 
 ```bash
