@@ -910,3 +910,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: Publish the T72 SDK as the standalone repo readmit-sdk (own package.json, tests, fixtures, LICENSE, README). Remove `sdk/` here so there is one copy. Link the repos to each other.
 - done when: readmit-sdk installs from GitHub and runs; both READMEs link each other.
 - log: readmit-sdk@692224b: `src/diagnose.ts` is a synced copy of this repo's (at 916375d, header says so); the test checks signing against a golden hash taken from this app's engine (0x18b0…744d). `npm run typecheck`, `npm test` ('sdk: 21 offline cases OK'), `npm run test:live` (explain golden tx, stats, live tUSD quote, wrong-key dry run refused, viem extend) and `npm run build` pass. All README snippets type-check. A clean project ran `npm install github:manjeetsharma0796/readmit-sdk viem` (the `prepare` script builds dist) and explained 0x3fd93ca4 → 'Admitted and included | Executed'. Here: `sdk/` removed; README gets an SDK link next to Live and an "SDK" section (install, 2 snippets, link to the SDK README). Nothing sent.
+
+### T75 · Demo account in the header; full-width "Send & fix"
+- owner: manjeet
+- note: added by manjeet at 04:54 IST (manjeet approved the layout in chat). **esh: this touches src/App.tsx (header and flow section) and src/ui/Wallet.tsx (export only, no restyle).** CSS is append-only at the end of globals.css. Pull before editing those files.
+- status: doing
+- agent: Claude Code on manjeet
+- started: 04:54 IST
+- priority: P0 (demo clarity)
+- touches: src/ui/DemoAccount.tsx (new), src/ui/Connect.tsx, src/ui/Wallet.tsx (export), src/ui/Send.tsx (one message), src/App.tsx, src/app/globals.css (append)
+- do: Move the demo wallet setup (address, balances, key import, faucet, the "why a demo account" note) into a **"Demo account ▾ <balance>" dropdown** next to Connect in the header. The page keeps one full-width **"Send & fix"** card. The faucet moves inside the dropdown.
+- done when: at 1280 and 375 px in dark mode the dropdown opens and closes (outside click, Escape); key import works inside it; the balance shows on the button; a low-gas dry run is caught on the page with nothing broadcast; console clean; build passes; Vercel redeployed and checked.
+- log:
