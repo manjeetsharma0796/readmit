@@ -44,6 +44,129 @@ export function role(f: Frame): string {
 }
 export const isVerify = (f: Frame) => f.mode === 1
 
+type ExecResult = { status: string; gasUsed: string }
+
+/** Per-frame execution findings. 'did' reads a receipt (it happened); 'would' reads a dry run (it will happen if sent). */
+function execFindings(frames: Frame[], results: ExecResult[], tense: 'did' | 'would'): Finding[] {
+  const out: Finding[] = []
+  const w = tense === 'would'
+  const firstFailed = results.findIndex((r) => r.status === '0x0')
+  results.forEach((fr, i) => {
+    const f = frames[i]
+    if (!f) return
+    const used = n(fr.gasUsed)
+    const limit = n(f.limits.execution)
+    const pct = limit > 0 ? ((used / limit) * 100).toFixed(1) : '?'
+    const selector = f.data.length >= 10 ? f.data.slice(0, 10) : undefined
+    if (fr.status === '0x0') {
+      const oog = limit > 0 && used / limit >= OOG_SHARE
+      const newLimit = fmt(roundUp(used * 1.25))
+      out.push({
+        tone: 'fail',
+        frame: i,
+        title: oog ? `Frame ${i} ${w ? 'would run' : 'ran'} out of gas` : `Frame ${i} ${w ? 'would revert' : 'reverted'} (not a gas problem)`,
+        why: oog
+          ? `${w ? 'In the dry run it' : 'It'} used ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it ${w ? 'would hit' : 'almost certainly hit'} the limit.`
+          : `${w ? 'In the dry run it' : 'It'} stopped after ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it ${w ? "doesn't" : 'did not'} run out. The call itself ${w ? 'reverts' : 'reverted'}, and raising gas won't help.`,
+        fix: oog
+          ? w ? `Raise frame ${i}'s gas limit to about ${newLimit} before sending.` : `Re-sign with frame ${i}'s gas limit raised to about ${newLimit}.`
+          : `Check the call below and the contract state it depends on (balances, allowances, the arguments).${w ? '' : ' Simulate it to see the revert reason.'}`,
+        selector,
+      })
+    } else if (fr.status === '0x2') {
+      out.push({
+        tone: 'warn',
+        frame: i,
+        title: `Frame ${i} ${w ? 'would be' : 'was'} skipped`,
+        why: `It ${w ? "wouldn't run" : 'never ran'}, because ${firstFailed >= 0 ? `frame ${firstFailed}` : 'another frame'} in the same atomic batch ${w ? 'fails' : 'failed'}, so the whole batch ${w ? 'is' : 'was'} rolled back.`,
+        fix: firstFailed >= 0 ? `Fix frame ${firstFailed} first. This frame runs again once it succeeds.` : undefined,
+        selector,
+      })
+    } else if (isVerify(f) && limit > SIDECAR_VERIFY_CAP && used < SIDECAR_VERIFY_CAP) {
+      out.push({
+        tone: 'warn',
+        frame: i,
+        title: `Frame ${i} declares far more gas than it uses`,
+        why: `It declares ${fmt(limit)} but ${w ? 'uses' : 'used'} ${fmt(used)}. Declared limits count against the ${fmt(SIDECAR_VERIFY_CAP)} validation cap.`,
+        fix: `${w ? 'Set' : 'Re-sign with'} a limit near ${fmt(roundUp(used * 1.25))} to stay under the cap.`,
+      })
+    }
+  })
+  return out
+}
+
+/** The response of ethrex_simulateFrameTransaction (shape from the sidecar's own types, ethrexFrameTx.ts). */
+export type Simulation = {
+  canonicalMempoolValid: boolean
+  canonicalMempoolViolation: string | null
+  prefixShape: string | null
+  payer: string | null
+  maxCost: string
+  gasUsed: string | null
+  frames: { gasUsed: string; succeeded: boolean }[] | null
+  executionStatus: 'success' | 'reverted' | null
+  executionError: string | null
+  failedFrameIndex?: number
+  haltReason?: string
+  haltDetail?: string
+  revertData?: string
+  account?: string
+  balance?: string
+  required?: string
+}
+
+/** Dry-run diagnosis: what would happen if this tx were sent now. Nothing is broadcast. */
+export function diagnoseDraft(frames: Frame[], sim: Simulation): Diagnosis {
+  const findings: Finding[] = []
+  const eth = (hex?: string) => (Number(BigInt(hex ?? '0x0')) / 1e18).toFixed(6)
+  const halted = !sim.frames
+  if (halted && (sim.haltReason === 'insufficient_funds' || /cannot cover/.test(sim.haltDetail ?? ''))) {
+    const who = sim.account ?? sim.payer
+    findings.push({
+      tone: 'fail',
+      title: "The payer can't cover the maximum cost",
+      why: `The payer${who ? ` ${who.slice(0, 6)}…${who.slice(-4)}` : ''} has ${eth(sim.balance)} ETH, but the transaction could cost up to ${eth(sim.required ?? sim.maxCost)} ETH.`,
+      fix: `Fund the payer with at least ${eth(sim.required ?? sim.maxCost)} ETH, or lower the gas limits or maxFeePerGas.`,
+    })
+  } else if (halted) {
+    const i = sim.failedFrameIndex
+    findings.push({
+      tone: 'fail',
+      frame: i,
+      title: i != null ? `Frame ${i} would reject the transaction during validation` : 'The transaction would be rejected',
+      why: sim.haltDetail ?? sim.executionError ?? sim.canonicalMempoolViolation ?? 'The simulator gave no detail.',
+      fix: 'Check what this frame requires: the signature, the payment frame that must follow it, or the balances it reads.',
+      selector: sim.revertData && sim.revertData.length >= 10 ? sim.revertData.slice(0, 10) : undefined,
+    })
+  } else {
+    findings.push(...execFindings(frames, sim.frames!.map((f) => ({ status: f.succeeded ? '0x1' : '0x0', gasUsed: f.gasUsed })), 'would'))
+    if (sim.executionStatus === 'reverted') {
+      findings.push({
+        tone: 'warn',
+        title: 'If you send it now, the payer is still charged',
+        why: `Validation passes, so the mempool would admit it, and the payer would pay for the failed execution, up to ${eth(sim.maxCost)} ETH.`,
+        fix: 'Apply the fix above and run the dry run again.',
+      })
+    }
+  }
+  if (!findings.some((f) => f.tone === 'fail' || f.tone === 'warn')) {
+    findings.push({ tone: 'pass', title: 'Ready to send', why: 'The dry run passed: validation approves it and every frame succeeds.' })
+  }
+  const failed = sim.frames?.map((f, i) => (f.succeeded ? -1 : i)).filter((i) => i >= 0) ?? []
+  const mempool: Verdict = sim.canonicalMempoolValid
+    ? { tone: 'pass', headline: 'Public mempool would accept it', sub: `Validation shape: ${sim.prefixShape ?? 'unknown'}` }
+    : { tone: 'info', headline: 'Public mempool would refuse it', sub: `${sim.canonicalMempoolViolation ?? 'No reason given'}. The alt mempool can still admit it.` }
+  const chain: Verdict = halted
+    ? { tone: 'fail', headline: "Wouldn't run", sub: sim.haltDetail ?? sim.executionError ?? 'Validation failed' }
+    : sim.executionStatus === 'success'
+      ? { tone: 'pass', headline: 'Would succeed', sub: `All ${sim.frames!.length} frames succeed in the dry run` }
+      : { tone: 'fail', headline: 'Would fail', sub: `Frame ${failed.join(', ')} fails in the dry run` }
+  const spec: Verdict = { tone: 'info', headline: 'Not checked', sub: 'Dry run: the spec check runs on the admission report after sending' }
+  const order: Record<Tone, number> = { fail: 0, warn: 1, info: 2, pass: 3 }
+  findings.sort((a, b) => order[a.tone] - order[b.tone])
+  return { frames, findings, mempool, chain, spec }
+}
+
 export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
   const adm = tx.admission
   const frames: Frame[] = tx.entry?.tx.frames ?? adm?.frames ?? []
@@ -176,47 +299,7 @@ export function diagnose(tx: TxResult, receipt: Receipt | null): Diagnosis {
   // Execution results from the chain.
   if (receipt) {
     const price = n(receipt.effectiveGasPrice)
-    const firstFailed = receipt.frameReceipts.findIndex((fr) => fr.status === '0x0')
-    receipt.frameReceipts.forEach((fr, i) => {
-      const f = frames[i]
-      if (!f) return
-      const used = n(fr.gasUsed)
-      const limit = n(f.limits.execution)
-      const pct = limit > 0 ? ((used / limit) * 100).toFixed(1) : '?'
-      const selector = f.data.length >= 10 ? f.data.slice(0, 10) : undefined
-      if (fr.status === '0x0') {
-        const oog = limit > 0 && used / limit >= OOG_SHARE
-        findings.push({
-          tone: 'fail',
-          frame: i,
-          title: oog ? `Frame ${i} ran out of gas` : `Frame ${i} reverted (not a gas problem)`,
-          why: oog
-            ? `It used ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it almost certainly hit the limit.`
-            : `It stopped after ${fmt(used)} of its ${fmt(limit)} gas limit (${pct}%), so it did not run out. The call itself reverted, and raising gas won't help.`,
-          fix: oog
-            ? `Re-sign with frame ${i}'s gas limit raised to about ${fmt(roundUp(used * 1.25))}.`
-            : 'Check the call below and the contract state it depends on (balances, allowances, the arguments). Simulate it to see the revert reason.',
-          selector,
-        })
-      } else if (fr.status === '0x2') {
-        findings.push({
-          tone: 'warn',
-          frame: i,
-          title: `Frame ${i} was skipped`,
-          why: `It never ran, because ${firstFailed >= 0 ? `frame ${firstFailed}` : 'another frame'} in the same atomic batch failed, so the whole batch was rolled back.`,
-          fix: firstFailed >= 0 ? `Fix frame ${firstFailed} first. This frame runs again once it succeeds.` : undefined,
-          selector,
-        })
-      } else if (isVerify(f) && limit > SIDECAR_VERIFY_CAP && used < SIDECAR_VERIFY_CAP) {
-        findings.push({
-          tone: 'warn',
-          frame: i,
-          title: `Frame ${i} declares far more gas than it uses`,
-          why: `It declares ${fmt(limit)} but used ${fmt(used)}. Declared limits count against the ${fmt(SIDECAR_VERIFY_CAP)} validation cap.`,
-          fix: `Re-sign with a limit near ${fmt(roundUp(used * 1.25))} to stay under the cap.`,
-        })
-      }
-    })
+    findings.push(...execFindings(frames, receipt.frameReceipts, 'did'))
     if (receipt.status === '0x0') {
       const paid = (n(receipt.gasUsed) * price) / 1e18
       const payer = receipt.payer ?? tx.entry?.payer

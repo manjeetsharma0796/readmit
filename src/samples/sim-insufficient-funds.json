@@ -1,0 +1,47 @@
+{
+  "name": "sim-insufficient-funds",
+  "note": "Real ethrex_simulateFrameTransaction response for an unfunded self-relay key (read-only dry run).",
+  "frames": [
+    {
+      "mode": 1,
+      "flags": 3,
+      "target": null,
+      "limits": {
+        "execution": "0x61a8",
+        "state": "0x0"
+      },
+      "value": "0x0",
+      "data": "0x"
+    },
+    {
+      "mode": 2,
+      "flags": 0,
+      "target": "0x8943545177806ED17B9F23F0a21ee5948eCaa776",
+      "limits": {
+        "execution": "0xc350",
+        "state": "0x30d40"
+      },
+      "value": "0x0",
+      "data": "0x"
+    }
+  ],
+  "sim": {
+    "account": "0xdc9cf37820b6d159edfee8b6ee5ada78c8e6e241",
+    "balance": "0x0",
+    "canonicalMempoolValid": false,
+    "canonicalMempoolViolation": "validation prefix frame reverted",
+    "erc7562Trace": null,
+    "erc7562TraceError": null,
+    "executionError": "Invalid Transaction: Invalid frame transaction: VERIFY frame 0 (target 0xdc9cf37820b6d159edfee8b6ee5ada78c8e6e241, 0 bytes of code) failed: default code halted: RevertOpcode",
+    "executionStatus": null,
+    "failedFrameIndex": 0,
+    "frames": null,
+    "gasUsed": null,
+    "haltDetail": "the paying account cannot cover the transaction's maximum cost",
+    "haltReason": "insufficient_funds",
+    "maxCost": "0x425b35149b000",
+    "payer": null,
+    "prefixShape": "SelfVerify",
+    "required": "0x425b35149b000"
+  }
+}

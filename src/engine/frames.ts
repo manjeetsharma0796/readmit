@@ -3,7 +3,8 @@
 import { profile } from '@forshtat/hegota-support/profiles/ethrex-eip8141-tracer'
 import { decodeTx, encodeTx, newTx, secp256k1Placeholder, signTx, type FrameTx } from '@forshtat/hegota-support/tx'
 import { rpc } from '@forshtat/hegota-support/rpc'
-import { decodeFunctionResult, encodeFunctionData, type Address, type Hex } from 'viem'
+import { decodeFunctionResult, encodeFunctionData, toHex, type Address, type Hex } from 'viem'
+import type { Frame } from '../diagnose.ts'
 import { ETHREX } from '../rpc.ts'
 
 export type FrameSpec = {
@@ -82,6 +83,10 @@ export function toFrameTx(d: Draft): FrameTx {
 export async function signDraft(d: Draft, key: Hex): Promise<Hex> {
   return encodeTx(profile, await signTx(profile, toFrameTx(d), key))
 }
+
+/** A Draft's frames in the shape `diagnose` and `diagnoseDraft` read (hex quantities, like the explorer API). */
+export const draftFrames = (d: Draft): Frame[] =>
+  d.frames.map((f) => ({ mode: f.mode, flags: f.flags ?? 0, target: f.target, limits: { execution: toHex(f.gas), state: toHex(f.stateGas) }, value: toHex(f.value), data: f.data }))
 
 /** Inverse of signDraft's encoding, for checks and for showing what was signed. */
 export function decodeDraft(raw: Hex): Draft {

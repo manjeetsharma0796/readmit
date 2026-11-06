@@ -1,4 +1,4 @@
-import type { Admission, Receipt, TxResult } from './diagnose'
+import type { Admission, Receipt, Simulation, TxResult } from './diagnose'
 
 // Alt-mempool devnet (chain 1337). All endpoints send CORS *, so this runs in the browser with no backend.
 export const NODES = {
@@ -19,6 +19,9 @@ async function rpc<T>(url: string, method: string, params: unknown[] = []): Prom
 
 export const getTx = (node: NodeId, hash: string) => rpc<TxResult | null>(NODES[node].url, 'skandha_explorer_getTransaction', [hash])
 export const getReceipt = (hash: string) => rpc<Receipt | null>(ETHREX, 'eth_getTransactionReceipt', [hash])
+
+// Dry run on ethrex: validation + execution against the latest state. Read-only, nothing is broadcast.
+export const simulate = (rawTx: string, trace = false) => rpc<Simulation>(ETHREX, 'ethrex_simulateFrameTransaction', [rawTx, 'latest', { trace }])
 
 export type AdmissionRow = Admission & { txHash: string; node: NodeId }
 export async function recent(node: NodeId, limit = 60): Promise<AdmissionRow[]> {

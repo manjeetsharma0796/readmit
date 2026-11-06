@@ -226,7 +226,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T13 · Dry run (simulate) adapter
 - owner: manjeet
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 21:29 IST
 - priority: P0
@@ -234,7 +234,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: src/rpc.ts, src/diagnose.ts
 - do: Implement `simulate(rawTx)` using `ethrex_simulateFrameTransaction [raw, "latest", {trace:true}]` on the ethrex RPC. Map the result into the same findings as a receipt, so `diagnose` works on a draft before it's sent.
 - done when: a draft with frame 3's gas set too low shows "Frame 3 would run out of gas, raise to N" without sending anything.
-- log:
+- log: `simulate(raw)` is in `src/rpc.ts`. `diagnoseDraft(draftFrames(d), sim)` is in `src/diagnose.ts`, and receipt and dry-run findings now share one classifier (`execFindings`, "did" or "would" wording). `npm run check` prints "diagnose: 16 cases OK". That includes a real recorded simulate response (unfunded key, "payer can't cover"), plus would-OOG giving "Frame 4 would run out of gas, raise to about 38,000 before sending", would-revert and ready-to-send, all in the simulator's documented shape. The receipt UI still renders the same (checked on the OOG sample). **Not yet checked live:** the execution path needs a funded wallet and the deployed paymaster (T04/T07). It gets re-checked during T22's real send.
 
 ### T14 · Send and watch status
 - owner: manjeet

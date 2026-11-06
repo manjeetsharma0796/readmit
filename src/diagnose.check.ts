@@ -1,7 +1,7 @@
 // Self-check on real devnet cases. Run: node src/diagnose.check.ts
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { diagnose } from './diagnose.ts'
+import { diagnose, diagnoseDraft } from './diagnose.ts'
 
 const load = (name: string) => JSON.parse(readFileSync(new URL(`./samples/${name}.json`, import.meta.url), 'utf8'))
 
@@ -81,4 +81,32 @@ const nn = diagnose(load('nonce-mismatch').tx, null)
 assert.equal(nn.findings[0].title, 'Wrong nonce')
 assert.equal(nn.findings[0].fix, 'Re-sign with nonce 0.')
 
-console.log('diagnose: 12 cases OK')
+// T13: dry runs (ethrex_simulateFrameTransaction). First a real response: an unfunded key.
+const poor = load('sim-insufficient-funds')
+const p0 = diagnoseDraft(poor.frames, poor.sim)
+assert.equal(p0.findings[0].title, "The payer can't cover the maximum cost")
+assert.match(p0.findings[0].fix!, /Fund the payer with at least 0\.\d{6} ETH/)
+assert.equal(p0.chain.headline, "Wouldn't run")
+
+// Then the execution path, in the simulator's documented shape (sidecar ethrexFrameTx.ts), built from the 0xe97e frames.
+const fr = oog.tx.entry.tx.frames
+const simOf = (results: [number, boolean][], status: 'success' | 'reverted') => ({
+  canonicalMempoolValid: false, canonicalMempoolViolation: 'StorageReadNonSender', prefixShape: 'SponsoredVerify', payer: '0x031864db72e3343935bc863207db133f940fc4f8',
+  maxCost: '0x2386f26fc10000', gasUsed: '0x0', executionStatus: status, executionError: null,
+  frames: results.map(([g, ok]) => ({ gasUsed: '0x' + g.toString(16), succeeded: ok })),
+})
+const wouldOog = diagnoseDraft(fr, simOf([[100, true], [45_429, true], [116_322, true], [15_074, true], [30_000, false]], 'reverted'))
+assert.equal(wouldOog.findings[0].title, 'Frame 4 would run out of gas')
+assert.equal(wouldOog.findings[0].fix, "Raise frame 4's gas limit to about 38,000 before sending.")
+assert.ok(wouldOog.findings.some((f) => f.title === 'If you send it now, the payer is still charged'))
+assert.equal(wouldOog.chain.headline, 'Would fail')
+assert.equal(wouldOog.mempool.headline, 'Public mempool would refuse it')
+
+const wouldRevert = diagnoseDraft(fr, simOf([[100, true], [45_429, true], [9_000, false], [0, true], [0, true]], 'reverted'))
+assert.equal(wouldRevert.findings[0].title, 'Frame 2 would revert (not a gas problem)')
+
+const ok = diagnoseDraft(fr, simOf([[100, true], [45_429, true], [116_322, true], [15_074, true], [29_000, true]], 'success'))
+assert.equal(ok.findings[0].title, 'Ready to send')
+assert.equal(ok.chain.headline, 'Would succeed')
+
+console.log('diagnose: 16 cases OK')

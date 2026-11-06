@@ -123,7 +123,9 @@ The Flow B frames are:
 
 **`src/rpc.ts`** additions are owned by manjeet:
 ```ts
-export function simulate(rawTx: `0x${string}`): Promise<{ ok: boolean; frames: { gasUsed: number; succeeded: boolean }[]; failedFrameIndex?: number; revertData?: string }>
+export function simulate(rawTx: string): Promise<Simulation>   // built (T13). Raw ethrex response, read-only dry run
+// then: diagnoseDraft(draftFrames(draft), sim) from src/diagnose.ts + src/engine/frames.ts gives the same Diagnosis shape the UI already renders,
+//   with "would" wording ("Frame 3 would run out of gas, raise to about N before sending") and verdicts for the public mempool and the dry run.
 export function sendFrameTx(rawTx: `0x${string}`): Promise<`0x${string}`>          // tx hash, via the gateway
 export function watchTx(hash: `0x${string}`, onUpdate: (s: 'pending'|'admitted'|'rejected'|'included'|'failed') => void): () => void
 ```
