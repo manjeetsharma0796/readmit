@@ -925,7 +925,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T76 · Fix the "Cannot update a component while rendering" warning
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 05:35 IST
 - priority: P1
@@ -933,4 +933,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/ui/Providers.tsx
 - do: The Next dev overlay showed "1 Issue": wagmi's Hydrate reconnects during render when ssr is off, which updates RainbowKit's ConnectModal mid-render. Set ssr: true on both wagmi configs so the reconnect runs after the first render.
 - done when: build passes; no warning in the console or the dev overlay after reload and opening Connect.
-- log:
+- log: npm run build passes. Reloaded twice and opened Connect: the dev overlay shows no issues and no new console errors (before: "Cannot update a component (ConnectModal) while rendering a different component (Hydrate)" on every load).

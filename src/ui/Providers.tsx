@@ -24,9 +24,12 @@ export const devnet = defineChain({
 // wallets still work: wagmi discovers them through EIP-6963 and RainbowKit lists them as installed.
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID ?? ''
 const config = projectId
-  ? getDefaultConfig({ appName: 'Readmit', projectId, chains: [devnet], ssr: false })
+  ? getDefaultConfig({ appName: 'Readmit', projectId, chains: [devnet], ssr: true })
   : createConfig({
       chains: [devnet],
+      // ssr: true makes wagmi reconnect after the first render instead of during it; with it off, its Hydrate step
+      // updates RainbowKit's ConnectModal mid-render and React warns ("Cannot update a component while rendering").
+      ssr: true,
       transports: { [devnet.id]: http() },
       connectors: connectorsForWallets([{ groupName: 'Browser wallets', wallets: [injectedWallet] }], { appName: 'Readmit', projectId: 'none' }),
     })
