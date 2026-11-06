@@ -21,9 +21,20 @@ contract V4PricedPaymaster is HegotaSupport(Devnet.ERC8421_WORKSHOP) {
     address public immutable TOKEN;
     uint256 public constant MARKUP_BPS = 11_000; // +10%
     // ponytail: spot slot0 is manipulable within a block; bound it against a TWAP/oracle hook before real money.
+    address public immutable OWNER;
 
     constructor(IPoolManager pm, PoolId id, address token) payable {
-        POOL_MANAGER = pm; POOL_ID = id; TOKEN = token;
+        POOL_MANAGER = pm; POOL_ID = id; TOKEN = token; OWNER = msg.sender;
+    }
+
+    /// Owner recovers the ETH deposit and the tUSD collected as gas fees.
+    function withdraw(address payable to, uint256 eth, uint256 tusd) external {
+        require(msg.sender == OWNER, "not owner");
+        if (tusd > 0) require(IERC20Minimal(TOKEN).transfer(to, tusd), "token transfer failed");
+        if (eth > 0) {
+            (bool ok,) = to.call{value: eth}("");
+            require(ok, "eth transfer failed");
+        }
     }
 
     function stake(uint32 unstakeDelaySec, IStakingRegistry registry) external payable {

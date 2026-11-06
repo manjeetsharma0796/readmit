@@ -33,7 +33,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T01 · Contracts toolchain builds and fork test passes
 - owner: manjeet
-- status: doing
+- status: done
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent: Claude Code on manjeet
 - started: 21:55 IST
@@ -42,11 +42,11 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: contracts/ (lib is gitignored)
 - do: Install Foundry. In `contracts/`, run `forge install uniswap/v4-core@main` (it must be @main) and `npm i @forshtat/hegota-support@0.0.1`. Then `forge build` and `forge test --fork-url https://altmempool.forshtat.com`.
 - done when: `forge test` passes (`test/Quote.t.sol`). Paste the summary line into the log.
-- log:
+- log: Foundry 1.9.0 on macOS. v4-core@main and forge-std are installed with `forge install --no-git` (lib/ is gitignored). hegota-support is read from the repo root node_modules via a remapping plus `allow_paths`. `forge test --fork-url https://altmempool.forshtat.com`: test_quoteTracksPool PASS.
 
 ### T02 · Paymaster gets `owner` and `withdraw()`
 - owner: manjeet
-- status: doing
+- status: done
 - note: reassigned from prith to manjeet at 21:42 IST (prith asleep; manjeet approved). prith, check with manjeet before touching.
 - agent: Claude Code on manjeet
 - started: 21:55 IST
@@ -55,7 +55,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: contracts/src/V4PricedPaymaster.sol, contracts/test/
 - do: Add `address public immutable owner = msg.sender` and `withdraw(address payable to, uint256 eth, uint256 tusd)`, owner-only, so we can recover the deposit and the collected tUSD. Don't change the `fallback()` VERIFY logic.
 - done when: `forge test` passes, including one new test that a non-owner `withdraw` reverts.
-- log:
+- log: Added `OWNER` (immutable, the deployer) and `withdraw(to, eth, tusd)`, owner-only. The VERIFY fallback is unchanged. Fork test run: 3 tests passed (test_ownerWithdraws, test_nonOwnerCannotWithdraw, test_quoteTracksPool).
 
 ### T03 · Shrink setup costs and wire the deployer key
 - owner: manjeet
