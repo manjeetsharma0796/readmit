@@ -38,6 +38,9 @@ const PAYMASTER = [
 ] as const
 
 export const transferData = (to: Address, amount: bigint) => encodeFunctionData({ abi: ERC20, functionName: 'transfer', args: [to, amount] })
+// tUSD is v4-core's TestERC20, whose mint() is public: the faucet is an ordinary frame tx that mints to the sender.
+const MINT = [{ type: 'function', name: 'mint', stateMutability: 'nonpayable', inputs: [{ name: 'to', type: 'address' }, { name: 'amount', type: 'uint256' }], outputs: [] }] as const
+export const mintData = (to: Address, amount: bigint) => encodeFunctionData({ abi: MINT, functionName: 'mint', args: [to, amount] })
 
 /** Upper bound of what the chain may charge: every frame limit plus overhead, at maxFeePerGas. */
 export const maxCostBound = (d: Pick<Draft, 'frames' | 'maxFeePerGas'>) =>
@@ -71,6 +74,12 @@ export async function buildSendTx(p: { wallet: Address; to: Address; amount: big
   // The fee transfer's amount does not change the max cost (same calldata size), so quote once on the final limits.
   const fee = await quote(p.paymaster, maxCostBound({ ...base, frames: sendFrames(p, p.to, p.amount, 0n) }))
   return { ...base, frames: sendFrames(p, p.to, p.amount, fee) }
+}
+
+/** Faucet: the same 4 frames and fee as a send, but the last frame mints `amount` tUSD to the sender. */
+export async function buildFaucetTx(p: { wallet: Address; amount: bigint } & Addrs): Promise<Draft> {
+  const d = await buildSendTx({ wallet: p.wallet, to: p.wallet, amount: p.amount, tUSD: p.tUSD, paymaster: p.paymaster })
+  return { ...d, frames: d.frames.map((f, i, all) => (i === all.length - 1 ? { ...f, data: mintData(p.wallet, p.amount) } : f)) }
 }
 
 /** Re-reads the paymaster's price and rewrites the fee frame (the one right after the paymaster's VERIFY frame). Same nonce. */

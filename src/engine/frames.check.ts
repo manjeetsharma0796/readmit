@@ -1,7 +1,7 @@
 // Offline self-check for the frame builder: build, sign, encode, decode. Run: node src/engine/frames.check.ts
 import assert from 'node:assert/strict'
 import { privateKeyToAccount } from 'viem/accounts'
-import { decodeDraft, maxCostBound, sendFrames, signDraft, transferData, type Draft } from './frames.ts'
+import { decodeDraft, maxCostBound, mintData, sendFrames, signDraft, transferData, type Draft } from './frames.ts'
 
 const key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' // well-known local test key, no funds anywhere that matters
 const me = privateKeyToAccount(key).address
@@ -32,5 +32,8 @@ assert.equal(fixedBack.frames[2].gas, draft.frames[2].gas)
 
 // Max-cost bound covers every limit plus overhead.
 assert.equal(maxCostBound(draft), (10_000n + 70_000n + 160_000n + 160_000n + 50_000n) * 4_000_000_000n)
+
+// Faucet calldata: mint(address,uint256) = 0x40c10f19.
+assert.equal(mintData(to, 100_000_000n).slice(0, 10), '0x40c10f19')
 
 console.log('frames: build/sign/decode OK')

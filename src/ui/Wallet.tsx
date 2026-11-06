@@ -56,6 +56,12 @@ export function Wallet() {
   useEffect(() => {
     refresh()
   }, [wallet])
+  // The faucet (T57) announces a mint so the balance updates without a manual refresh.
+  useEffect(() => {
+    const onMint = () => void refresh()
+    window.addEventListener('readmit:balances', onMint)
+    return () => window.removeEventListener('readmit:balances', onMint)
+  }, [wallet])
 
   function save() {
     const k = draft.trim()
