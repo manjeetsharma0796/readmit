@@ -478,12 +478,12 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 
 ### T44 · Apply the approved Readmit logo
 - owner: esh
-- status: doing
-- agent: esh
+- status: done
+- agent: Codex on esh
 - started: 23:30 IST
 - priority: P1
 - depends: none
 - touches: src/App.tsx, src/app/globals.css, public/logo.svg, public/favicon.svg
 - do: Replace the header mark and favicon with the approved sculpted sweep. Local changes only; no commits or pushes.
 - done when: build passes and the logo renders at 1280 px and 375 px without console errors.
-- log: Requested directly by esh; local-only work overrides remote claim and push steps.
+- log: Header mark (inline SVG, 48 px, currentColor) and favicon replaced with the approved sculpted sweep; source in public/logo.svg. Favicon turns white in dark browser themes. `npm run build` passes; checked at 1280 and 375 px with no horizontal overflow and no console errors.
