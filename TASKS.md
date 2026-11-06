@@ -143,7 +143,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 ### T08 · Uniswap qualification: README section and FEEDBACK.md
 - owner: manjeet
 - note: reassigned from prith to manjeet at 22:14 IST (prith asleep; manjeet approved)
-- status: doing
+- status: done
 - agent: Claude Code on manjeet
 - started: 22:14 IST
 - priority: P0
@@ -154,7 +154,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
   - README section: GitHub line links to `quote()` / `getSlot0`, to `SetupPool` `initialize` / `modifyLiquidity`, and to the V4Quoter call (T15, if it lands).
   - Also list the deployed addresses and tx hashes.
 - done when: both files are on `main` and the links open on GitHub.
-- log:
+- log: The README "Uniswap integration" section links to code pinned at commit 8cdaa12: `quote()`/`getSlot0` (V4PricedPaymaster.sol L45-49), the VERIFY `fallback()` (L53-66), `PoolManager.initialize` (SetupPool L25-27), `modifyLiquidity` (L32), the `swap` (L67), and the app's `quote`/`buildSendTx`/`requote` plus the underpaid diagnosis. It also gives deployed addresses and creating txs, and the on-chain events were checked: Initialize in block 5,999 and ModifyLiquidity in block 6,004. The golden tUSD-paid tx is linked too. `FEEDBACK.md` covers what worked and 6 friction points with measured numbers. Logged-out curl returns 200 for every link. Still to do, by a human at 07:30: the Uniswap developer feedback form at https://developers.uniswap.org/hackathon-feedback with the FEEDBACK.md link (T42).
 
 ### T09 · Price-moved fixture (P1)
 - owner: prith
