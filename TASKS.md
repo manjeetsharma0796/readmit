@@ -1017,3 +1017,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: the PROBLEM tag is too small and a node-side rejection (gateway disk full) gives no hint what to do; the Overview makes you read every row to know the outcome; the "Rejected only" checkbox looks pointless. Bigger finding text and a "what you can do" line for known node-side errors; a three-step outcome strip (mempool, block, frames) above the details; an All / Rejected / Admitted filter with counts instead of the checkbox.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
 - log: npm run build and git diff --check pass; no console errors. Live tx 0x647008b8...fd3c (gateway): outcome strip reads "! Mempool: Rejected this copy | ✓ Block: Included, block 10,410 | ✓ Frames: All 4 worked"; its "mempool" finding now has "What you can do: the gateway node's disk is full... Send to the Miner node instead, or resend later" (the sidecar detail is still quoted verbatim). Live filter: All 200 / Rejected 82 / Admitted 118, Admitted shows included and accepted rows (the gateway's 12 newest were all disk-full rejections, which is why the old list looked rejected-only). All 12 saved cases at 1024 and 375 px: no overflow.
+
+### T83 · See every listed transaction; plainer markers; coloured verdicts
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 06:55 IST
+- priority: P1
+- depends: T82
+- touches: src/App.tsx, src/app/globals.css
+- do: esh: the filter counts (200 / 85 / 115) but the list stops at 12 with no way to see the rest; the icons in tinted squares and the gas bars look generated; the verdict state ("Rejected this copy") should be in its status colour. Add "Showing N of M" and Show more; plain coloured dots on the outcome steps; no gas bars in the frame table; verdict text coloured by tone.
+- done when: build passes; Show more reaches every row; desktop and 375 px clean, no console errors.
+- log:
