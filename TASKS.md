@@ -1098,3 +1098,16 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: FEEDBACK.md only. **esh / T88: please leave FEEDBACK.md to this ticket.**
 - do: Rewrite FEEDBACK.md in the team's plain voice from what we hit while building: what worked, friction worst first, three asks, deployment numbers. Link the paymaster's `quote()` lines.
 - log: Kept every number from T08 (tx hashes, blocks, gas). Added the validation-time price issues we hit today: the stake needed for `StorageReadNonSender`, and "underpaid" when a swap raises the price (a falling price is harmless). README already links FEEDBACK.md and pins the contract lines. manjeet submits the Uniswap form with https://github.com/manjeetsharma0796/readmit/blob/main/FEEDBACK.md.
+
+### T90 · Explorer-style layout: sticky header with search, three views, tabbed transaction page with a summary rail
+- owner: prith
+- note: added by prith at 08:40 IST on prith's request (UI structure review against Etherscan). Layout only; no logic or engine changes.
+- status: doing
+- agent: Claude Code on prith
+- started: 08:40 IST
+- priority: P1
+- depends: none
+- touches: src/App.tsx, src/app/globals.css (one block appended at the end of the CSS)
+- do: The page was one long column (~3,000 px: search, result, send form, live list stacked). Split it like an explorer: a sticky header (logo, section menu, hash search, node switch, wallet), and three views: Inspect (start page, or one transaction), Send & fix, Live mempool. A transaction is a title with a status pill, the summary, the outcome strip, then tabs (Overview, Frames, Mempool checks) beside a sticky rail (Verdicts, Transaction facts, More details collapsed).
+- done when: the three views and the three tabs work on desktop and at 375 px with no sideways scroll, `npm run check` and `npm run build` pass.
+- log:
