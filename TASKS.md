@@ -1102,7 +1102,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 ### T90 · Explorer-style layout: sticky header with search, three views, tabbed transaction page with a summary rail
 - owner: prith
 - note: added by prith at 08:40 IST on prith's request (UI structure review against Etherscan). Layout only; no logic or engine changes.
-- status: doing
+- status: done
 - agent: Claude Code on prith
 - started: 08:40 IST
 - priority: P1
@@ -1110,4 +1110,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css (one block appended at the end of the CSS)
 - do: The page was one long column (~3,000 px: search, result, send form, live list stacked). Split it like an explorer: a sticky header (logo, section menu, hash search, node switch, wallet), and three views: Inspect (start page, or one transaction), Send & fix, Live mempool. A transaction is a title with a status pill, the summary, the outcome strip, then tabs (Overview, Frames, Mempool checks) beside a sticky rail (Verdicts, Transaction facts, More details collapsed).
 - done when: the three views and the three tabs work on desktop and at 375 px with no sideways scroll, `npm run check` and `npm run build` pass.
-- log:
+- log: Done 08:50. `src/App.tsx`: the old single column is now three views (hash routes `#send`, `#live`; `?tx=` stays the transaction link). Header: logo (back to start), menu Inspect / Send & fix / Live mempool (rejection count badge), hash search, Gateway/Miner switch, wallet. Start page: big search, example cases, three cards (live rate, Send & fix, SDK link), latest rejections. Transaction page: status pill title, summary, outcome strip, tabs Overview (what to change) / Frames / Mempool checks with a sticky rail (Verdicts, Transaction facts, More details). Send & fix gets a How it works rail; Live mempool gets a column header row. `src/app/globals.css`: one block appended at the end. Checked in the browser at 1440 px (all three views, all three tabs, row click opens the transaction) and 375 px (no sideways scroll on any view); fixed along the way: squeezed header search, wrapped verdict dots, 511 px page width from the wallet buttons, stacked phone search. The thin status line above the header was tried and removed. `npm run check`, tsc (0 errors) and `npm run build` pass. Not tested: a real send from the moved Send page (the Send component is unchanged), the Connect wallet popup in the new header. Note for esh and manjeet: old `.top`, `.search` and the `#inspect` anchor are no longer rendered; their CSS is still in the file.
