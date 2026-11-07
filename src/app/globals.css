@@ -1057,3 +1057,22 @@ body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
   .recent-head .seg.filter { margin-left: 0; }
 }
 .f-tag, .f-tag.fail, .f-tag.warn, .f-tag.pass { font-size: 0.95rem; }
+
+/* ---- T83: see every listed row; plain markers; coloured verdicts. ---- */
+.rows-more { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 0.92rem; }
+
+/* Outcome steps: a plain coloured dot before the step name, the state in its colour. No icon tiles. */
+.step { padding: 14px 18px; }
+.step-name { display: inline-flex; align-items: center; gap: 7px; }
+.step-name::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #6e6c78; }
+.step.pass .step-name::before { background: #6fd3a5; }
+.step.fail .step-name::before { background: #f08b97; }
+.step.warn .step-name::before { background: #e6be74; }
+
+/* Gas in the frame table: the numbers only, no bars. */
+.frames .bar { display: none; }
+
+/* Verdict rows: the bold state takes its status colour. */
+.kv dd.v-row.fail strong { color: #f4a3ad; }
+.kv dd.v-row.pass strong { color: #8fe0bb; }
+.kv dd.v-row.warn strong { color: #ecca8c; }

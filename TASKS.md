@@ -1020,7 +1020,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T83 · See every listed transaction; plainer markers; coloured verdicts
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 06:55 IST
 - priority: P1
@@ -1028,4 +1028,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: esh: the filter counts (200 / 85 / 115) but the list stops at 12 with no way to see the rest; the icons in tinted squares and the gas bars look generated; the verdict state ("Rejected this copy") should be in its status colour. Add "Showing N of M" and Show more; plain coloured dots on the outcome steps; no gas bars in the frame table; verdict text coloured by tone.
 - done when: build passes; Show more reaches every row; desktop and 375 px clean, no console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. Live gateway list: Rejected shows "Showing 12 of 90", Show more reaches 90 of 90; switching filter resets to 12 ("Showing 12 of 200" on All). Outcome steps use a coloured dot and coloured state, no icon tiles; frame table shows gas numbers without bars; verdict state text is coloured by tone ("Rejected this copy" in red, rgb(244,163,173)).

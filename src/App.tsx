@@ -67,6 +67,8 @@ export default function App() {
   const [rows, setRows] = useState<AdmissionRow[] | null>(null)
   const [rowsError, setRowsError] = useState('')
   const [filter, setFilter] = useState<'all' | 'rejected' | 'admitted'>('all')
+  const [visible, setVisible] = useState(12)
+  useEffect(() => setVisible(12), [filter, node])
   const [names, setNames] = useState<Map<string, string | null>>(new Map())
 
   const dx: Diagnosis | null = useMemo(() => (loaded ? diagnose(loaded.tx, loaded.receipt) : null), [loaded])
@@ -285,7 +287,8 @@ export default function App() {
                     </li>
   )
 
-  const shown = rows?.filter((r) => filter === 'all' || (filter === 'rejected') === (r.outcome === 'rejected')).slice(0, 12) ?? []
+  const matching = rows?.filter((r) => filter === 'all' || (filter === 'rejected') === (r.outcome === 'rejected')) ?? []
+  const shown = matching.slice(0, visible)
   const counts = { all: rows?.length ?? 0, rejected: rows?.filter((r) => r.outcome === 'rejected').length ?? 0, admitted: rows?.filter((r) => r.outcome !== 'rejected').length ?? 0 }
 
   return (
@@ -455,7 +458,6 @@ export default function App() {
           <ol className="journey" aria-label="Outcome at a glance">
             {journey.map((j) => (
               <li key={j.name} className={`step ${j.tone}`}>
-                <span className="step-icon" aria-hidden="true">{ICON[j.tone]}</span>
                 <span className="step-text">
                   <span className="step-name">{j.name}</span>
                   <span className="step-state">{j.state}</span>
@@ -673,6 +675,18 @@ export default function App() {
             })}
           </ul>
         )}
+        {matching.length > 0 && (
+          <div className="rows-more">
+            <span className="muted">
+              Showing {shown.length} of {matching.length}
+            </span>
+            {shown.length < matching.length && (
+              <button type="button" onClick={() => setVisible((v) => v + 12)}>
+                Show {Math.min(12, matching.length - shown.length)} more
+              </button>
+            )}
+          </div>
+        )}
       </section>
 
       <footer>
@@ -786,7 +800,7 @@ function VerdictRow({ label, hint, v }: { label: string; hint?: string; v: Verdi
         {hint && <Hint text={hint} />}
         {label}
       </dt>
-      <dd className="v-row">
+      <dd className={`v-row ${v.tone}`}>
         <Dot tone={v.tone} />
         <span>
           <strong>{PLAIN[v.headline] ?? v.headline}</strong> <span className="muted">· {v.sub}</span>
