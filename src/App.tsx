@@ -56,7 +56,9 @@ const toneOf = (o: string): Tone => (o === 'rejected' ? 'fail' : o === 'included
 
 export default function App() {
   const params = new URLSearchParams(location.search)
-  const [node, setNode] = useState<NodeId>((params.get('node') as NodeId) in NODES ? (params.get('node') as NodeId) : 'gateway')
+  // Own keys only: `in` would also accept inherited names such as ?node=constructor and crash the page.
+  // With no ?node, open on the miner: sends go there, and the gateway's live list is mostly its own disk-full errors today.
+  const [node, setNode] = useState<NodeId>(Object.hasOwn(NODES, params.get('node') ?? '') ? (params.get('node') as NodeId) : 'miner')
   const [input, setInput] = useState(params.get('tx') ?? '')
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [busy, setBusy] = useState(false)

@@ -61,7 +61,7 @@ function paymasterReason(reason: string, i: number, w: boolean): Pick<Finding, '
     return {
       title: "The tUSD fee is below the paymaster's price",
       why: `The paymaster prices gas from the Uniswap v4 pool while it validates. The fee in frame ${i + 1} is lower than its quote right now, usually because the pool price moved after the transaction was signed.`,
-      fix: 'Re-quote the fee from the pool and re-sign. Fix & send does this for you.',
+      fix: 'Re-quote the fee from the pool and re-sign: press Send again, which reads a fresh quote.',
       patch: { kind: 'requote' },
     }
   if (reason === 'sender lacks TOKEN')
