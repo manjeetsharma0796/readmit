@@ -1041,3 +1041,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: page the live list (previous / next, 12 at a time) instead of growing it; the stat tiles mix fonts and sizes; the tick and cross in the status badge look generated. Pager with "1–12 of N"; one font, size and weight for every tile value; a plain status dot in the badge.
 - done when: build passes; the pager reaches the last page and back; desktop and 375 px clean, no console errors.
 - log: npm run build and git diff --check pass; no console errors. Live gateway list: "1–12 of 200, 1 / 17"; Next walks to "193–200 of 200, 17 / 17" (8 rows) and Previous back to 16 / 17; switching to Rejected resets to "1–12 of 94, 1 / 8"; the list height stays one page. Stat tile values all Schibsted Grotesk 27.36px 600 (the Window tile was mono); the Rejected label lost its extra dot. Status badge shows a plain dot, no tick or cross. 375 px: no overflow, pager fits.
+
+### T85 · Frames on Overview; judge-facing UI/UX pass
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 07:15 IST
+- priority: P1
+- depends: T84
+- touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx
+- do: esh: show the frames on Overview, not in their own tab. Then a review pass for UI and UX problems a hackathon judge would notice (consistency, wording, states, mobile, accessibility), each finding checked by a skeptic before fixing.
+- done when: build passes; every fixed item checked at desktop and 375 px; no console errors.
+- log:
