@@ -66,7 +66,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [rows, setRows] = useState<AdmissionRow[] | null>(null)
   const [rowsError, setRowsError] = useState('')
-  const [onlyRejected, setOnlyRejected] = useState(true)
+  const [filter, setFilter] = useState<'all' | 'rejected' | 'admitted'>('all')
   const [names, setNames] = useState<Map<string, string | null>>(new Map())
 
   const dx: Diagnosis | null = useMemo(() => (loaded ? diagnose(loaded.tx, loaded.receipt) : null), [loaded])
@@ -226,6 +226,29 @@ export default function App() {
     if (adm === 'accepted') return `The ${node} node accepted this transaction. It is waiting to be included in a block.`
     return `The ${node} node has no admission record for this transaction, and it is not on chain.`
   })()
+  // Three steps every transaction goes through, each with a clear yes / no, so the outcome reads at a glance.
+  const journey: { name: string; tone: Tone; state: string }[] = (() => {
+    if (!loaded) return []
+    const adm = loaded.tx.admission?.outcome
+    const failedFrames = receipt?.frameReceipts.map((f, i) => (f.status === '0x0' ? i : -1)).filter((i) => i >= 0) ?? []
+    return [
+      {
+        name: 'Mempool',
+        tone: adm === 'rejected' ? (receipt ? 'warn' : 'fail') : adm ? 'pass' : 'info',
+        state: adm === 'rejected' ? (receipt ? 'Rejected this copy' : 'Rejected') : adm ? 'Admitted' : 'No record',
+      },
+      {
+        name: 'Block',
+        tone: receipt ? 'pass' : loaded.chainUnknown ? 'warn' : adm === 'rejected' ? 'fail' : 'info',
+        state: receipt ? `Included, block ${fmt(n(receipt.blockNumber))}` : loaded.chainUnknown ? "Couldn't check" : adm === 'rejected' ? 'Never included' : 'Waiting',
+      },
+      {
+        name: 'Frames',
+        tone: !receipt ? 'info' : failedFrames.length ? 'fail' : 'pass',
+        state: !receipt ? 'Did not run' : failedFrames.length ? `Frame ${failedFrames.join(', ')} failed` : `All ${receipt.frameReceipts.length} worked`,
+      },
+    ]
+  })()
   const payer = receipt?.payer ?? loaded?.tx.entry?.payer
   const sender = loaded?.tx.entry?.sender ?? loaded?.tx.admission?.sender
   const fee = receipt ? (n(receipt.gasUsed) * n(receipt.effectiveGasPrice)) / 1e18 : 0
@@ -262,7 +285,8 @@ export default function App() {
                     </li>
   )
 
-  const shown = rows?.filter((r) => !onlyRejected || r.outcome === 'rejected').slice(0, 12) ?? []
+  const shown = rows?.filter((r) => filter === 'all' || (filter === 'rejected') === (r.outcome === 'rejected')).slice(0, 12) ?? []
+  const counts = { all: rows?.length ?? 0, rejected: rows?.filter((r) => r.outcome === 'rejected').length ?? 0, admitted: rows?.filter((r) => r.outcome !== 'rejected').length ?? 0 }
 
   return (
     <div className="shell">
@@ -428,6 +452,17 @@ export default function App() {
           </div>
 
           <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" hidden={tab !== 'overview'}>
+          <ol className="journey" aria-label="Outcome at a glance">
+            {journey.map((j) => (
+              <li key={j.name} className={`step ${j.tone}`}>
+                <span className="step-icon" aria-hidden="true">{ICON[j.tone]}</span>
+                <span className="step-text">
+                  <span className="step-name">{j.name}</span>
+                  <span className="step-state">{j.state}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
           <dl className="overview kv">
             <dt><Hint text="The unique id of this transaction. Click it to copy." />Transaction hash</dt>
             <dd>
@@ -485,6 +520,12 @@ export default function App() {
                     </p>
                   )}
                   <p className="why">{f.why}</p>
+                  {!f.fix && nodeIssue(f.why, loaded.node) && (
+                    <div className="fix-box">
+                      <span className="fix-label">What you can do</span>
+                      <p className="fix">{nodeIssue(f.why, loaded.node)}</p>
+                    </div>
+                  )}
                   {f.selector && (
                     <p className="decoded">
                       {f.tone === 'fail' && f.title.includes('validation') ? 'Error' : 'Call'}: <code>{names.get(f.selector) ?? f.selector}</code>
@@ -554,9 +595,13 @@ export default function App() {
       <section id="live" className="recent" aria-label="Recent admissions">
         <div className="recent-head">
           <h2>Live from the {NODES[node].label.toLowerCase()} node</h2>
-          <label className="toggle">
-            <input type="checkbox" checked={onlyRejected} onChange={(e) => setOnlyRejected(e.target.checked)} /> Rejected only
-          </label>
+          <div className="seg filter" role="group" aria-label="Show">
+            {(['all', 'rejected', 'admitted'] as const).map((f) => (
+              <button key={f} type="button" className={filter === f ? 'on' : ''} aria-pressed={filter === f} onClick={() => setFilter(f)}>
+                {f === 'all' ? 'All' : f === 'rejected' ? 'Rejected' : 'Admitted'} <span className="seg-n">{counts[f]}</span>
+              </button>
+            ))}
+          </div>
           <button onClick={() => loadRecent(node)}>Refresh</button>
         </div>
         {stats && (
@@ -602,7 +647,7 @@ export default function App() {
         {rows === null ? (
           <p className="muted">Loading recent transactions…</p>
         ) : shown.length === 0 && !rowsError ? (
-          <p className="muted">No {onlyRejected ? 'rejected ' : ''}transactions in this node's recent history.</p>
+          <p className="muted">No {filter === 'all' ? '' : `${filter} `}transactions in this node's recent history.</p>
         ) : (
           <ul className="rows">
             {shown.map((r) => {
@@ -708,6 +753,15 @@ function Hint({ text }: { text: string }) {
 
 // Status badge icons, as on explorer tx pages.
 const ICON: Record<Tone, string> = { pass: '✓', fail: '✕', warn: '!', info: '•' }
+
+// Some rejections come from the node itself, not from the transaction. Say so, and what to do instead.
+function nodeIssue(why: string, node: NodeId): string | null {
+  const other = NODES[node === 'gateway' ? 'miner' : 'gateway'].label
+  if (/no space left on device/i.test(why))
+    return `The ${NODES[node].label.toLowerCase()} node's disk is full, so it turns away every transaction until it is cleared. Nothing is wrong with yours. Send to the ${other} node instead, or resend later.`
+  if (/^IO error/i.test(why)) return `The ${NODES[node].label.toLowerCase()} node hit a storage error, not a problem with your transaction. Send to the ${other} node instead, or resend later.`
+  return null
+}
 
 // The short tag on each finding card.
 const TAG: Record<Tone, string> = { fail: 'Problem', warn: 'Heads-up', pass: 'All good', info: 'Note' }

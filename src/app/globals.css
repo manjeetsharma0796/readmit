@@ -1020,3 +1020,40 @@ body { font-size: 1rem; }
    below or around the content (overscroll, a short page, a browser toolbar sample) shows a second colour. */
 html { background-color: #151518; min-height: 100%; }
 body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
+
+/* ---- T82: readable findings, the outcome at a glance, a real filter. ---- */
+/* Findings: bigger tag and explanation. */
+.f-tag, .f-tag.fail, .f-tag.warn, .f-tag.pass { font-size: 0.86rem; letter-spacing: 0.04em; margin-bottom: 6px; }
+.f-tag::before { width: 8px; height: 8px; }
+.shell .finding .f-body .f-title { font-size: 1.15rem; }
+.shell .finding .why, .shell .finding .how { font-size: 1rem; line-height: 1.55; color: #bdbbc6; }
+.shell .finding .fix-box .fix { font-size: 1.04rem; }
+
+/* Outcome strip: three steps (mempool, block, frames), each a clear icon and a short state. */
+.journey { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 14px 0 6px; padding: 0; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.step { display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-width: 0; }
+.step + .step { border-left: 1px solid var(--rule); }
+.step-icon { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; font-weight: 700; font-size: 1rem; background: #24242a; color: var(--ink-2); }
+.step.pass .step-icon { background: #6fd3a51a; color: #6fd3a5; }
+.step.fail .step-icon { background: #f08b971a; color: #f08b97; }
+.step.warn .step-icon { background: #e6be741a; color: #e6be74; }
+.step-text { display: grid; min-width: 0; }
+.step-name { font-size: 0.8rem; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.step-state { font-size: 1rem; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.step.pass .step-state { color: #8fe0bb; }
+.step.fail .step-state { color: #f4a3ad; }
+.step.warn .step-state { color: #ecca8c; }
+
+/* Live list filter: segmented control with counts. */
+.recent-head .seg.filter { margin-left: auto; padding: 3px; background: var(--well); border: 1px solid var(--rule); border-radius: 8px; }
+.recent-head .seg.filter button, .recent-head .seg.filter button:hover { border: 0; background: transparent; box-shadow: none; padding: 6px 10px; border-radius: 6px; color: var(--ink-2); font-weight: 600; font-size: 0.92rem; }
+.recent-head .seg.filter button.on { background: #2a2a30; color: var(--ink); }
+.seg-n { margin-left: 4px; color: var(--ink-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 600px) {
+  .journey { grid-template-columns: 1fr; }
+  .step + .step { border-left: 0; border-top: 1px solid var(--rule); }
+  .recent-head { flex-wrap: wrap; }
+  .recent-head .seg.filter { margin-left: 0; }
+}
+.f-tag, .f-tag.fail, .f-tag.warn, .f-tag.pass { font-size: 0.95rem; }
