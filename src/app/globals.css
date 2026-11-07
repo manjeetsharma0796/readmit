@@ -1015,3 +1015,8 @@ body { font-size: 1rem; }
 .shell .result .kv dd { padding-left: 16px; }
 @media (max-width: 900px) { .shell .result .kv dd { padding-left: 0; } }
 @media (max-width: 600px) { .tabs { gap: 0; } .tabs .tab, .tabs .tab:hover, .tabs .tab:active { padding: 10px 8px; font-size: 0.9rem; gap: 6px; } }
+
+/* T81: one canvas colour on every device. The html element paints the page colour at full height, so nothing
+   below or around the content (overscroll, a short page, a browser toolbar sample) shows a second colour. */
+html { background-color: #151518; min-height: 100%; }
+body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }

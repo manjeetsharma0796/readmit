@@ -996,7 +996,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T81 · One background colour on every device
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 06:30 IST
 - priority: P1
@@ -1004,4 +1004,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/app/layout.tsx, src/app/globals.css
 - do: esh saw the background split into two colours on another device after Inspect (the page grows past one screen). Tell the browser the page is dark and its colour (viewport themeColor and colorScheme), and paint the html canvas the page colour at full height, so phone toolbars and overscroll areas match.
 - done when: build passes; the built page has the theme-color and color-scheme metas; html and body share one colour.
-- log:
+- log: npm run build passes; out/index.html now has <meta name="theme-color" content="#151518"> and <meta name="color-scheme" content="dark">. After Inspect, html and body are both rgb(21,21,24). The split itself was not reproducible in the in-app browser or on the live site at 375, 768 and 1024 px, so this targets the likely cause (phone browser toolbar/overscroll using a different colour); needs a check on the device that showed it.
