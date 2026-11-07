@@ -1088,3 +1088,13 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh asked in chat at 07:05 for a red-team of everything that could make the judges reject Readmit or rank it lower, and then to fix those problems and update the repo. 11 read-only reviewers (ETHGlobal rules, EF alt mempool, CROPS, Uniswap and the paymaster, engine, live UI, demo reliability, pitch, consistency, judge Q&A, security), with a skeptic checking each finding. Fix the confirmed ones that are safe before 09:00. Add the AI-usage and commit-history notes that the ETHGlobal rules ask for. Hand engine and contract items to their owners as tickets.
 - done when: npm run build and npm run check pass; the README has the AI-usage and history notes; every applied fix is listed in this log; Vercel has redeployed and the live site is checked at 1280 and 375 px.
 - log:
+
+### T89 · Uniswap FEEDBACK.md rewrite
+- owner: manjeet
+- status: done
+- agent: Claude Code on manjeet
+- started: 07:25 IST
+- priority: P0 (Uniswap qualification)
+- touches: FEEDBACK.md only. **esh / T88: please leave FEEDBACK.md to this ticket.**
+- do: Rewrite FEEDBACK.md in the team's plain voice from what we hit while building: what worked, friction worst first, three asks, deployment numbers. Link the paymaster's `quote()` lines.
+- log: Kept every number from T08 (tx hashes, blocks, gas). Added the validation-time price issues we hit today: the stake needed for `StorageReadNonSender`, and "underpaid" when a swap raises the price (a falling price is harmless). README already links FEEDBACK.md and pins the contract lines. manjeet submits the Uniswap form with https://github.com/manjeetsharma0796/readmit/blob/main/FEEDBACK.md.
