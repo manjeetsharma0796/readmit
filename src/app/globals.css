@@ -1178,3 +1178,154 @@ body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
   .recent-head .seg.filter { order: 2; }
 }
 .r-out.warn { text-transform: none; white-space: nowrap; }
+
+/* ============================================================================================================
+   Layout v2: explorer-style structure (inspired by Etherscan and other block explorers).
+   A sticky top bar (brand, section nav, hash search, node switch, wallet), and three views:
+   Inspect (start page or one transaction), Send & fix, Live mempool. A transaction is a header, a summary, then
+   tabs (Overview / Frames / Mempool checks) beside a sticky summary rail (Verdicts, Transaction facts).
+   ============================================================================================================ */
+.shell { min-height: 100vh; }
+.page { max-width: 1240px; margin: 0 auto; padding: 8px 24px 56px; }
+
+.linkish, .linkish:hover, .linkish:active { border: 0; background: none; box-shadow: none; padding: 0; color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: #3a3a42; text-underline-offset: 3px; }
+.linkish:hover { text-decoration-color: var(--cobalt); }
+
+/* Top bar: sticky, translucent. */
+.topbar { position: sticky; top: 0; z-index: 40; background: #151518f0; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+.topbar-in { max-width: 1240px; margin: 0 auto; padding: 10px 24px 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "brand search actions" "nav nav seg"; align-items: center; gap: 10px 24px; }
+.brand-btn, .brand-btn:hover, .brand-btn:active { grid-area: brand; display: flex; align-items: center; gap: 10px; border: 0; background: none; box-shadow: none; padding: 0; color: var(--ink); }
+.brand-btn .mark { width: 30px; height: 30px; flex: 0 0 30px; overflow: visible; }
+.brand-name { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+/* The section menu sits on the bar's bottom edge, like an explorer's menu row. */
+.nav { grid-area: nav; display: flex; gap: 4px; align-self: end; margin-bottom: -1px; overflow-x: auto; scrollbar-width: none; }
+.nav button, .nav button:hover, .nav button:active { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; box-shadow: none; padding: 9px 12px 10px; color: var(--ink-2); font-weight: 600; font-size: 0.93rem; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.nav button:hover { color: var(--ink); }
+.nav button[aria-current='page'] { color: var(--ink); border-bottom-color: #b9a2e6; }
+.nav-n { font-size: 0.72rem; padding: 0 6px; border-radius: 5px; background: #f08b9718; color: #f08b97; font-variant-numeric: tabular-nums; line-height: 1.5; }
+.topbar .searchbar { grid-area: search; width: 100%; max-width: 640px; justify-self: center; }
+.topbar .seg { grid-area: seg; justify-self: end; align-self: center; margin-bottom: 4px; display: inline-flex; padding: 3px; background: var(--well); border: 1px solid var(--rule); border-radius: 8px; box-shadow: none; }
+.topbar .seg button, .topbar .seg button:hover { border: 0; background: transparent; box-shadow: none; padding: 4px 11px; border-radius: 6px; color: var(--ink-2); font-weight: 600; font-size: 0.85rem; }
+.topbar .seg button.on { background: #2a2a30; color: var(--ink); }
+.topbar .hdr-actions { grid-area: actions; margin-left: 0; flex-wrap: nowrap; justify-self: end; }
+
+/* Search box: a magnifier inside the field. */
+.searchbar .row, .shell .searchbar .row { position: relative; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px; }
+.searchbar .row input { flex: 1 1 auto; width: auto; min-width: 0; }
+.searchbar .mag { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--ink-2); pointer-events: none; }
+.searchbar .row input { padding: 9px 12px 9px 34px; font-size: 0.9rem; border-radius: 8px; }
+.searchbar .row .primary { padding: 9px 16px; font-size: 0.92rem; }
+.searchbar.big .row input { font-size: 1.02rem; padding: 15px 16px 15px 44px; border-radius: 12px; }
+.searchbar.big .mag { left: 15px; width: 18px; height: 18px; }
+.searchbar.big .row .primary { padding: 14px 26px; border-radius: 12px; font-size: 1rem; }
+
+.banner-error { margin: 16px 0 0; padding: 10px 14px; border: 1px solid #5c3a40; background: var(--fail-bg); border-radius: 10px; color: var(--fail); }
+
+/* Start page: a centred search, three entry cards, and the latest rejections (like an explorer's home page). */
+.hero { padding: 52px 0 4px; max-width: 860px; margin: 0 auto; text-align: center; }
+.hero h1 { margin: 0 0 10px; font-size: clamp(1.7rem, 3.2vw, 2.5rem); line-height: 1.12; letter-spacing: -0.025em; }
+.hero .lede { margin: 0 auto 22px; max-width: 60ch; color: var(--ink-2); font-size: 1.04rem; }
+.hero .searchbar { text-align: left; }
+.samples-line { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; color: var(--ink-2); font-size: 0.9rem; }
+.hero .more-samples { margin: 12px auto 0; text-align: left; max-width: 760px; }
+.hero .more-samples summary { text-align: center; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 44px 0 0; }
+.hcard { background: var(--raised); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 0; }
+.hcard h2 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+.hcard p { margin: 0; color: var(--ink-2); font-size: 0.93rem; }
+.hcard .big { color: var(--ink); font-size: 2.2rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.hcard .go { margin-top: auto; }
+.linkbtn { display: inline-block; padding: 8px 14px; border: 1px solid #34343b; border-radius: 8px; background: var(--key); color: var(--ink); text-decoration: none; font-size: 0.95rem; }
+.linkbtn:hover { background: #2a2a30; border-color: #45454d; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 40px 0 0; }
+.section-head h2 { margin: 0; font-size: 1.1rem; }
+.latest .rows { margin-top: 12px; }
+
+/* One transaction: header, summary, outcome strip, then tabs beside a sticky rail. */
+.txpage { padding-top: 22px; }
+.txpage.stale { opacity: 0.6; }
+.txhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.txhead-main { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; min-width: 0; }
+.eyebrow { margin: 0; color: var(--ink-2); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; flex-basis: 100%; }
+.txhead h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 6px; scroll-margin-top: 96px; }
+.txhead h1 code { font-size: 1em; }
+.txhead h1:focus { outline: none; }
+.txhead .status-badge { font-size: 0.85rem; }
+.txhead .actions { display: flex; gap: 10px; align-items: center; }
+.shell .txpage .summary.lead { margin: 14px 0 0; max-width: none; }
+.txpage .seen { margin-top: 8px; }
+.txpage .journey { margin: 14px 0 0; }
+.txgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; margin-top: 18px; }
+.txmain { background: var(--raised); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; min-width: 0; }
+.txmain .tabs { margin: 0; padding: 0 10px; background: var(--panel-2); }
+.panel { padding: 18px 20px 22px; }
+.panel .change, .shell .panel .change { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; }
+.panel .change h2, .panel .frames-main h2 { margin: 0 0 12px; font-size: 1.1rem; }
+.panel .frames-main { margin: 0; }
+.nextstep { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--ink-2); font-size: 0.93rem; }
+
+/* The rail: what an explorer shows as its key/value table, kept in view while the tabs scroll. */
+.rail { display: grid; gap: 14px; position: sticky; top: 84px; min-width: 0; }
+.rail-card { background: var(--raised); border: 1px solid var(--rule); border-radius: 14px; padding: 14px 16px 16px; min-width: 0; }
+.rail-card h2 { margin: 0 0 10px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-2); }
+.rail-card > p { margin: 0 0 12px; font-size: 0.92rem; }
+.rail .kv { grid-template-columns: minmax(0, 1fr); gap: 2px; margin: 0; }
+.rail .kv dt { margin-top: 10px; font-size: 0.78rem; }
+.rail .kv dt:first-child { margin-top: 0; }
+.rail .kv dd { font-size: 0.93rem; }
+.rail .kv dd code { font-size: 0.8rem; }
+.rail .kv dd.v-row { flex-wrap: nowrap; align-items: flex-start; }
+.rail .kv dd.v-row .dot { flex: none; margin-top: 7px; }
+.rail .more summary { cursor: pointer; color: var(--ink-2); font-size: 0.88rem; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.rail .more[open] summary { margin-bottom: 4px; }
+
+/* Send & fix and Live mempool: a page title with tools on the right. */
+.pagehead { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin: 28px 0 16px; }
+.pagehead h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.015em; }
+.pagehead p { margin: 4px 0 0; color: var(--ink-2); max-width: 62ch; }
+.pagehead > div:first-child { flex: 1 1 360px; min-width: 0; }
+.toolbar { display: flex; gap: 10px; align-items: center; }
+.toolbar .seg.filter { padding: 3px; background: var(--well); border: 1px solid var(--rule); border-radius: 8px; }
+.toolbar .seg.filter button, .toolbar .seg.filter button:hover { border: 0; background: transparent; box-shadow: none; padding: 6px 10px; border-radius: 6px; color: var(--ink-2); font-weight: 600; font-size: 0.92rem; }
+.toolbar .seg.filter button.on { background: #2a2a30; color: var(--ink); }
+.shell .recent { margin-top: 0; border-top: 0; }
+.sendgrid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.sendgrid .send { margin-top: 0; }
+.steps-list { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+.steps-list li { counter-increment: s; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; }
+.steps-list li::before { content: counter(s); width: 26px; height: 26px; border-radius: 8px; background: #26262c; color: var(--ink); display: grid; place-items: center; font-weight: 700; font-size: 0.82rem; }
+.steps-list strong { display: block; font-size: 0.95rem; }
+.steps-list li > span > span { color: var(--ink-2); font-size: 0.9rem; }
+
+/* Live list: a table header like an explorer's transaction list. */
+.rows-head { display: grid; grid-template-columns: 12px 118px 76px 1fr auto; gap: 12px; padding: 9px 14px; background: var(--panel-2); color: var(--ink-2); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+.shell .rows li.rows-head + li { border-top: 1px solid var(--rule); }
+
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); max-width: none; }
+footer > p { max-width: 90ch; }
+
+/* Narrower screens: the rail drops below the tabs; on phones the bar stacks into three rows. */
+@media (max-width: 1000px) {
+  .txgrid, .sendgrid { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .topbar-in { padding-left: 16px; padding-right: 16px; }
+  .page { padding: 8px 16px 48px; }
+  .topbar { position: static; }
+  .topbar-in { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "brand seg" "actions actions" "search search" "nav nav"; gap: 10px 12px; }
+  .topbar .seg { margin-bottom: 0; }
+  .topbar .hdr-actions { justify-self: stretch; justify-content: space-between; flex-wrap: wrap; width: auto; }
+  .topbar .searchbar { max-width: none; }
+  .nav button, .nav button:hover, .nav button:active { padding: 8px 8px 10px; font-size: 0.88rem; }
+  .topbar .seg button, .topbar .seg button:hover { padding: 4px 8px; }
+  .hero { padding-top: 32px; }
+  .searchbar.big .row input { font-size: 0.95rem; padding: 13px 12px 13px 40px; }
+  .searchbar.big .row .primary { padding: 13px 16px; width: auto; }
+  .searchbar .row .primary { width: auto; }
+  .rows-head { display: none; }
+  .panel { padding: 16px 14px 18px; }
+  .pagehead { margin-top: 20px; }
+  .toolbar { flex-wrap: wrap; }
+}
