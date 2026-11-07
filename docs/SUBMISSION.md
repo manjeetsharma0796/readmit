@@ -48,6 +48,12 @@ When one fails, developers are left guessing:
   - ethrex keeps state for only 128 blocks.
   - Forge underestimates this devnet's state gas, so we deploy with `--skip-simulation`.
 
+## How we used AI (ETHGlobal rule: attribution)
+- We built Readmit with AI coding agents, and they wrote most of the code and docs. Claude Code worked 65 of the 75 tickets and Codex worked 1. Teammates did 4 by hand.
+- The repo holds the full record. [`AGENTS.md`](https://github.com/manjeetsharma0796/readmit/blob/main/AGENTS.md) is the rules every agent followed. [`TASKS.md`](https://github.com/manjeetsharma0796/readmit/blob/main/TASKS.md) has every ticket, with the agent, the teammate who asked for it, why, and the evidence. [`docs/PRD.md`](https://github.com/manjeetsharma0796/readmit/blob/main/docs/PRD.md) is the spec.
+- The team set the spec, the priorities and the design direction. A teammate approved and ran every deploy, stake and transaction, and we checked each result on the devnet.
+- **History:** hacking began Thu 5 Nov. Until Fri 21:00 IST we worked in a local folder, so the repo's first five commits (Fri 21:04) hold that work. Every change after that is a small commit tied to a ticket.
+
 ## Limits we state plainly
 - **Devnet only.** EIP-8141 isn't on mainnet until Hegotá.
 - **Spot price.** The paymaster uses the v4 spot price (`slot0`). We quote with about 7% headroom and re-quote on "underpaid"; a TWAP or guarded price is next.

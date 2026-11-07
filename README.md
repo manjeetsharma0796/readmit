@@ -172,6 +172,28 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 - The full ERC-8421 rule set.
 - Fuzzing and minimisation.
 
+## How we built it: history, AI use and what we reused
+
+**History.** Hacking began on Thu 5 Nov. Until Fri 6 Nov 21:00 IST we worked in a local folder. We created this repo at 21:04, and its first five commits hold that work: the scaffold, the diagnosis engine, the UI, the paymaster and the README. Every change after that is a small commit tied to a ticket in [`TASKS.md`](TASKS.md).
+
+**AI use.** We built Readmit with AI coding agents, and they wrote most of the code and docs in this repo:
+- Claude Code worked 65 of the 75 tickets in `TASKS.md` and Codex worked 1. Teammates did 4 by hand.
+- Each ticket's `agent:` line names the agent and the teammate it worked for. Its `do:` line says who asked for the change and why, and its `log:` line holds the evidence.
+
+**What the team did.**
+- We set the spec and the priorities ([`docs/PRD.md`](docs/PRD.md) and the ticket board), the rules every agent follows ([`AGENTS.md`](AGENTS.md)), and the design direction.
+- A teammate approved and ran every deploy, stake and transaction ([`AGENTS.md`](AGENTS.md) §5), and we checked each result on the devnet.
+- Commit messages carry no AI co-author lines ([`AGENTS.md`](AGENTS.md) §4). This section and `TASKS.md` are the record of AI use instead.
+
+**Reused, not ours:**
+- [`@forshtat/hegota-support`](https://www.npmjs.com/package/@forshtat/hegota-support): EIP-8141 opcodes for Solidity, and the frame-transaction encoding and RPC types.
+- Uniswap [v4-core](https://github.com/Uniswap/v4-core): `StateLibrary`, `FullMath`, `TestERC20`, and the `PoolSwapTest` and `PoolModifyLiquidityTest` routers.
+- forge-std, viem, Next.js, React, wagmi and RainbowKit.
+- The EF alt-mempool devnet: ethrex, the Skandha-based sidecar and its explorer API.
+- The Sourcify signature database for 4-byte decoding.
+
+Everything else in `src/` and `contracts/` was written during the hackathon.
+
 ## Licence
 
 MIT
