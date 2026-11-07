@@ -980,3 +980,38 @@ body { font-size: 1rem; }
 .shell .replay { display: block; padding-left: 48px; }
 .shell .replay .replay-label { padding-left: 0; }
 @media (max-width: 600px) { .shell .replay { padding-left: 34px; } }
+
+/* ---- T80: familiar block-explorer patterns, in Readmit's own colours. ---- */
+/* Tabs: an underlined tab row, as on explorer tx pages. */
+.tabs { display: flex; gap: 4px; margin: 22px 0 0; border-bottom: 1px solid var(--rule); overflow-x: auto; scrollbar-width: none; }
+.tabs .tab, .tabs .tab:hover, .tabs .tab:active { flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; box-shadow: none; color: var(--ink-2); font-weight: 600; font-size: 0.95rem; }
+.tabs .tab:hover { color: var(--ink); }
+.tabs .tab.on { color: var(--ink); border-bottom-color: #b9a2e6; }
+.tab-count { min-width: 20px; padding: 1px 6px; border-radius: 5px; background: #26262c; color: var(--ink-2); font-size: 0.78rem; font-variant-numeric: tabular-nums; text-align: center; }
+.tab-count.fail { background: #f08b9714; color: #f08b97; }
+[role="tabpanel"] { padding-top: 6px; }
+[role="tabpanel"][hidden] { display: none; }
+
+/* Field rows: hairline between rows, label column with an (i) hint. */
+.shell .result .kv { gap: 0 16px; margin-top: 4px; }
+.shell .result .kv dt, .shell .result .kv dd { padding: 11px 0; border-bottom: 1px solid #222227; }
+.shell .result .kv dt { display: flex; align-items: center; gap: 8px; }
+.hint-i { flex: none; display: inline-grid; place-items: center; width: 15px; height: 15px; border: 1px solid #4a4a54; border-radius: 50%; color: #8a8896; font: italic 600 0.68rem/1 Georgia, serif; cursor: help; }
+.hint-i:hover, .hint-i:focus-visible { color: var(--ink); border-color: #8a8896; }
+
+/* Status: a bordered badge with an icon, the way every explorer shows Success / Failed. */
+.kv .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid; border-radius: 6px; font-size: 0.9rem; font-weight: 600; background: transparent; }
+.kv .status-badge.pass { color: #6fd3a5; border-color: #6fd3a540; background: #6fd3a50d; }
+.kv .status-badge.fail { color: #f08b97; border-color: #f08b9740; background: #f08b970d; }
+.kv .status-badge.warn { color: #e6be74; border-color: #e6be7440; background: #e6be740d; }
+.kv .status-badge.info { color: var(--ink-2); border-color: var(--rule); }
+.status-icon { font-weight: 700; }
+
+@media (max-width: 900px) {
+  .shell .result .kv dt { border-bottom: 0; padding-bottom: 2px; }
+  .shell .result .kv dd { padding-top: 0; }
+}
+.shell .result .kv { column-gap: 0; }
+.shell .result .kv dd { padding-left: 16px; }
+@media (max-width: 900px) { .shell .result .kv dd { padding-left: 0; } }
+@media (max-width: 600px) { .tabs { gap: 0; } .tabs .tab, .tabs .tab:hover, .tabs .tab:active { padding: 10px 8px; font-size: 0.9rem; gap: 6px; } }

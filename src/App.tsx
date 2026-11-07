@@ -60,6 +60,9 @@ export default function App() {
   const [input, setInput] = useState(params.get('tx') ?? '')
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [busy, setBusy] = useState(false)
+  // Explorer-style tabs on the result. A new transaction always opens on Overview.
+  const [tab, setTab] = useState<'overview' | 'frames' | 'checks'>('overview')
+  useEffect(() => setTab('overview'), [loaded?.hash])
   const [error, setError] = useState('')
   const [rows, setRows] = useState<AdmissionRow[] | null>(null)
   const [rowsError, setRowsError] = useState('')
@@ -386,31 +389,66 @@ export default function App() {
             </div>
           </div>
           <p className={`summary lead ${status.tone}`}>{summary}</p>
-          <p className="tx-hash">
-            <Copy text={loaded.hash} label="transaction hash">
-              <code className="hash">{loaded.hash}</code>
-            </Copy>
-          </p>
           <p className="seen">
-            As seen by {NODES[loaded.node].label}
+            As seen by the {NODES[loaded.node].label.toLowerCase()} node
             {loaded.source === 'sample' && <span className="saved-badge">Saved copy · recorded earlier on the devnet, not a live check</span>}
           </p>
 
+          <div className="tabs" role="tablist" aria-label="Result sections">
+            {TABS.map(([id, label], i) => {
+              const count =
+                id === 'frames'
+                  ? dx.frames.length
+                  : id === 'checks' && loaded.tx.admission
+                    ? loaded.tx.admission.checks.filter((c) => c.verdict === 'fail').length || null
+                    : null
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${id}`}
+                  aria-selected={tab === id}
+                  aria-controls={`panel-${id}`}
+                  tabIndex={tab === id ? 0 : -1}
+                  className={`tab${tab === id ? ' on' : ''}`}
+                  onClick={() => setTab(id)}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+                    const next = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length][0]
+                    setTab(next)
+                    document.getElementById(`tab-${next}`)?.focus()
+                  }}
+                >
+                  {label}
+                  {count !== null && <span className={`tab-count${id === 'checks' ? ' fail' : ''}`}>{count}</span>}
+                </button>
+              )
+            })}
+          </div>
+
+          <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" hidden={tab !== 'overview'}>
           <dl className="overview kv">
-            <dt>Status</dt>
+            <dt><Hint text="The unique id of this transaction. Click it to copy." />Transaction hash</dt>
             <dd>
-              <span className={`badge ${status.tone}`}>
-                <Dot tone={status.tone} />
+              <Copy text={loaded.hash} label="transaction hash">
+                <code className="hash">{loaded.hash}</code>
+              </Copy>
+            </dd>
+            <dt><Hint text="The overall outcome: whether it got into a block and whether every frame worked." />Status</dt>
+            <dd>
+              <span className={`badge status-badge ${status.tone}`}>
+                <span className="status-icon" aria-hidden="true">{ICON[status.tone]}</span>
                 {status.text}
               </span>
             </dd>
-            <dt>Block</dt>
+            <dt><Hint text="The block that included this transaction." />Block</dt>
             <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
-            <dt>Sender</dt>
+            <dt><Hint text="The account the transaction acts for. Its VERIFY frame approves it." />Sender</dt>
             <dd>{sender ? <Copy text={sender} label="sender address"><code>{sender}</code></Copy> : <span className="muted">Unknown</span>}</dd>
-            <dt>Payer</dt>
+            <dt><Hint text="The account that paid for gas. With a paymaster, this is not the sender." />Payer</dt>
             <dd>{payer ? <Copy text={payer} label="payer address"><code>{payer}</code></Copy> : <span className="muted">Unknown</span>}</dd>
-            <dt>Fee</dt>
+            <dt><Hint text="What the payer was charged: gas used times the effective gas price." />Transaction fee</dt>
             <dd>
               {loaded.receipt ? (
                 <>
@@ -420,15 +458,10 @@ export default function App() {
                 <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
               )}
             </dd>
-            <VerdictRow label={`Admission (${NODES[loaded.node].label.toLowerCase()} node)`} v={dx.mempool} />
-            <VerdictRow label="On chain" v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
-            <VerdictRow label="ERC-8421 spec" v={dx.spec} />
+            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} hint="Whether the alt-mempool sidecar admitted it, from its admission report." v={dx.mempool} />
+            <VerdictRow label="On chain" hint="What the receipt says happened when the block ran it." v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
+            <VerdictRow label="ERC-8421 spec" hint="A partial check against the alt-mempool spec: validation budget and validation reverts." v={dx.spec} />
           </dl>
-
-          <section aria-label="Frames">
-            <h2>Frames, in execution order</h2>
-            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
-          </section>
 
           <section className="change" aria-label="What to change">
             <h2>{receipt?.status === '0x1' && loaded.tx.admission?.outcome === 'rejected' ? 'Why that one copy was rejected (no action needed)' : dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
@@ -481,8 +514,13 @@ export default function App() {
             )}
           </section>
 
-          <section className="checks" aria-label="Admission report">
-            <h2>Admission report</h2>
+          </div>
+
+          <div role="tabpanel" id="panel-frames" aria-labelledby="tab-frames" hidden={tab !== 'frames'}>
+            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
+          </div>
+
+          <section className="checks" role="tabpanel" id="panel-checks" aria-labelledby="tab-checks" hidden={tab !== 'checks'}>
             {loaded.tx.admission ? (
               <>
                 <p className="muted">
@@ -653,6 +691,24 @@ function Copy({ text, label, children }: { text: string; label: string; children
   )
 }
 
+const TABS = [
+  ['overview', 'Overview'],
+  ['frames', 'Frames'],
+  ['checks', 'Mempool checks'],
+] as const
+
+// Explorer-style help: a small (i) before a field label; hover or focus shows what the field means.
+function Hint({ text }: { text: string }) {
+  return (
+    <span className="hint-i" tabIndex={0} role="img" aria-label={text} title={text}>
+      i
+    </span>
+  )
+}
+
+// Status badge icons, as on explorer tx pages.
+const ICON: Record<Tone, string> = { pass: '✓', fail: '✕', warn: '!', info: '•' }
+
 // The short tag on each finding card.
 const TAG: Record<Tone, string> = { fail: 'Problem', warn: 'Heads-up', pass: 'All good', info: 'Note' }
 
@@ -669,10 +725,13 @@ const PLAIN: Record<string, string> = {
   'No conflict found': 'No spec problem found',
 }
 
-function VerdictRow({ label, v }: { label: string; v: Verdict }) {
+function VerdictRow({ label, hint, v }: { label: string; hint?: string; v: Verdict }) {
   return (
     <>
-      <dt>{label}</dt>
+      <dt>
+        {hint && <Hint text={hint} />}
+        {label}
+      </dt>
       <dd className="v-row">
         <Dot tone={v.tone} />
         <span>

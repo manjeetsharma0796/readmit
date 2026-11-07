@@ -984,7 +984,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T80 · Familiar block-explorer patterns for the result
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 06:15 IST
 - priority: P2
@@ -992,4 +992,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: A teammate asked for components people already know from block explorers (Etherscan, Blockscout, Otterscan share them; AGENTS.md section 8 names the Etherscan tx page). Tabs (Overview / Frames / Mempool checks), a status badge with an icon, an ⓘ hint on every field label, gas as used / limit (percent), copy beside hashes. Our own colours and type.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors; tabs work by mouse and keyboard.
-- log:
+- log: npm run build and git diff --check pass; no console errors. All 12 saved cases x 3 tabs at 1024 and 375 px: no overflow; all three tabs fit at 375 px. Tabs work by click and by arrow keys (roving tabindex, role tab/tabpanel); a new transaction opens on Overview. Overview has hairline field rows with an (i) hint on each label, the hash in the list with copy, and a bordered status badge with an icon. The gas used / limit row was left out: the receipt has no single tx gas limit to compare against.
