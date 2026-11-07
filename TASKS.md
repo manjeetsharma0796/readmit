@@ -1053,3 +1053,14 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: show the frames on Overview, not in their own tab. Then a review pass for UI and UX problems a hackathon judge would notice (consistency, wording, states, mobile, accessibility), each finding checked by a skeptic before fixing.
 - done when: build passes; every fixed item checked at desktop and 375 px; no console errors.
 - log:
+
+### T86 · Plain-language dry-run lines in Send & fix
+- owner: manjeet
+- status: doing
+- agent: Claude Code on manjeet
+- started: 06:30 IST
+- priority: P1 (demo clarity)
+- touches: src/ui/Send.tsx only (no diagnose.ts, no CSS)
+- do: (1) "Public mempool would refuse it · StorageReadNonSender" reads like a failure. When that is the reason, say it positively: "Alt mempool only": our staked paymaster reads the Uniswap pool while validating, which the public mempool forbids and the alt mempool allows. (2) The yellow pool-price warning stays yellow after the tx is included. Before sending, word it as a heads-up and name 0x6bf9…9848 as the Uniswap v4 PoolManager. After inclusion, show it grey: the price held.
+- done when: the send flow shows the new lines locally at 1280 and 375 px; build passes; console clean; manjeet OKs before push.
+- log:
