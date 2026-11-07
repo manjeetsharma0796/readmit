@@ -1029,3 +1029,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh: the filter counts (200 / 85 / 115) but the list stops at 12 with no way to see the rest; the icons in tinted squares and the gas bars look generated; the verdict state ("Rejected this copy") should be in its status colour. Add "Showing N of M" and Show more; plain coloured dots on the outcome steps; no gas bars in the frame table; verdict text coloured by tone.
 - done when: build passes; Show more reaches every row; desktop and 375 px clean, no console errors.
 - log: npm run build and git diff --check pass; no console errors. Live gateway list: Rejected shows "Showing 12 of 90", Show more reaches 90 of 90; switching filter resets to 12 ("Showing 12 of 200" on All). Outcome steps use a coloured dot and coloured state, no icon tiles; frame table shows gas numbers without bars; verdict state text is coloured by tone ("Rejected this copy" in red, rgb(244,163,173)).
+
+### T84 · Paged live list, even stat tiles, no tick and cross
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 07:05 IST
+- priority: P2
+- depends: T83
+- touches: src/App.tsx, src/app/globals.css
+- do: esh: page the live list (previous / next, 12 at a time) instead of growing it; the stat tiles mix fonts and sizes; the tick and cross in the status badge look generated. Pager with "1–12 of N"; one font, size and weight for every tile value; a plain status dot in the badge.
+- done when: build passes; the pager reaches the last page and back; desktop and 375 px clean, no console errors.
+- log:
