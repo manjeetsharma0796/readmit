@@ -1076,3 +1076,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh asked why some "Rejected" rows were yellow. They are the gateway's disk-full errors (amber = not the transaction's fault), but the word "Rejected" is red everywhere else. Label those rows "Node error" so word and colour agree.
 - done when: build passes; node-fault rows read "Node error" in amber; real rejections stay red "Rejected".
 - log: npm run build and git diff --check pass; no console errors. Live gateway list: all 12 visible node-fault rows read "Node error" in amber (rgb 236,202,140), sentence case, no clipping; real rejections keep the red "Rejected".
+
+### T88 · Judge red-team: fix what would cost us a prize (eligibility, docs, UI)
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 07:11 IST
+- priority: P0 (submission)
+- depends: none
+- touches: README.md, docs/SUBMISSION.md, docs/PITCH.md, docs/DEFENSE.md, FEEDBACK.md, src/App.tsx, src/app/layout.tsx, src/app/globals.css, src/ui/* except src/ui/Send.tsx (T86 is editing it), plus minimal edits elsewhere, each logged here
+- do: esh asked in chat at 07:05 for a red-team of everything that could make the judges reject Readmit or rank it lower, and then to fix those problems and update the repo. 11 read-only reviewers (ETHGlobal rules, EF alt mempool, CROPS, Uniswap and the paymaster, engine, live UI, demo reliability, pitch, consistency, judge Q&A, security), with a skeptic checking each finding. Fix the confirmed ones that are safe before 09:00. Add the AI-usage and commit-history notes that the ETHGlobal rules ask for. Hand engine and contract items to their owners as tickets.
+- done when: npm run build and npm run check pass; the README has the AI-usage and history notes; every applied fix is listed in this log; Vercel has redeployed and the live site is checked at 1280 and 375 px.
+- log:
