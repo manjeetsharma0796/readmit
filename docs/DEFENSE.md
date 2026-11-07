@@ -11,8 +11,8 @@ A rejected frame transaction never reaches a block, so an explorer has nothing t
 - Evidence: 9 of the 12 saved cases in the app are rejections that never reached a block ("Rejected by the mempool").
 
 **"Who needs this?"**
-Every team building frame transactions this weekend: the miner node rejected 52 of its last 200 transactions, from 14 different senders, in about 2 hours (*snapshot*). The top rule was `simulation` (42 times), then `OP-011` (7).
-- Evidence: the live stats line under "Live from the miner node" in the app.
+Every team building frame transactions this weekend. On Sat 7 Nov at 07:15 the miner node had rejected 79 of its last 200 transactions, from 12 senders, in under an hour (*snapshot*); the top rule was `simulation` (52 times). Read the live numbers off the stat tiles rather than these.
+- Evidence: the stat tiles under "Live from the miner node", which the app opens on by default.
 
 **"Did you actually send anything?"**
 Yes. A wallet holding 0 ETH sent 1 tUSD and paid 2.969998 tUSD of gas to our paymaster; it was admitted with 24 of 24 checks and included in block 6,065 with all 4 frames successful.
@@ -20,7 +20,7 @@ Yes. A wallet holding 0 ETH sent 1 tUSD and paid 2.969998 tUSD of gas to our pay
 - Paymaster `0xc9ca898B92fA53635959021239E190Cf22c1F1d9` (code deployed), staked in tx `0x84c42869…22a9` (block 6,010).
 
 **"The 0xe97e… example doesn't open in the explorer."**
-That transaction is from an earlier run of the devnet (block 405,125); the devnet has since been reset and is now around block 7,200. Readmit shows it from a saved copy and labels it "Saved sample, not fetched live".
+That transaction is from an earlier run of the devnet (block 405,125); the devnet has since been reset and is now past block 11,500. Readmit shows it from a saved copy and labels it "Saved copy · recorded earlier on the devnet, not a live check".
 - Evidence: `src/samples/reverted-out-of-gas.json`. The logic-revert example `0x6137…` is still on the current chain (block 2,993, frame 2 failed at 8,158 gas).
 
 **"One of your Fix & send transactions was dropped. Is your fix broken?"**
@@ -41,7 +41,7 @@ Because it wouldn't help: this sidecar caps validation at 100,000 gas for every 
 - Evidence: the sidecar's own text in `src/samples/verify-gas-over-cap.json`: "… exceeds MAX_VERIFY_GAS 100000".
 
 **"Where do your rule names and numbers come from?"**
-From the sidecar's detail text, parsed at read time, never hardcoded; an unknown rule is shown word for word.
+From the sidecar's detail text, parsed at read time; an unknown rule is shown word for word. The only built-in numbers are the sidecar's 100k validation cap (to flag oversized VERIFY limits before sending) and the spec's 1M staked budget, for context.
 - Evidence: the "Technical details" section lists every rule the sidecar ran, with its own detail text.
 
 **"Why did it revert?" for an old transaction**
@@ -53,6 +53,18 @@ For a fresh on-chain failure, Readmit replays it on the block before it: that pr
 **"`slot0` is a spot price. Can't someone manipulate it?"**
 Yes, within a block, so this design is for a test network and we say so: the paymaster charges spot plus 10%, and the send dry run warns that a swap can invalidate the transaction before inclusion. A TWAP or oracle hook is the next step before real money.
 - Evidence: comment in `contracts/src/V4PricedPaymaster.sol` line 23; `FEEDBACK.md` item 2; the dry run's pool-price warning.
+
+**"Why did the golden tx pay 2.97 tUSD when it used only 216,746 gas?"**
+The paymaster charges its quote for the transaction's maximum cost (every gas limit × the max fee, with a 2 gwei floor) and doesn't refund unused gas yet; at the real gas price that tx cost about 0.72 tUSD. A post-op refund frame is the fix, and the README lists it under trade-offs.
+
+**"Can a moved pool, or a lying RPC, make a user overpay?"**
+Today the app signs the fee the RPC's `quote()` returns, after a dry run, with no ceiling; the chain id and the token and paymaster addresses are built in, but the RPC you choose is trusted for the quote. On the devnet that's a stated trade-off (README, CROPS S); before real money we'd add a user-set max fee and a TWAP.
+
+**"How did you use AI?"**
+Heavily, and it's documented: Claude Code worked 66 of our 76 tickets and Codex 1; each ticket in `TASKS.md` names the agent, who asked for the change and why, and the evidence. We wrote the spec and the agent rules, chose the design, approved and ran every deploy and transaction ourselves, and checked each result on the devnet. Each of us can walk you through our own part: manjeet the engine, prith the contracts, esh the UI.
+
+**"Your first commits add about 3,900 lines at once."**
+Until Fri 21:00 we worked in a local prototype (FrameLab); the earliest saved case was mined on Thu 23:14, after hacking began. We imported it when we created the repo, and everything since is small commits tied to tickets. One early commit with a Claude co-author line was amended and force-pushed; the README says so.
 
 **"Someone else at this event built a Uniswap-priced paymaster."**
 Yes (FrameGas). Our paymaster is the payment rail; the product is the debugger and Fix & send, which we did not find anywhere else.
@@ -83,7 +95,7 @@ Only once a payer exists. If a VERIFY frame fails, the transaction is invalid, n
 - Evidence: [EIP-8141](https://eips.ethereum.org/EIPS/eip-8141); [ethrex frame docs](https://github.com/forshtat/ethrex/blob/9aa3645d795945c64400f41a70aace0edfa7f383/docs/eip-8141.md).
 
 **"Does staking make your paymaster safe?"**
-Staking makes the pool read admissible in the alt mempool; it doesn't make the price safe. The spot price can still move within a block and every swap forces revalidation, so we rely on the 10% markup and the transaction's max fee, and a cached or oracle price is the next step.
+Staking makes the pool read admissible in the alt mempool; it doesn't make the price safe. The spot price can still move within a block and every swap forces revalidation, The paymaster charges spot plus 10% as its margin; on the sender's side, our quote covers the maximum cost with about 7% slack, so a small move still passes and a bigger one fails the dry run as "underpaid" before anything is sent. A cached or oracle price is the next step.
 
 **"Is there any other tool for frame transactions?"**
 We found a draft frame-transaction PR in viem and a design post from Ethernal, and nothing that names the failed frame or proposes and sends a fix. That is absence of evidence, so we say "we found none", not "none exists".

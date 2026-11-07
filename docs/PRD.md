@@ -1,6 +1,9 @@
 # Readmit: product requirements (PRD)
 
 ETHGlobal Mumbai 2026. Team of 3. Written Fri 6 Nov 20:45 IST.
+
+> **This is the plan as written before the build, kept for the record.** What shipped differs: there's no Nox/Anon-RPC toggle; there's no V4Quoter call (the paymaster's own `quote()` reads `slot0`); the demo wallet is a plain-key EOA, not a smart wallet; sends go to the miner sidecar, not the gateway; and Fix & send applies gas fixes only. The README describes what shipped.
+
 - **Feature freeze:** Sat 01:00. **Code freeze:** 03:00. **Submit:** 08:00. **ETHGlobal deadline:** 09:00.
 - Related docs: the decision record and hour plan were folded into the gates in `TASKS.md`.
 

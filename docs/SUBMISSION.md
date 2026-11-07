@@ -49,14 +49,15 @@ When one fails, developers are left guessing:
   - Forge underestimates this devnet's state gas, so we deploy with `--skip-simulation`.
 
 ## How we used AI (ETHGlobal rule: attribution)
-- We built Readmit with AI coding agents, and they wrote most of the code and docs. Claude Code worked 65 of the 75 tickets and Codex worked 1. Teammates did 4 by hand.
+- We built Readmit with AI coding agents, and they wrote most of the code and docs. Of the 76 tickets, Claude Code worked 66, Codex worked 1 and teammates did 4 by hand. 5 were never started.
 - The repo holds the full record. [`AGENTS.md`](https://github.com/manjeetsharma0796/readmit/blob/main/AGENTS.md) is the rules every agent followed. [`TASKS.md`](https://github.com/manjeetsharma0796/readmit/blob/main/TASKS.md) has every ticket, with the agent, the teammate who asked for it, why, and the evidence. [`docs/PRD.md`](https://github.com/manjeetsharma0796/readmit/blob/main/docs/PRD.md) is the spec.
 - The team set the spec, the priorities and the design direction. A teammate approved and ran every deploy, stake and transaction, and we checked each result on the devnet.
 - **History:** hacking began Thu 5 Nov. Until Fri 21:00 IST we worked in a local folder on a prototype called FrameLab. The earliest saved case, `0xe97e…`, was mined Thu 23:14 IST. The repo's first five commits (Fri 21:04) import that prototype, and every change after that is a small commit tied to a ticket. One early commit with a Claude co-author line (`c20f83e`) was amended and force-pushed; the README says so.
 
 ## Limits we state plainly
 - **Devnet only.** EIP-8141 isn't on mainnet until Hegotá.
-- **Spot price.** The paymaster uses the v4 spot price (`slot0`). We quote with about 7% headroom and re-quote on "underpaid"; a TWAP or guarded price is next.
+- **Spot price.** The paymaster uses the v4 spot price (`slot0`). The paymaster charges spot plus 10%. Our quote covers the maximum cost with about 7% slack; a bigger price move fails the dry run as "underpaid" before anything is sent, and pressing Send again re-quotes. A TWAP or guarded price is next.
+- **Charged on maximum cost.** The fee is the quote for every gas limit × the max fee, with no refund of unused gas yet.
 - **Partial spec check.** The ERC-8421 column covers the validation budget and validation reverts only.
 
 ## Links

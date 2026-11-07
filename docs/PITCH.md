@@ -1,6 +1,8 @@
 # Readmit: demo script and judge Q&A
 
-This is a 3-minute video; the live demo part is about 90 seconds. Everything runs on the EF alt-mempool devnet (chain 1337).
+**Video length: 2:15 to 2:50.** ETHGlobal rejects videos under 2:00 or over 4:00 at upload, and the EF CROPS prize allows at most 3:00. Record a human voice (no text-to-speech) with a laptop screen recorder at 1080p, not a phone. Cut waiting time with edits; never speed the footage up. Slides: at most 4 bullets each. Everything runs on the EF alt-mempool devnet (chain 1337).
+
+**Before recording:** open **Demo account ▾** (top right) and import the demo key, then reload once so the live list has loaded. The finalist live demo is 4 minutes plus 3 minutes of Q&A: use the same script and skip the slides.
 
 **Prize order:**
 1. EF Alt Mempool. We are in its **developer tooling** area: an admission simulator.
@@ -28,16 +30,23 @@ Two things to say accurately:
 - "Here it's the opposite: 29,925 of 30,000. It ran out of gas, and the number to change is about 38,000."
 
 **0:35–1:15 · Our own transaction: caught before it costs anything, then fixed**
-- The wallet panel shows **about 80 tUSD and 0 ETH**. Enter recipient and amount, tick **"Send with low gas (demo)"**, and press **Send**.
+- The **Demo account** button (top right) shows our tUSD balance, and its panel shows **0 ETH**. Don't say a balance number; it changes with every send. Enter recipient and amount, tick **"Send with low gas (demo)"**, and press **Send**.
 - "Before anything is broadcast, Readmit dry-runs it on the node. Frame 3 would run out of gas: 16,000 of 16,000. Caught, never sent."
 - Press **Fix & send**. "It applies the new limit, re-quotes the tUSD fee from the Uniswap pool, dry-runs again, and sends."
 - Show the timeline Admitted → Included, and "Gas paid: about 2.7 tUSD, ETH used: 0". Proven live: `0xf09e55cf…0d4e` (block 7,261).
 
 **1:15–1:35 · Why this needs the alt mempool**
-- "Our paymaster prices gas from a Uniswap v4 pool while it validates. The public mempool forbids that read. Readmit's dry run shows 'StorageReadNonSender'. The alt mempool admits it because the paymaster is staked. Readmit shows both verdicts side by side."
+- "Our paymaster prices gas from a Uniswap v4 pool while it validates. The canonical mempool rules forbid that read: Readmit's dry run names the rule, `StorageReadNonSender`. The alt mempool admits it because the paymaster is staked, and the timeline shows it admitted." (Read the dry-run line exactly as it appears on screen; T86 may reword it.)
 
 **1:35–1:50 · Honest limits**
-- "It reads a spot price, `slot0`, which can be moved. We quote with about 7% headroom, and if the price moves, Readmit catches 'underpaid' and re-quotes. A TWAP or guarded price is next."
+- "It reads a spot price, `slot0`, which can be moved. The paymaster charges spot plus 10%, and our quote covers the maximum cost with about 7% slack, so a small move still passes. A bigger one, the dry run catches as 'underpaid' before anything is sent, and pressing Send again re-quotes. A TWAP or guarded price is next."
+
+**1:50–2:30 · CROPS: no server of ours**
+- Open **Endpoints: use your own node** in the footer. "Static site, no backend. Your browser talks straight to ethrex and the sidecars, and you can point Readmit at your own node."
+- Switch **Miner** to **Gateway** in the header and open the same hash again. "If one node refuses you, the same check runs against another." Point at the footer: "MIT, no trackers."
+
+**2:30–2:45 · Close**
+- "Readmit: which frame failed, why, the number to change, and a fix that's dry-run before it's sent. The engine is also an SDK."
 
 ## Judge Q&A (short answers)
 **"Isn't this just the explorer with a nicer skin?"**

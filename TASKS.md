@@ -1046,7 +1046,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - owner: esh
 - status: done
 - agent: Claude Code on esh
-- started: 07:15 IST
+- started: 06:17 IST
 - priority: P1
 - depends: T84
 - touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx, src/ui/FixAndSend.tsx, src/ui/Send.tsx
@@ -1069,7 +1069,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - owner: esh
 - status: done
 - agent: Claude Code on esh
-- started: 07:40 IST
+- started: 06:42 IST
 - priority: P2
 - depends: T85
 - touches: src/App.tsx, src/app/globals.css
