@@ -993,3 +993,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: A teammate asked for components people already know from block explorers (Etherscan, Blockscout, Otterscan share them; AGENTS.md section 8 names the Etherscan tx page). Tabs (Overview / Frames / Mempool checks), a status badge with an icon, an ⓘ hint on every field label, gas as used / limit (percent), copy beside hashes. Our own colours and type.
 - done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors; tabs work by mouse and keyboard.
 - log: npm run build and git diff --check pass; no console errors. All 12 saved cases x 3 tabs at 1024 and 375 px: no overflow; all three tabs fit at 375 px. Tabs work by click and by arrow keys (roving tabindex, role tab/tabpanel); a new transaction opens on Overview. Overview has hairline field rows with an (i) hint on each label, the hash in the list with copy, and a bordered status badge with an icon. The gas used / limit row was left out: the receipt has no single tx gas limit to compare against.
+
+### T81 · One background colour on every device
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 06:30 IST
+- priority: P1
+- depends: none
+- touches: src/app/layout.tsx, src/app/globals.css
+- do: esh saw the background split into two colours on another device after Inspect (the page grows past one screen). Tell the browser the page is dark and its colour (viewport themeColor and colorScheme), and paint the html canvas the page colour at full height, so phone toolbars and overscroll areas match.
+- done when: build passes; the built page has the theme-color and color-scheme metas; html and body share one colour.
+- log:
