@@ -1177,3 +1177,4 @@ body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
   .recent-head > button { order: 1; }
   .recent-head .seg.filter { order: 2; }
 }
+.r-out.warn { text-transform: none; white-space: nowrap; }

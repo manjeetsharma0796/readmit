@@ -1067,7 +1067,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T87 · Live list: node disk errors read "Node error", not an amber "Rejected"
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 07:40 IST
 - priority: P2
@@ -1075,4 +1075,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: esh asked why some "Rejected" rows were yellow. They are the gateway's disk-full errors (amber = not the transaction's fault), but the word "Rejected" is red everywhere else. Label those rows "Node error" so word and colour agree.
 - done when: build passes; node-fault rows read "Node error" in amber; real rejections stay red "Rejected".
-- log:
+- log: npm run build and git diff --check pass; no console errors. Live gateway list: all 12 visible node-fault rows read "Node error" in amber (rgb 236,202,140), sentence case, no clipping; real rejections keep the red "Rejected".

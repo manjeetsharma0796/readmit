@@ -669,7 +669,7 @@ export default function App() {
                   >
                     <Dot tone={fault ? 'warn' : toneOf(r.outcome)} />
                     <code>{short(r.txHash)}</code>
-                    <span className={`r-out ${fault ? 'warn' : toneOf(r.outcome)}`}>{r.outcome}</span>
+                    <span className={`r-out ${fault ? 'warn' : toneOf(r.outcome)}`}>{fault ? 'Node error' : r.outcome}</span>
                     <span className="r-why" title={fail?.detail}>
                       {fault ? 'Node disk full, not a problem with this transaction' : fail ? (fail.detail ?? fail.rule) : `${r.frames?.length ?? 0} frames`}
                     </span>
