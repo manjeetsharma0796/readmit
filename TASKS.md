@@ -1044,15 +1044,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T85 · Frames on Overview; judge-facing UI/UX pass
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 07:15 IST
 - priority: P1
 - depends: T84
-- touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx
+- touches: src/App.tsx, src/app/globals.css, src/ui/FramesTable.tsx, src/ui/FixAndSend.tsx, src/ui/Send.tsx
 - do: esh: show the frames on Overview, not in their own tab. Then a review pass for UI and UX problems a hackathon judge would notice (consistency, wording, states, mobile, accessibility), each finding checked by a skeptic before fixing.
 - done when: build passes; every fixed item checked at desktop and 375 px; no console errors.
-- log:
+- log: Frames moved onto Overview (outcome strip, Frames, What to change, Details); tabs are now Overview / Mempool checks. Review: 6 read-only reviewers (visual, wording, states, accessibility, phones, judge first look) found 60 issues, merged to 37, a skeptic per item refuted 8; 29 confirmed. Applied: F1 node disk errors labelled in the live list and kept out of the rejection stats ("6%, 11 of the last 200, plus 102 node disk errors" instead of 57%); F2 Inspect is the only violet button (Send is grey); F3 Mempool checks counts add up ("1 failed · 3 passed · 12 not checked") with Passed/Failed/Not checked words; F4 calm before-any-frame note, "Gas limit" instead of "Not recorded"; F8 no emoji in Fix & send; F9 a failed Inspect clears the old result, a running one dims it; F11 phone rows keep the time on one line; F12 (i) hints show on hover/focus/tap; F13 no zero counts while loading, Refresh shows "Refreshing…"; F14 one frame name in tile, inspector and table; F15 repeated copy removed; F16 no rule names in the lead sentence, clearer footer; F17 "Rejected this copy" only when another copy landed; F18 no duplicate finding after a failed dry run; F19-F28 heading sizes, inspector text size, phone header (4 rows to 3), tablet header, Connect wallet matches Demo account, small radii, even tile heights, tab focus ring, status as dot + word; F30 clearer tile labels; F32 phone list header; F36 no scroll-to-top jump. Also found while checking: switching node showed the old node's rows under the new heading; rows now clear on node change. Not applied: F5 (remove Mempool/On chain rows) and F17's amber colour, both against esh's explicit requests; F29 logo flattening (brand); F7 (Send already explains a missing key). npm run build and git diff --check pass; no console errors; all 12 saved cases x 2 tabs at 375 px with no overflow; checked at 1024 px in the browser pane. Note for T86 (needs: manjeet): src/ui/Send.tsx changed in two places, the Send button no longer has className primary (one violet button per screen) and the problem box skips the finding Fix & send already shows; pull before editing.
 
 ### T86 · Plain-language dry-run lines in Send & fix
 - owner: manjeet

@@ -3,7 +3,7 @@ import { EXPLORER } from '../rpc'
 
 const short = (h: string) => `${h.slice(0, 10)}…${h.slice(-6)}`
 
-/** The fix for an out-of-gas frame, one Fix & send button, and the old ❌ / new ✅ comparison once it has run. */
+/** The fix for an out-of-gas frame, one Fix & send button, and a before/after comparison, shown with status dots, once it has run. */
 export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHash: string | null; busy: boolean; onFix: () => void; what?: string }) {
   return (
     <div className="fixsend">
@@ -23,7 +23,8 @@ export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHas
       )}
       <ul className="compare" aria-label="Before and after">
         <li className="fail">
-          <span aria-hidden="true">❌</span>{' '}
+          <span className="dot fail" aria-hidden="true" />
+          <span className="cmp-label">Before</span>
           {p.oldHash ? (
             <a href={EXPLORER(p.oldHash, 'miner')} target="_blank" rel="noreferrer">
               <code>{short(p.oldHash)}</code>
@@ -34,7 +35,8 @@ export function FixAndSend(p: { finding: Finding; oldHash: string | null; newHas
         </li>
         {p.newHash && (
           <li className="pass">
-            <span aria-hidden="true">✅</span>{' '}
+            <span className="dot pass" aria-hidden="true" />
+            <span className="cmp-label">After, included</span>
             <a href={EXPLORER(p.newHash, 'miner')} target="_blank" rel="noreferrer">
               <code>{short(p.newHash)}</code>
             </a>

@@ -32,8 +32,8 @@ function FrameSequence({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult
   const beforeFrames = !receipt && tx.admission?.outcome === 'rejected' && !dx.frames.some((_, i) => frameStatus(i, dx, tx, receipt).failed)
   return (
     <div className="frame-sequence">
-      <div className="sequence-caption"><span>{dx.frames.length} frames in transaction order</span><span>Select a frame for details</span></div>
-      {beforeFrames && <p className="sequence-rejection">Admission rejected. No failing frame was identified.</p>}
+      <div className="sequence-caption"><span>{dx.frames.length} frames, in the order they run</span><span>Select a frame for details</span></div>
+      {beforeFrames && <p className="sequence-rejection">The mempool rejected this transaction before any frame ran. The reason and the fix are in What to change below.</p>}
       <ol className="fragment-list">
         {dx.frames.map((f, i) => {
           const status = frameStatus(i, dx, tx, receipt)
@@ -50,11 +50,11 @@ function FrameSequence({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxResult
         })}
       </ol>
       <section className={`frame-inspector ${st.failed ? 'is-failed' : ''}`} aria-label="Selected frame" aria-live="polite">
-        <div className="frame-inspector-head"><strong>Frame {index}</strong><span>{role(frame)}</span><span className={`frame-state ${st.failed ? 'failed' : st.text === 'Succeeded' ? 'succeeded' : ''}`}>{st.text}</span></div>
+        <div className="frame-inspector-head"><strong>Frame {index}</strong><span>{tag(frame.mode, frame.flags)}{frame.mode === 1 && <span className="muted"> · {role(frame)}</span>}</span><span className={`frame-state ${st.failed ? 'failed' : st.text === 'Succeeded' ? 'succeeded' : ''}`}>{st.text}</span></div>
         <dl className="frame-facts">
           <div><dt>Target</dt><dd><code>{frame.target ?? 'Sender'}</code></dd></div>
           <div><dt>Call</dt><dd><code>{selector ? (names.get(selector) ?? selector) : 'No call data'}</code></dd></div>
-          <div><dt>Gas used / limit</dt><dd>{rc ? fmt(n(rc.gasUsed)) : 'Not recorded'} / {fmt(limit)}</dd></div>
+          <div><dt>{rc ? 'Gas used / limit' : 'Gas limit'}</dt><dd>{rc ? `${fmt(n(rc.gasUsed))} / ${fmt(limit)}` : fmt(limit)}</dd></div>
         </dl>
       </section>
     </div>
@@ -91,16 +91,16 @@ export function FramesTable({ dx, tx, receipt, names }: { dx: Diagnosis; tx: TxR
                 <td data-label="#" className="t-num">
                   {i}
                 </td>
-                <td data-label="Role">{role(f)}</td>
+                <td data-label="Role">{tag(f.mode, f.flags)}{f.mode === 1 && <span className="muted"> · {role(f)}</span>}</td>
                 <td data-label="Target">
-                  <code title={f.target ?? undefined}>{f.target ? short(f.target) : 'sender'}</code>
+                  <code title={f.target ?? undefined}>{f.target ? short(f.target) : 'Sender'}</code>
                 </td>
                 <td data-label="Call">
-                  <code>{sel ? (names.get(sel) ?? sel) : 'no data'}</code>
+                  <code>{sel ? (names.get(sel) ?? sel) : 'No call data'}</code>
                   {n(f.value) > 0 && <span className="muted"> · {fmt(n(f.value))} wei</span>}
                 </td>
                 <td data-label="Gas used / limit" className="t-gas">
-                  <span>{used !== null ? `${fmt(used)} / ${fmt(limit)}` : `– / ${fmt(limit)}`}</span>
+                  <span>{used !== null ? `${fmt(used)} / ${fmt(limit)}` : `limit ${fmt(limit)}`}</span>
                   <span className="bar" role="img" title={used !== null ? `${fmt(used)} of ${fmt(limit)} gas (${pct.toFixed(1)}%)` : `Not executed, limit ${fmt(limit)}`} aria-label={used !== null ? `${pct.toFixed(0)} percent of gas limit used` : 'Not executed'}>
                     <span style={{ width: `${used !== null ? Math.max(pct, 1.5) : 0}%` }} />
                   </span>

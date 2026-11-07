@@ -61,11 +61,12 @@ export default function App() {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [busy, setBusy] = useState(false)
   // Explorer-style tabs on the result. A new transaction always opens on Overview.
-  const [tab, setTab] = useState<'overview' | 'frames' | 'checks'>('overview')
+  const [tab, setTab] = useState<'overview' | 'checks'>('overview')
   useEffect(() => setTab('overview'), [loaded?.hash])
   const [error, setError] = useState('')
   const [rows, setRows] = useState<AdmissionRow[] | null>(null)
   const [rowsError, setRowsError] = useState('')
+  const [rowsBusy, setRowsBusy] = useState(false)
   const [filter, setFilter] = useState<'all' | 'rejected' | 'admitted'>('all')
   const [page, setPage] = useState(0)
   useEffect(() => setPage(0), [filter, node])
@@ -108,14 +109,19 @@ export default function App() {
 
   const loadRecent = async (which: NodeId) => {
     setRowsError('')
+    setRowsBusy(true)
     try {
       setRows((await recent(which, 200)).sort((a, b) => (b.at ?? 0) - (a.at ?? 0)))
     } catch (e) {
       setRows([])
       setRowsError(`Couldn't reach the ${NODES[which].label.toLowerCase()} node: ${(e as Error).message}. The real cases above work offline.`)
+    } finally {
+      setRowsBusy(false)
     }
   }
   useEffect(() => {
+    // A different node: drop the old node's rows, so they never sit under the new node's heading while it loads.
+    setRows(null)
     loadRecent(node)
   }, [node])
   useEffect(() => {
@@ -132,6 +138,7 @@ export default function App() {
     setError('')
     if (!/^0x[0-9a-f]{64}$/.test(hash)) {
       setError('Enter a transaction hash: 0x followed by 64 hex characters.')
+      setLoaded(null)
       return
     }
     setBusy(true)
@@ -152,6 +159,8 @@ export default function App() {
       if (!tx || (!tx.admission && !tx.entry)) {
         if (saved) return loadSample(saved)
         setError(`The ${NODES[which].label.toLowerCase()} node has no record of this transaction. Try the other node. The node keeps history in memory, so older transactions are gone after a restart.`)
+        setLoaded(null)
+        history.replaceState(null, '', location.pathname)
         return
       }
       setLoaded({ hash, node: which, tx, receipt: rc.r, source: 'live', chainUnknown: rc.unknown })
@@ -160,6 +169,8 @@ export default function App() {
       if (me !== latest.current) return
       if (saved) return loadSample(saved)
       setError(`Couldn't reach the devnet: ${(e as Error).message}. Try a real case below, which works offline.`)
+      setLoaded(null)
+      history.replaceState(null, '', location.pathname)
     } finally {
       if (me === latest.current) setBusy(false)
     }
@@ -183,6 +194,10 @@ export default function App() {
     resultRef.current?.scrollIntoView({ block: 'start' })
     resultRef.current?.focus({ preventScroll: true })
   }, [loaded])
+  // An error under the search box should be seen, wherever the click came from.
+  useEffect(() => {
+    if (error) document.getElementById('inspect')?.scrollIntoView({ block: 'start' })
+  }, [error])
 
   function download() {
     if (!loaded || !dx) return
@@ -214,17 +229,16 @@ export default function App() {
     if (!loaded || !dx) return ''
     const adm = loaded.tx.admission?.outcome
     const node = NODES[loaded.node].label.toLowerCase()
-    const rules = (loaded.tx.admission?.checks ?? []).filter((c) => c.verdict === 'fail').map((c) => c.rule).join(', ')
     if (loaded.chainUnknown)
       return `The ${node} node's verdict is below, but the chain couldn't be checked right now, so whether it landed (and whether anyone paid) is unknown. Try Inspect again.`
     const failed = receipt?.frameReceipts.map((f, i) => (f.status === '0x0' ? i : -1)).filter((i) => i >= 0) ?? []
     if (receipt?.status === '0x1')
       return adm === 'rejected'
-        ? `The transaction landed on chain and every frame worked. The ${node} node rejected one copy of it${rules ? ` (rule ${rules})` : ''}, but another copy got in, through the other node or a resend. Nothing to fix.`
+        ? `The transaction landed on chain and every frame worked. The ${node} node rejected one copy of it, but another copy got in, through the other node or a resend. Nothing to fix.`
         : 'The transaction was accepted, landed on chain, and every frame worked. Nothing to fix.'
     if (receipt)
       return `The transaction landed on chain, but frame ${failed.join(', ')} failed, and the payer was still charged.${adm === 'rejected' ? ` The ${node} node had also rejected one copy of it.` : ''} See what to change below.`
-    if (adm === 'rejected') return `The ${node} node rejected this transaction${rules ? ` (rule ${rules})` : ''}, so it never reached the chain and nobody paid. See what to change below.`
+    if (adm === 'rejected') return `The ${node} node rejected this transaction, so it never reached the chain and nobody paid. See what to change below.`
     if (adm === 'accepted') return `The ${node} node accepted this transaction. It is waiting to be included in a block.`
     return `The ${node} node has no admission record for this transaction, and it is not on chain.`
   })()
@@ -258,7 +272,8 @@ export default function App() {
   // Live demand evidence: how often this node rejects transactions, from how many senders, and why (sidecar rule names).
   const stats = useMemo(() => {
     if (!rows?.length) return null
-    const rejected = rows.filter((r) => r.outcome === 'rejected')
+    // Node faults (the sidecar's own disk errors) say nothing about the transactions, so they are not counted.
+    const rejected = rows.filter((r) => r.outcome === 'rejected' && !isNodeFault(r))
     const rules = new Map<string, number>()
     for (const r of rejected) for (const c of r.checks) if (c.verdict === 'fail') rules.set(c.rule, (rules.get(c.rule) ?? 0) + 1)
     const ats = rows.map((r) => r.at ?? 0).filter(Boolean)
@@ -266,6 +281,7 @@ export default function App() {
     return {
       total: rows.length,
       rejected: rejected.length,
+      nodeFaults: rows.filter(isNodeFault).length,
       senders: new Set(rejected.map((r) => r.sender).filter(Boolean)).size,
       span: hours >= 1 ? `${hours.toFixed(1)} hours` : `${Math.max(1, Math.round(hours * 60))} minutes`,
       top: [...rules].sort((a, b) => b[1] - a[1]).slice(0, 4),
@@ -282,7 +298,7 @@ export default function App() {
                           frame {c.frameIndex}, {c.entity}
                         </span>
                       )}
-                      <span className="muted">{c.verdict}</span>
+                      <span className={`check-state ${c.verdict}`}>{c.verdict === 'pass' ? 'Passed' : c.verdict === 'fail' ? 'Failed' : 'Not checked'}</span>
                       {c.detail && <span className="detail">{c.detail}</span>}
                     </li>
   )
@@ -300,28 +316,12 @@ export default function App() {
       <header className="top">
         <div className="brand">
           <svg className="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
-            {/* Embossed: a violet gradient lit from the top left, with a soft contact shadow. */}
             <defs>
               <linearGradient id="mark-fill" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stopColor="#d9ccff" />
                 <stop offset="0.55" stopColor="#ad93ff" />
                 <stop offset="1" stopColor="#7b5ce6" />
               </linearGradient>
-              <filter id="mark-emboss" x="-20%" y="-20%" width="140%" height="150%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />
-                <feSpecularLighting in="blur" surfaceScale="5" specularConstant="0.85" specularExponent="18" lightingColor="#ffffff" result="spec">
-                  <fePointLight x="-80" y="-100" z="220" />
-                </feSpecularLighting>
-                <feComposite in="spec" in2="SourceAlpha" operator="in" result="shine" />
-                <feComposite in="SourceGraphic" in2="shine" operator="arithmetic" k1="0" k2="1" k3="0.6" k4="0" result="lit" />
-                <feOffset in="SourceAlpha" dx="3" dy="6" result="drop" />
-                <feGaussianBlur in="drop" stdDeviation="4" result="dropBlur" />
-                <feColorMatrix in="dropBlur" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.75 0" result="shadow" />
-                <feMerge>
-                  <feMergeNode in="shadow" />
-                  <feMergeNode in="lit" />
-                </feMerge>
-              </filter>
             </defs>
             <g fill="url(#mark-fill)">
               <path d="M80 24C160 28 212 92 224 176 198 142 168 118 140 104 116 92 104 80 96 60L80 24Z" />
@@ -353,7 +353,7 @@ export default function App() {
         }}
       >
         <label htmlFor="hash">Transaction hash</label>
-        <p className="hint" id="hash-hint">From the alt-mempool devnet (chain 1337). You get which frame failed, why, and the exact change to make.</p>
+        <p className="hint" id="hash-hint">From the alt-mempool devnet (chain 1337).</p>
         <div className="row">
           <input
             id="hash"
@@ -408,7 +408,7 @@ export default function App() {
       </form>
 
       {loaded && dx && (
-        <section className="result" aria-label="Result">
+        <section className={`result${busy ? ' stale' : ''}`} aria-busy={busy} aria-label="Result">
           <div className="result-head">
             <h2 ref={resultRef} tabIndex={-1}>What happened</h2>
             <div className="actions">
@@ -426,12 +426,7 @@ export default function App() {
 
           <div className="tabs" role="tablist" aria-label="Result sections">
             {TABS.map(([id, label], i) => {
-              const count =
-                id === 'frames'
-                  ? dx.frames.length
-                  : id === 'checks' && loaded.tx.admission
-                    ? loaded.tx.admission.checks.filter((c) => c.verdict === 'fail').length || null
-                    : null
+              const count = id === 'checks' && loaded.tx.admission ? loaded.tx.admission.checks.filter((c) => c.verdict === 'fail').length || null : null
               return (
                 <button
                   key={id}
@@ -468,40 +463,10 @@ export default function App() {
               </li>
             ))}
           </ol>
-          <dl className="overview kv">
-            <dt><Hint text="The unique id of this transaction. Click it to copy." />Transaction hash</dt>
-            <dd>
-              <Copy text={loaded.hash} label="transaction hash">
-                <code className="hash">{loaded.hash}</code>
-              </Copy>
-            </dd>
-            <dt><Hint text="The overall outcome: whether it got into a block and whether every frame worked." />Status</dt>
-            <dd>
-              <span className={`badge status-badge ${status.tone}`}>
-                <Dot tone={status.tone} />
-                {status.text}
-              </span>
-            </dd>
-            <dt><Hint text="The block that included this transaction." />Block</dt>
-            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
-            <dt><Hint text="The account the transaction acts for. Its VERIFY frame approves it." />Sender</dt>
-            <dd>{sender ? <Copy text={sender} label="sender address"><code>{sender}</code></Copy> : <span className="muted">Unknown</span>}</dd>
-            <dt><Hint text="The account that paid for gas. With a paymaster, this is not the sender." />Payer</dt>
-            <dd>{payer ? <Copy text={payer} label="payer address"><code>{payer}</code></Copy> : <span className="muted">Unknown</span>}</dd>
-            <dt><Hint text="What the payer was charged: gas used times the effective gas price." />Transaction fee</dt>
-            <dd>
-              {loaded.receipt ? (
-                <>
-                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
-                </>
-              ) : (
-                <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
-              )}
-            </dd>
-            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} hint="Whether the alt-mempool sidecar admitted it, from its admission report." v={dx.mempool} />
-            <VerdictRow label="On chain" hint="What the receipt says happened when the block ran it." v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
-            <VerdictRow label="ERC-8421 spec" hint="A partial check against the alt-mempool spec: validation budget and validation reverts." v={dx.spec} />
-          </dl>
+          <section className="frames-main" aria-label="Frames">
+            <h2>Frames</h2>
+            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
+          </section>
 
           <section className="change" aria-label="What to change">
             <h2>{receipt?.status === '0x1' && loaded.tx.admission?.outcome === 'rejected' ? 'Why that one copy was rejected (no action needed)' : dx.findings.some((f) => f.fix) ? 'What to change' : 'Result'}</h2>
@@ -560,23 +525,55 @@ export default function App() {
             )}
           </section>
 
-          </div>
+          <section className="details" aria-label="Transaction details">
+            <h2>Details</h2>
+          <dl className="overview kv">
+            <dt><Hint text="The unique id of this transaction. Click it to copy." />Transaction hash</dt>
+            <dd>
+              <Copy text={loaded.hash} label="transaction hash">
+                <code className="hash">{loaded.hash}</code>
+              </Copy>
+            </dd>
+            <dt><Hint text="The overall outcome: whether it got into a block and whether every frame worked." />Status</dt>
+            <dd>
+              <span className={`badge status-badge ${status.tone}`}>
+                <Dot tone={status.tone} />
+                {status.text}
+              </span>
+            </dd>
+            <dt><Hint text="The block that included this transaction." />Block</dt>
+            <dd>{loaded.receipt ? fmt(n(loaded.receipt.blockNumber)) : <span className="muted">Not in a block</span>}</dd>
+            <dt><Hint text="The account the transaction acts for. Its validation frame approves it." />Sender</dt>
+            <dd>{sender ? <Copy text={sender} label="sender address"><code>{sender}</code></Copy> : <span className="muted">Unknown</span>}</dd>
+            <dt><Hint text="The account that paid for gas. With a paymaster, this is not the sender." />Payer</dt>
+            <dd>{payer ? <Copy text={payer} label="payer address"><code>{payer}</code></Copy> : <span className="muted">Unknown</span>}</dd>
+            <dt><Hint text="What the payer was charged: gas used times the effective gas price." />Transaction fee</dt>
+            <dd>
+              {loaded.receipt ? (
+                <>
+                  {fee.toFixed(6)} ETH <span className="muted">({fmt(n(loaded.receipt.gasUsed))} gas)</span>
+                </>
+              ) : (
+                <span className="muted">{loaded.chainUnknown ? "Unknown (couldn't check the chain)" : 'Nothing charged'}</span>
+              )}
+            </dd>
+            <VerdictRow label={`Mempool (${NODES[loaded.node].label.toLowerCase()})`} hint="Whether the alt-mempool sidecar admitted it, from its admission report." v={loaded.receipt && dx.mempool.headline === 'Rejected' ? { ...dx.mempool, headline: 'Rejected this copy' } : dx.mempool} />
+            <VerdictRow label="On chain" hint="What the receipt says happened when the block ran it." v={loaded.chainUnknown ? { tone: 'warn', headline: "Couldn't check", sub: 'The receipt lookup failed. Try again.' } : dx.chain} />
+            <VerdictRow label="ERC-8421 spec" hint="A partial check against the alt-mempool spec: validation budget and validation reverts." v={dx.spec} />
+          </dl>
+          </section>
 
-          <div role="tabpanel" id="panel-frames" aria-labelledby="tab-frames" hidden={tab !== 'frames'}>
-            <FramesTable dx={dx} tx={loaded.tx} receipt={loaded.receipt} names={names} />
           </div>
 
           <section className="checks" role="tabpanel" id="panel-checks" aria-labelledby="tab-checks" hidden={tab !== 'checks'}>
             {loaded.tx.admission ? (
               <>
-                <p className="muted">
-                  {loaded.tx.admission.checks.filter((c) => c.verdict === 'pass').length} of {loaded.tx.admission.checks.length} rules passed.
-                </p>
+                <p className="muted">{checkCounts(loaded.tx.admission.checks).line}</p>
                 {loaded.tx.admission.checks.some((c) => c.verdict === 'fail') && (
                   <ul>{loaded.tx.admission.checks.filter((c) => c.verdict === 'fail').map((c, i) => renderCheck(c, i))}</ul>
                 )}
                 <details className="passed">
-                  <summary>Show the other {loaded.tx.admission.checks.filter((c) => c.verdict !== 'fail').length} rules</summary>
+                  <summary>{checkCounts(loaded.tx.admission.checks).more}</summary>
                   <ul>{loaded.tx.admission.checks.filter((c) => c.verdict !== 'fail').map((c, i) => renderCheck(c, i))}</ul>
                 </details>
               </>
@@ -590,7 +587,7 @@ export default function App() {
       <section id="send" className="flow" aria-label="Send your own transaction">
         <div className="flow-head">
           <h2>Send &amp; fix</h2>
-          <p className="muted">Each send is dry-run first; if a frame would run out of gas, Fix &amp; send raises its limit and sends. It uses the Demo account (top right), which pays gas in tUSD and holds no ETH.</p>
+          <p className="muted">Each send is dry-run first; if a frame would run out of gas, Fix &amp; send raises its limit and sends. It uses the Demo account (top right).</p>
         </div>
         <div className="flow-single">
           <Send />
@@ -603,11 +600,13 @@ export default function App() {
           <div className="seg filter" role="group" aria-label="Show">
             {(['all', 'rejected', 'admitted'] as const).map((f) => (
               <button key={f} type="button" className={filter === f ? 'on' : ''} aria-pressed={filter === f} onClick={() => setFilter(f)}>
-                {f === 'all' ? 'All' : f === 'rejected' ? 'Rejected' : 'Admitted'} <span className="seg-n">{counts[f]}</span>
+                {f === 'all' ? 'All' : f === 'rejected' ? 'Rejected' : 'Admitted'} {rows !== null && !rowsError && <span className="seg-n">{counts[f]}</span>}
               </button>
             ))}
           </div>
-          <button onClick={() => loadRecent(node)}>Refresh</button>
+          <button onClick={() => loadRecent(node)} disabled={rowsBusy}>
+            {rowsBusy ? 'Refreshing…' : 'Refresh'}
+          </button>
         </div>
         {stats && (
           <div className="stats" aria-label="Rejections on this node">
@@ -618,17 +617,18 @@ export default function App() {
               <span className="tile-value">{Math.round((stats.rejected / stats.total) * 100)}%</span>
               <span className="tile-sub">
                 {stats.rejected} of the last {stats.total}
+                {stats.nodeFaults > 0 && <>, plus {stats.nodeFaults} node disk errors</>}
               </span>
             </div>
             <div className="tile">
-              <span className="tile-label">Senders hit</span>
+              <span className="tile-label">Senders affected</span>
               <span className="tile-value">{stats.senders}</span>
-              <span className="tile-sub">distinct accounts</span>
+              <span className="tile-sub">accounts with a rejection</span>
             </div>
             <div className="tile">
-              <span className="tile-label">Window</span>
+              <span className="tile-label">Time covered</span>
               <span className="tile-value tile-value-sm">{stats.span}</span>
-              <span className="tile-sub">of this node's memory</span>
+              <span className="tile-sub">by the last {stats.total}</span>
             </div>
             {stats.top.length > 0 && (
               <div className="tile tile-rules">
@@ -657,6 +657,7 @@ export default function App() {
           <ul className="rows">
             {shown.map((r) => {
               const fail = r.checks.find((c) => c.verdict === 'fail')
+              const fault = isNodeFault(r)
               return (
                 <li key={`${r.txHash}-${r.at}`}>
                   <button
@@ -664,13 +665,14 @@ export default function App() {
                     onClick={() => {
                       setInput(r.txHash)
                       inspect(r.txHash, r.node)
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
                   >
-                    <Dot tone={toneOf(r.outcome)} />
+                    <Dot tone={fault ? 'warn' : toneOf(r.outcome)} />
                     <code>{short(r.txHash)}</code>
-                    <span className="r-out">{r.outcome}</span>
-                    <span className="r-why">{fail ? (fail.detail ?? fail.rule) : `${r.frames?.length ?? 0} frames`}</span>
+                    <span className={`r-out ${fault ? 'warn' : toneOf(r.outcome)}`}>{r.outcome}</span>
+                    <span className="r-why" title={fail?.detail}>
+                      {fault ? 'Node disk full, not a problem with this transaction' : fail ? (fail.detail ?? fail.rule) : `${r.frames?.length ?? 0} frames`}
+                    </span>
                     <span className="muted r-at">{ago(r.at)}</span>
                   </button>
                 </li>
@@ -705,7 +707,7 @@ export default function App() {
           </a>
           .
         </p>
-        <p>The ERC-8421 column is a partial check that covers the validation budget and validation reverts only.</p>
+        <p>The ERC-8421 spec row in Details is a partial check: it covers the validation budget and validation reverts only.</p>
         <Endpoints />
       </footer>
     </main>
@@ -759,14 +761,29 @@ function Copy({ text, label, children }: { text: string; label: string; children
 
 const TABS = [
   ['overview', 'Overview'],
-  ['frames', 'Frames'],
   ['checks', 'Mempool checks'],
 ] as const
+
+// A rejection caused by the node's own storage, not by the transaction.
+function isNodeFault(r: { checks: { verdict: string; detail?: string }[] }) {
+  return r.checks.some((c) => c.verdict === 'fail' && /no space left on device|^IO error/i.test(c.detail ?? ''))
+}
+
+// Admission rule counts that add up: failed, passed, and not checked (skipped).
+function checkCounts(ck: { verdict: string }[]) {
+  const fail = ck.filter((c) => c.verdict === 'fail').length
+  const pass = ck.filter((c) => c.verdict === 'pass').length
+  const skip = ck.length - fail - pass
+  return {
+    line: [fail ? `${fail} failed` : '', `${pass} passed`, skip ? `${skip} not checked` : ''].filter(Boolean).join(' · '),
+    more: `Show the ${pass} passed${skip ? ` and ${skip} not checked` : ''}`,
+  }
+}
 
 // Explorer-style help: a small (i) before a field label; hover or focus shows what the field means.
 function Hint({ text }: { text: string }) {
   return (
-    <span className="hint-i" tabIndex={0} role="img" aria-label={text} title={text}>
+    <span className="hint-i" tabIndex={0} role="img" aria-label={text} data-tip={text}>
       i
     </span>
   )
@@ -793,7 +810,6 @@ const PLAIN: Record<string, string> = {
   Executed: 'Included in a block, all frames worked',
   'Executed with a failure': 'Included in a block, but a frame failed',
   'Not on chain': 'Not in any block',
-  Rejected: 'Rejected this copy',
   'No conflict found': 'No spec problem found',
 }
 

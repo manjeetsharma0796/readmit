@@ -1093,3 +1093,87 @@ body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
 
 /* Status badge: the same plain dot used everywhere else. */
 .kv .status-badge .dot { width: 8px; height: 8px; }
+
+/* ---- T85: judge-facing UI/UX pass (each item checked against the code by a skeptic before fixing). ---- */
+/* F1: node-fault rows and the outcome word in the live list, in status colours. */
+.r-out.warn { color: #ecca8c; }
+.r-out.fail { color: #f4a3ad; }
+.r-out.pass { color: #8fe0bb; }
+
+/* F3: admission rule verdicts as plain coloured words. */
+.shell .checks .check-state { font-weight: 600; color: var(--ink-2); }
+.shell .checks .check-state.fail { color: #f4a3ad; }
+.shell .checks .check-state.pass { color: #8fe0bb; }
+
+/* F4: the before-any-frame note is information, not a red failure bar. */
+.sequence-rejection { background: transparent; border: 0; border-left: 2px solid #a88a52; border-radius: 0; color: var(--ink-2); padding: 4px 0 4px 12px; }
+
+/* F8: before / after labels in Fix & send. */
+.compare .cmp-label { font-weight: 600; }
+.compare li.fail .cmp-label { color: #f4a3ad; }
+.compare li.pass .cmp-label { color: #8fe0bb; }
+
+/* F9: a result being replaced is dimmed while Inspect runs. */
+.result.stale { opacity: 0.5; pointer-events: none; transition: opacity 0.15s; }
+@media (prefers-reduced-motion: reduce) { .result.stale { transition: none; } }
+
+/* F11: phone live rows: dot, hash, time on one line; reason and outcome on the next. */
+.r-at { white-space: nowrap; }
+@media (max-width: 720px) {
+  .rowbtn .r-at { grid-column: 3; grid-row: 1; justify-self: end; }
+  .rowbtn .r-why { grid-column: 2; grid-row: 2; }
+  .rowbtn .r-out { display: inline; grid-column: 3; grid-row: 2; justify-self: end; font-size: 0.8rem; }
+}
+
+/* F12: the (i) hint shows its text on hover, keyboard focus and tap, not only after a slow native tooltip. */
+.hint-i { position: relative; border-color: #6a6876; }
+.hint-i::before { content: ''; position: absolute; inset: -5px; }
+.hint-i::after { content: attr(data-tip); position: absolute; left: -4px; top: calc(100% + 6px); z-index: 30; width: max-content; max-width: 32ch; padding: 6px 9px; background: #1f1f24; border: 1px solid #2c2c33; border-radius: 6px; color: #e6e4ec; font: 400 0.82rem/1.4 var(--sans); text-align: left; white-space: normal; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.12s; }
+.hint-i:hover::after, .hint-i:focus::after { opacity: 1; visibility: visible; }
+
+/* F18: the send problem note is not a box inside a box. */
+.send .send-problem { border: 0; border-left: 3px solid var(--fail); border-radius: 0; background: transparent; padding: 4px 0 4px 12px; }
+
+/* F19: section headings share one size. */
+.shell .flow-head h2, .shell .recent-head h2 { font-size: 1.2rem; font-weight: 600; }
+
+/* F20: frame inspector values match the Details list. */
+.frame-facts { font-size: 0.92rem; }
+.frame-facts code { font-size: 0.9rem; }
+
+/* F22, F23: header buttons sit together on phones, and align right when they wrap at tablet width. */
+@media (max-width: 720px) { .top .hdr-actions { justify-content: flex-start; gap: 8px; } }
+@media (max-width: 480px) { .top .hdr-actions { flex-wrap: nowrap; } .hdr-actions .acct-bal { display: none; } }
+@media (min-width: 721px) and (max-width: 900px) { .top .hdr-actions { margin-left: auto; } }
+
+/* F24: Connect wallet matches Demo account (beats RainbowKit's own classes). */
+.hdr-actions button[data-testid="rk-connect-button"],
+.hdr-actions button[data-testid="rk-account-button"] {
+  height: 38px; padding: 0 14px; border-radius: 8px; border: 1px solid #34343b; background: #232328; color: var(--ink);
+  font: 600 0.95rem/1 var(--sans); box-shadow: none; transform: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.hdr-actions button[data-testid="rk-connect-button"]:hover, .hdr-actions button[data-testid="rk-connect-button"]:active,
+.hdr-actions button[data-testid="rk-account-button"]:hover, .hdr-actions button[data-testid="rk-account-button"]:active { background: #2a2a30; border-color: #45454d; transform: none; }
+
+/* F25: cards, tiles, the live list and popovers stay within the small-radius rule. */
+.wallet, .send, .rows, .tile, .acct-pop, .faucet-pop, .table-wrap, .drycheck, .fixsend { border-radius: 10px; }
+
+/* F26: frame tiles in a row share one height. */
+.fragment { display: flex; }
+.fragment-piece { flex: 1 1 auto; }
+.fragment-name b { white-space: nowrap; }
+
+/* F27: the keyboard focus ring on tabs is not clipped. */
+.tabs .tab:focus-visible { outline-offset: -3px; }
+
+/* F28: status as a plain dot and a coloured word everywhere, no tinted boxes. */
+.kv .status-badge, .kv .status-badge.pass, .kv .status-badge.fail, .kv .status-badge.warn, .kv .status-badge.info,
+.frame-state, .frame-state.succeeded, .frame-state.failed,
+.frame-inspector-head .frame-state { background: transparent; border: 0; padding: 0; }
+
+/* F32: on phones the live heading shares a row with Refresh; the filter gets its own row. */
+@media (max-width: 600px) {
+  .recent-head h2 { flex: 1 1 0; min-width: 0; }
+  .recent-head > button { order: 1; }
+  .recent-head .seg.filter { order: 2; }
+}

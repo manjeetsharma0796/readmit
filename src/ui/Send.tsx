@@ -218,8 +218,8 @@ export function Send() {
           Amount (tUSD)
           <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="1.0" inputMode="decimal" autoComplete="off" />
         </label>
-        {/* One primary button per screen: while a fix is offered, Fix & send is the primary one. */}
-        <button type="submit" className={fix && !fix.newHash ? '' : 'primary'} disabled={busy}>
+        {/* One primary button per screen: Inspect is the page's primary; Fix & send is the only other violet button, shown only when offered. */}
+        <button type="submit" disabled={busy}>
           {busy ? 'Sending' : 'Send'}
         </button>
       </form>
@@ -288,9 +288,9 @@ export function Send() {
               Send anyway (demo: it will fail on chain)
             </button>
           )}
-          {problem.findings && (
+          {problem.findings && problem.findings.some((f) => f !== fix?.finding) && (
             <ol className="findings">
-              {problem.findings.map((f, i) => (
+              {problem.findings.filter((f) => f !== fix?.finding).map((f, i) => (
                 <li key={i} className={`finding ${f.tone}`}>
                   <div className="f-title">{f.title}</div>
                   {f.fix && <p className="fix">{f.fix}</p>}
