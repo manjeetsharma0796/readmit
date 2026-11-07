@@ -1076,3 +1076,20 @@ body { min-height: 100vh; min-height: 100dvh; background-color: #151518; }
 .kv dd.v-row.fail strong { color: #f4a3ad; }
 .kv dd.v-row.pass strong { color: #8fe0bb; }
 .kv dd.v-row.warn strong { color: #ecca8c; }
+
+/* ---- T84: paged live list, even stat tiles, a dot in the status badge. ---- */
+.pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 10px; font-size: 0.92rem; color: var(--ink-2); }
+.pager-range { margin-right: auto; font-variant-numeric: tabular-nums; }
+.pager-page { min-width: 3.5em; text-align: center; font-variant-numeric: tabular-nums; }
+.pager .pager-btn { display: inline-grid; place-items: center; width: 34px; height: 34px; padding: 0; border-radius: 8px; }
+.pager .pager-btn:disabled { opacity: 0.35; cursor: default; }
+.pager .pager-btn:disabled:hover { background: var(--key); border-color: #34343b; }
+
+/* Stat tiles: one font, size and weight for every value; labels and subtitles alike. */
+.stats .tile-value, .stats .tile-value-sm { font-family: var(--sans); font-size: 1.9rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; color: var(--ink); }
+.stats .tile-label { font-size: 0.86rem; font-family: var(--sans); }
+.stats .tile-sub { font-size: 0.86rem; font-family: var(--sans); }
+@media (max-width: 720px) { .stats .tile-value, .stats .tile-value-sm { font-size: 1.6rem; } }
+
+/* Status badge: the same plain dot used everywhere else. */
+.kv .status-badge .dot { width: 8px; height: 8px; }

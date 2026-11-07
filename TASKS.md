@@ -1032,7 +1032,7 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 
 ### T84 · Paged live list, even stat tiles, no tick and cross
 - owner: esh
-- status: doing
+- status: done
 - agent: Claude Code on esh
 - started: 07:05 IST
 - priority: P2
@@ -1040,4 +1040,4 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - touches: src/App.tsx, src/app/globals.css
 - do: esh: page the live list (previous / next, 12 at a time) instead of growing it; the stat tiles mix fonts and sizes; the tick and cross in the status badge look generated. Pager with "1–12 of N"; one font, size and weight for every tile value; a plain status dot in the badge.
 - done when: build passes; the pager reaches the last page and back; desktop and 375 px clean, no console errors.
-- log:
+- log: npm run build and git diff --check pass; no console errors. Live gateway list: "1–12 of 200, 1 / 17"; Next walks to "193–200 of 200, 17 / 17" (8 rows) and Previous back to 16 / 17; switching to Rejected resets to "1–12 of 94, 1 / 8"; the list height stays one page. Stat tile values all Schibsted Grotesk 27.36px 600 (the Window tile was mono); the Rejected label lost its extra dot. Status badge shows a plain dot, no tick or cross. 375 px: no overflow, pager fits.

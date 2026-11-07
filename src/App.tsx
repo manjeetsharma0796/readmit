@@ -67,8 +67,8 @@ export default function App() {
   const [rows, setRows] = useState<AdmissionRow[] | null>(null)
   const [rowsError, setRowsError] = useState('')
   const [filter, setFilter] = useState<'all' | 'rejected' | 'admitted'>('all')
-  const [visible, setVisible] = useState(12)
-  useEffect(() => setVisible(12), [filter, node])
+  const [page, setPage] = useState(0)
+  useEffect(() => setPage(0), [filter, node])
   const [names, setNames] = useState<Map<string, string | null>>(new Map())
 
   const dx: Diagnosis | null = useMemo(() => (loaded ? diagnose(loaded.tx, loaded.receipt) : null), [loaded])
@@ -288,7 +288,10 @@ export default function App() {
   )
 
   const matching = rows?.filter((r) => filter === 'all' || (filter === 'rejected') === (r.outcome === 'rejected')) ?? []
-  const shown = matching.slice(0, visible)
+  const PAGE = 12
+  const pages = Math.max(1, Math.ceil(matching.length / PAGE))
+  const current = Math.min(page, pages - 1)
+  const shown = matching.slice(current * PAGE, current * PAGE + PAGE)
   const counts = { all: rows?.length ?? 0, rejected: rows?.filter((r) => r.outcome === 'rejected').length ?? 0, admitted: rows?.filter((r) => r.outcome !== 'rejected').length ?? 0 }
 
   return (
@@ -475,7 +478,7 @@ export default function App() {
             <dt><Hint text="The overall outcome: whether it got into a block and whether every frame worked." />Status</dt>
             <dd>
               <span className={`badge status-badge ${status.tone}`}>
-                <span className="status-icon" aria-hidden="true">{ICON[status.tone]}</span>
+                <Dot tone={status.tone} />
                 {status.text}
               </span>
             </dd>
@@ -610,7 +613,7 @@ export default function App() {
           <div className="stats" aria-label="Rejections on this node">
             <div className="tile">
               <span className="tile-label">
-                <span className="dot fail" aria-hidden="true" /> Rejected
+                Rejected
               </span>
               <span className="tile-value">{Math.round((stats.rejected / stats.total) * 100)}%</span>
               <span className="tile-sub">
@@ -676,16 +679,20 @@ export default function App() {
           </ul>
         )}
         {matching.length > 0 && (
-          <div className="rows-more">
-            <span className="muted">
-              Showing {shown.length} of {matching.length}
+          <nav className="pager" aria-label="Pages">
+            <span className="pager-range">
+              {current * PAGE + 1}–{current * PAGE + shown.length} of {matching.length}
             </span>
-            {shown.length < matching.length && (
-              <button type="button" onClick={() => setVisible((v) => v + 12)}>
-                Show {Math.min(12, matching.length - shown.length)} more
-              </button>
-            )}
-          </div>
+            <button type="button" className="pager-btn" aria-label="Previous page" disabled={current === 0} onClick={() => setPage(current - 1)}>
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5" /></svg>
+            </button>
+            <span className="pager-page">
+              {current + 1} / {pages}
+            </span>
+            <button type="button" className="pager-btn" aria-label="Next page" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3.5 10.5 8 6 12.5" /></svg>
+            </button>
+          </nav>
         )}
       </section>
 
@@ -764,9 +771,6 @@ function Hint({ text }: { text: string }) {
     </span>
   )
 }
-
-// Status badge icons, as on explorer tx pages.
-const ICON: Record<Tone, string> = { pass: '✓', fail: '✕', warn: '!', info: '•' }
 
 // Some rejections come from the node itself, not from the transaction. Say so, and what to do instead.
 function nodeIssue(why: string, node: NodeId): string | null {
