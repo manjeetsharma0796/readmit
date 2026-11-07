@@ -474,7 +474,7 @@ Statuses are `todo`, `doing`, `blocked` and `done`. Edit only the ticket you cla
 - touches: .githooks/commit-msg, package.json (prepare), AGENTS.md §4
 - do: Commit c20f83e ("T09: claim") reached main with `Co-Authored-By: Claude Sonnet 5.5`. Add a commit-msg hook that rejects AI co-author and "Generated with" lines, and install it on every machine through `npm install`.
 - done when: the hook rejects that exact line and accepts normal and human co-author messages.
-- log: 9 of 9 cases correct: Claude, lowercase, "Generated with Claude Code", Copilot and Cursor are blocked; normal messages, a Uniswap mention, a human co-author and the word "claim" are allowed. A real `git commit` with prith's line was rejected. The old commit c20f83e stays, because history is never rewritten (§4). needs: esh, prith. Run `npm install` after pulling to switch the hook on.
+- log: 9 of 9 cases correct: Claude, lowercase, "Generated with Claude Code", Copilot and Cursor are blocked; normal messages, a Uniswap mention, a human co-author and the word "claim" are allowed. A real `git commit` with prith's line was rejected. Correction (T88, Sat 07:20): c20f83e did not stay. It was amended to 33feca6 and force-pushed to main on Fri around 22:20; the original, with its co-author line, is still on GitHub and the README says so. needs: esh, prith. Run `npm install` after pulling to switch the hook on.
 
 ### T44 · Apply the approved Readmit logo
 - owner: esh

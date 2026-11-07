@@ -2,7 +2,7 @@
 
 ETHGlobal Mumbai 2026. Team of 3. Written Fri 6 Nov 20:45 IST.
 - **Feature freeze:** Sat 01:00. **Code freeze:** 03:00. **Submit:** 08:00. **ETHGlobal deadline:** 09:00.
-- Related docs: decision in `STATE.md`, hour plan in `PLAN.md`.
+- Related docs: the decision record and hour plan were folded into the gates in `TASKS.md`.
 
 **Network:** everything runs on the EF alt-mempool devnet. That's chain 1337:
 - ethrex RPC: `altmempool.forshtat.com`

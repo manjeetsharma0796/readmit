@@ -174,7 +174,12 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 
 ## How we built it: history, AI use and what we reused
 
-**History.** Hacking began on Thu 5 Nov. Until Fri 6 Nov 21:00 IST we worked in a local folder. We created this repo at 21:04, and its first five commits hold that work: the scaffold, the diagnosis engine, the UI, the paymaster and the README. Every change after that is a small commit tied to a ticket in [`TASKS.md`](TASKS.md).
+**History.** Hacking began on Thu 5 Nov.
+- Until Fri 6 Nov 21:00 IST we worked in a local folder on a prototype called FrameLab. That work covered devnet probing, capturing real failures and a paymaster spike.
+- The earliest saved case, `0xe97e…fba4`, was mined on Thu 5 Nov at 23:14 IST (`blockTimestamp` in `src/samples/reverted-out-of-gas.json`).
+- We created this repo at 21:04 on Fri. Its first five commits (`c623751`…`635bb16`, about 1,200 lines of code without the lockfile and samples) import that prototype.
+- Every change after that is a small commit tied to a ticket in [`TASKS.md`](TASKS.md).
+- One rewrite: commit [`c20f83e`](https://github.com/manjeetsharma0796/readmit/commit/c20f83e221728f6db5dc8785fcc27b9757cb30b8) ("T09: claim", Fri 22:15) carried a Claude co-author line. It was amended to `33feca6` and force-pushed. The original is still on GitHub.
 
 **AI use.** We built Readmit with AI coding agents, and they wrote most of the code and docs in this repo:
 - Claude Code worked 65 of the 75 tickets in `TASKS.md` and Codex worked 1. Teammates did 4 by hand.
@@ -183,7 +188,8 @@ Developer feedback for Uniswap is in [`FEEDBACK.md`](FEEDBACK.md).
 **What the team did.**
 - We set the spec and the priorities ([`docs/PRD.md`](docs/PRD.md) and the ticket board), the rules every agent follows ([`AGENTS.md`](AGENTS.md)), and the design direction.
 - A teammate approved and ran every deploy, stake and transaction ([`AGENTS.md`](AGENTS.md) §5), and we checked each result on the devnet.
-- Commit messages carry no AI co-author lines ([`AGENTS.md`](AGENTS.md) §4). This section and `TASKS.md` are the record of AI use instead.
+- Commits are made under each teammate's own git identity, and a hook keeps AI co-author lines out of commit messages ([`AGENTS.md`](AGENTS.md) §4). This section and `TASKS.md` are the record of AI use instead.
+- The spec and prompt artifacts are [`docs/PRD.md`](docs/PRD.md), [`AGENTS.md`](AGENTS.md), [`TASKS.md`](TASKS.md) and [`docs/RESEARCH.md`](docs/RESEARCH.md). The PRD's decision record and hour plan were folded into the gates in `TASKS.md`.
 
 **Reused, not ours:**
 - [`@forshtat/hegota-support`](https://www.npmjs.com/package/@forshtat/hegota-support): EIP-8141 opcodes for Solidity, and the frame-transaction encoding and RPC types.
