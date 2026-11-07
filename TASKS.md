@@ -1064,3 +1064,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: (1) "Public mempool would refuse it · StorageReadNonSender" reads like a failure. When that is the reason, say it positively: "Alt mempool only": our staked paymaster reads the Uniswap pool while validating, which the public mempool forbids and the alt mempool allows. (2) The yellow pool-price warning stays yellow after the tx is included. Before sending, word it as a heads-up and name 0x6bf9…9848 as the Uniswap v4 PoolManager. After inclusion, show it grey: the price held.
 - done when: the send flow shows the new lines locally at 1280 and 375 px; build passes; console clean; manjeet OKs before push.
 - log:
+
+### T87 · Live list: node disk errors read "Node error", not an amber "Rejected"
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 07:40 IST
+- priority: P2
+- depends: T85
+- touches: src/App.tsx, src/app/globals.css
+- do: esh asked why some "Rejected" rows were yellow. They are the gateway's disk-full errors (amber = not the transaction's fault), but the word "Rejected" is red everywhere else. Label those rows "Node error" so word and colour agree.
+- done when: build passes; node-fault rows read "Node error" in amber; real rejections stay red "Rejected".
+- log:
