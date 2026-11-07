@@ -1005,3 +1005,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: esh saw the background split into two colours on another device after Inspect (the page grows past one screen). Tell the browser the page is dark and its colour (viewport themeColor and colorScheme), and paint the html canvas the page colour at full height, so phone toolbars and overscroll areas match.
 - done when: build passes; the built page has the theme-color and color-scheme metas; html and body share one colour.
 - log: npm run build passes; out/index.html now has <meta name="theme-color" content="#151518"> and <meta name="color-scheme" content="dark">. After Inspect, html and body are both rgb(21,21,24). The split itself was not reproducible in the in-app browser or on the live site at 375, 768 and 1024 px, so this targets the likely cause (phone browser toolbar/overscroll using a different colour); needs a check on the device that showed it.
+
+### T82 · Readable findings, an at-a-glance outcome, a real filter on the live list
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 06:40 IST
+- priority: P1
+- depends: T80
+- touches: src/App.tsx, src/app/globals.css
+- do: esh: the PROBLEM tag is too small and a node-side rejection (gateway disk full) gives no hint what to do; the Overview makes you read every row to know the outcome; the "Rejected only" checkbox looks pointless. Bigger finding text and a "what you can do" line for known node-side errors; a three-step outcome strip (mempool, block, frames) above the details; an All / Rejected / Admitted filter with counts instead of the checkbox.
+- done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors.
+- log:
