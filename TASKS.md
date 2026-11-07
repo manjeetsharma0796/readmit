@@ -981,3 +981,15 @@ Goal: every claim a judge can check is true, and every hard question has an answ
 - do: At ≥901 px the wallet panel inside the dropdown keeps the page's 200px label column, so the address, the key input and Import spill past the 420px dropdown and get clipped. Use a narrow label column inside `.acct-pop`, as `.flow-grid .wallet .overview` did before T75.
 - done when: at 1280 px nothing in the open dropdown extends past its right edge; 375 px unchanged; build passes; console clean.
 - log: Two rules in the T75 `.acct-pop` block: `.acct-pop .overview` gets a 96px label column, and the address font is 0.82rem. Checked on the static build at 1280 px: no element in the open dropdown extends past its right edge (scrollWidth 418 = clientWidth). The value column is 264px, wider than the 256px key-import row, so the import field fits too. 375 px uses the single-column rule, unchanged. Braces balanced, build passes, console clean. The fix landed in the claim commit ed0ca68. Prod still needs a redeploy.
+
+### T80 · Familiar block-explorer patterns for the result
+- owner: esh
+- status: doing
+- agent: Claude Code on esh
+- started: 06:15 IST
+- priority: P2
+- depends: T79
+- touches: src/App.tsx, src/app/globals.css
+- do: A teammate asked for components people already know from block explorers (Etherscan, Blockscout, Otterscan share them; AGENTS.md section 8 names the Etherscan tx page). Tabs (Overview / Frames / Mempool checks), a status badge with an icon, an ⓘ hint on every field label, gas as used / limit (percent), copy beside hashes. Our own colours and type.
+- done when: build passes; all saved cases at desktop and 375 px, no overflow or console errors; tabs work by mouse and keyboard.
+- log:
